@@ -76,8 +76,10 @@ direct edits to that copy are replaced on reinstall or upgrade.
   that reads `hh_path` and `hl_path` and creates objects named `hh` and `hl`.
 - An optional `FIES-inputs` subfolder containing FIES helper code and assets.
 
-The bundled PDF guide explains the complete workflow, tabulation-plan rules,
-validation checks, outputs, and troubleshooting.
+The bundled illustrated HTML guide explains application tasks with screenshots,
+simple steps, and troubleshooting. Open it from the application's **User's Guide**
+tab; a printable PDF is available there too. Package functions and technical
+reference material are documented separately below.
 
 ## Use the tabulation engine without Shiny
 
@@ -136,7 +138,10 @@ date, for example `MNG MICSPlus 2025-26 Wave2_LongFormatData_20260907.csv`.
 
 - [Reference manual](output/pdf/micsPlusTableR-manual.pdf): CRAN-style package
   overview, function arguments, return values, examples, and survey CSV format.
-- [User guide](inst/doc/user-guide.pdf): detailed application workflow.
+- [Illustrated user guide (HTML)](inst/doc/user-guide.html): everyday application
+  tasks with step-by-step instructions and expandable screenshots. Open the app
+  and click **User's Guide** to read it; GitHub displays HTML as source.
+- [Printable user guide (PDF)](inst/doc/user-guide.pdf): the same application guide.
 - [Getting started](vignettes/getting-started.Rmd): editable package vignette.
 
 After installation, open the documentation in R:
@@ -153,7 +158,7 @@ To install the vignette from GitHub, add `build_vignettes = TRUE` to the
 
 ## Development and GitHub
 
-This folder is the package source and the future GitHub repository root.
+This folder is the package source and GitHub repository root.
 `DESCRIPTION`, `NAMESPACE`, `R/`, `man/`, and `inst/` stay at the top level.
 Edit these files directly; no conversion is needed before pushing to GitHub.
 The editable `inst/extdata/survey_choices.csv` is included automatically in
@@ -186,12 +191,19 @@ devtools::check(".")
 ```
 
 ```sh
+Rscript tools/build-guide.R
 Rscript tools/build-package.R
 Rscript tools/build-manual.R
 ```
 
-The first command validates the CSV and builds a standard source archive in
-`build/`, including the vignette. The second regenerates the PDF reference
+The guide command renders `inst/doc/user-guide.qmd` to self-contained HTML and
+printable PDF; it requires Quarto and XeLaTeX. Keep the source, CSS, screenshots,
+and both rendered guides together in `inst/doc/`, and commit the outputs so
+users do not need Quarto or LaTeX. Review both formats after edits. The HTML
+guide is served directly by Shiny and works without a browser PDF plugin.
+
+The package command validates the CSV and builds a standard source archive in
+`build/`, including the vignette. The manual command regenerates the PDF reference
 manual from `man/*.Rd`; it requires a working LaTeX installation. Edit function
 documentation in its roxygen comments in `R/`, then run
 `roxygen2::roxygenise(".", roclets = "rd")`. Handwritten help topics in `man/`

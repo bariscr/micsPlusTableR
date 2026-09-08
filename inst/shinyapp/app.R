@@ -6,8 +6,7 @@ micsPlusTableR:::bind_namespace_symbols(environment())
 
 survey_choices <- micsPlusTableR:::read_survey_choices()
 
-# Serve the guide directly from inst/doc so the editable QMD and rendered PDF
-# have one canonical, package-owned location.
+# Serve the HTML guide and printable PDF from their canonical package location.
 guide_resource_prefix <- "micsPlusTableR-guide"
 guide_directory <- system.file("doc", package = "micsPlusTableR")
 if (!dir.exists(guide_directory)) {
@@ -503,24 +502,28 @@ ui <- tagList(
     # TAB 0: USER'S GUIDE -------------------------------------------------------------
     nav_panel(
       "User's Guide",
-      layout_sidebar(
-        sidebar = sidebar(
-          width = 350,
-          markdown("
-            ## User's Guide
-          "),
-        ),
-        layout_columns(
-          col_widths = c(12),
-          card(
-            full_screen = TRUE,
-            card_header(""),
-            tags$embed(
-              src = paste0(guide_resource_prefix, "/user-guide.pdf"),
-              type = "application/pdf",
-              style = "width: 100%; height: 900px; display: block; border: none;"
+      card(
+        full_screen = TRUE,
+        card_header(
+          tags$div(
+            class = "d-flex flex-wrap align-items-center gap-3",
+            tags$strong("Application user guide"),
+            tags$a(
+              "Open full guide",
+              href = paste0(guide_resource_prefix, "/user-guide.html"),
+              target = "_blank", rel = "noopener"
+            ),
+            tags$a(
+              "Download PDF",
+              href = paste0(guide_resource_prefix, "/user-guide.pdf"),
+              download = "micsPlusTableR-user-guide.pdf"
             )
           )
+        ),
+        tags$iframe(
+          src = paste0(guide_resource_prefix, "/user-guide.html"),
+          title = "MICS Plus Tabulation application user guide",
+          style = "width: 100%; height: calc(100vh - 210px); min-height: 650px; display: block; border: none;"
         )
       )
     ),

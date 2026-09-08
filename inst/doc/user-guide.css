@@ -1,0 +1,21 @@
+body { font-size: 19px; line-height: 1.65; color: #203442; }
+main { max-width: 960px; }
+h1, h2, h3 { color: #1e5a73; }
+h1 { padding-top: 1rem; }
+figure { margin: 1.5rem 0; }
+figure img { border: 1px solid #c9d9df; border-radius: 6px; }
+figcaption { font-size: .95rem; color: #405d6a; }
+li { margin-bottom: .55rem; }
+pre { border-left: 4px solid #2a7f7f; padding: 1rem; }
+th { background: #eaf3f5; }
+:focus-visible { outline: 3px solid #16677c; outline-offset: 3px; }
+@media print { body { font-size: 11pt; } }
+
+.guide-banner {
+  position: sticky; top: 0; z-index: 1000;
+  display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1rem;
+  padding: .8rem 1.5rem; background: #1e5a73; color: #fff;
+}
+.guide-banner span { font-size: .95rem; }
+html { scroll-padding-top: 6rem; }
+@media print { .guide-banner { position: static; } }

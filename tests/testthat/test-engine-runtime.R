@@ -161,7 +161,7 @@ test_that("the packaged Shiny application parses", {
   expect_no_error(parse(app_file))
 
   guide_file <- system.file(
-    "doc", "user-guide.pdf",
+    "doc", "user-guide.html",
     package = "micsPlusTableR"
   )
   expect_true(file.exists(guide_file))
@@ -169,7 +169,7 @@ test_that("the packaged Shiny application parses", {
   guide_source <- system.file("doc", "user-guide.qmd", package = "micsPlusTableR")
   expect_true(file.exists(guide_source))
   expect_true(any(grepl(
-    'src = paste0(guide_resource_prefix, "/user-guide.pdf")',
+    'src = paste0(guide_resource_prefix, "/user-guide.html")',
     readLines(app_file, warn = FALSE),
     fixed = TRUE
   )))

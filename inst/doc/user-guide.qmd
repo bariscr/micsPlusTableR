@@ -1,782 +1,420 @@
 ---
-title: "micsPlusTableR"
-subtitle: "User's Guide - Version 0.2.7"
+title: "MICS Plus Tabulation"
+subtitle: "A step-by-step guide to using the application"
 author: "MICS Team"
-date: "2026-08-27"
+date: "2026-09-08"
 format:
+  html:
+    lang: en
+    theme: cosmo
+    toc: true
+    toc-title: "Find a task"
+    toc-depth: 1
+    embed-resources: true
+    lightbox: true
+    format-links: false
+    css: user-guide.css
+    include-before-body:
+      text: |
+        <header class="guide-banner" aria-label="Guide title">
+          <strong>MICS Plus Tabulation</strong>
+          <span>Application guide</span>
+        </header>
   pdf:
     pdf-engine: xelatex
+    pdf-auto-install: false
+    papersize: a4
     documentclass: scrartcl
-    toc: true
-    toc-depth: 2
-    number-sections: true
+    fontsize: 11pt
+    toc: false
     colorlinks: true
-    linkcolor: "1E5A73"
-    urlcolor: "1E5A73"
     geometry:
-      - top=22mm
-      - bottom=24mm
-      - left=22mm
-      - right=22mm
+      - top=16mm
+      - bottom=18mm
+      - left=16mm
+      - right=16mm
     include-in-header:
       text: |
-        \usepackage{booktabs}
-        \usepackage{array}
-        \usepackage{longtable}
-        \usepackage{xcolor}
+        \usepackage{float}
         \usepackage[headsepline]{scrlayer-scrpage}
-        \definecolor{MicsBlue}{HTML}{1E5A73}
-        \definecolor{MicsTeal}{HTML}{2A7F7F}
-        \definecolor{MicsLight}{HTML}{EAF3F5}
         \clearpairofpagestyles
-        \ihead{\small\textcolor{MicsBlue}{micsPlusTableR User's Guide}}
-        \ohead{\small\textcolor{MicsBlue}{Version 0.2.7}}
+        \ihead{\small MICS Plus Tabulation | Application guide}
+        \ohead{\small September 2026}
         \cfoot{\pagemark}
-        \pagestyle{scrheadings}
-        \renewcommand*{\titlepagestyle}{empty}
-        \setlength{\headheight}{14pt}
-        \setlength{\parskip}{5pt}
+        \renewcommand*{\titlepagestyle}{scrheadings}
+        \setlength{\parskip}{4pt}
         \setlength{\parindent}{0pt}
-        \renewcommand{\arraystretch}{1.18}
 execute:
   eval: false
 ---
 
+# Start here
 
-## Final output
+::: {.content-visible when-format="html"}
+[Download the printable PDF guide](user-guide.pdf).
+:::
 
-* app as a package on GitHub
-* script for producing the tables
-  * additional codes for extra tables
-* tabulation plan
+This guide helps you turn the files supplied by your survey team into Excel
+tables. You do not need to write calculations or change computer code.
+Follow one step at a time. Ask your survey lead for help if a file or a result
+is different from what you expect.
 
-# micsPlusTableR
+**Your route through the application**
 
-## Presentation principles
+1. **Data Preparation** - choose the files for your survey.
+2. **Tabulator** - calculate one table.
+3. **Consistency Checks** - check that its totals agree.
+4. **Write to Excel** - save the reviewed table.
 
-* We need R to run the application
-* We can use RStudio, VS Vode, Positron, Cursor, etc ide or code editor to
-* The system requires
-  * data sets
-  * tab plan
-  * an R code to prepare the data such as additional recodes, variable creation or extratables
+The later pages explain running several tables, downloading data, and optional
+viewing tools. You can leave those until you have completed your first table.
 
+**Words used in this guide**
 
-This guide explains how to install and use `micsPlusTableR`, prepare its three
-inputs, create and review MICS Plus tabulations, and diagnose common problems.
-It is written for analysts who maintain survey-specific preparation scripts as
-well as users who run approved inputs.
+- **Click:** press the left mouse button once. On a touchpad, tap once.
+- **Tab:** a section name across the top of the application.
+- **Browse:** open a window to find a file on your computer.
+- **Folder:** a place that holds files. A preparation folder may contain smaller folders.
+- **Sheet:** one page of an Excel workbook, such as `1.1a`.
+- **Wave:** one round of the survey. Use the wave your team gave you.
 
-> **Important:** A preparation script is executable R code. Use only scripts
-> from a trusted source and review them before uploading.
+**About the pictures.** These are actual application screenshots from version
+0.2.7, using Mongolia Wave 1 as an example. Your file names and results will
+differ. Use the files for your own survey. Screenshots show a temporary example
+output folder; your project normally saves to **micsPlusTableR-output**.
+In the HTML guide, click a picture to enlarge it; press **Esc** to return.
+In the PDF, use your reader's zoom control if small labels are hard to read.
 
-# What the system does
+**Looking for package functions?** Use the
+[package reference manual](https://github.com/bariscr/micsPlusTableR/blob/HEAD/output/pdf/micsPlusTableR-manual.pdf)
+and [package documentation](https://github.com/bariscr/micsPlusTableR#readme).
+Those documents cover programming and technical details.
 
-`micsPlusTableR` is an R package containing a Shiny application and the
-tabulation engine. The application coordinates three user-supplied inputs:
+{{< pagebreak >}}
 
-1. **Tabulation plan:** an Excel workbook that defines table structure,
-   conditions, statistics, labels, formatting, and the table index.
-2. **Survey preparation inputs:** household and household-member SPSS files,
-   plus a selected preparation folder whose main R script creates the prepared
-   `hh` and `hl` data.
-3. **Additional table code:** optional code in the preparation workflow for
-   tables that cannot be generated by the generic Excel-plan logic, including
-   FIES processing where applicable.
+# 1. Open the application
 
-The normal flow is:
+## The first time: ask a support person to help
 
-`Install package -> Start app -> Upload inputs -> Validate survey information -> Tabulate -> Check -> Export`
+Your computer needs **R**, **RStudio**, and a web browser. Ask your support
+person to install them and give you a survey project folder. You need internet
+access to install the application package from GitHub.
 
-The package no longer installs dependencies while the app is starting and no
-longer requires users to source folders of functions. Package installation
-handles the declared dependencies, and each running Shiny session uses its own
-tabulation state.
-
-Version 0.2.4 also removes the former project-level `child` folder. Its three
-roles are now part of the package: `DESCRIPTION` manages required packages,
-`mics_session()` loads an isolated tabulation engine, and
-`create_excel_workbooks()` creates working output files. Do not source
-`child/library.R`, `child/source-functions.R`, or
-`child/create-excel-files.R`; these files are not required after installation.
-
-# Installation and startup
-
-## Install from GitHub
-
-Install from the [GitHub repository](https://github.com/bariscr/micsPlusTableR).
+1. Open your survey project folder in **File Explorer** on Windows or **Finder**
+   on a Mac. Double-click its file ending in **.Rproj** to open RStudio.
+2. Find the panel named **Console**. Click beside the `>` prompt.
+3. Copy the first line below into the Console and press **Enter** (**Return**
+   on a Mac). Wait for the `>` prompt to return. Then run the second line and
+   wait again:
 
 ```r
 install.packages("remotes")
 remotes::install_github("bariscr/micsPlusTableR")
 ```
 
-## Install from a local folder
+4. If installation asks a question or reports an error, ask your support person
+   to help before continuing.
+5. When installation finishes, click **Session**, then **Restart R** at the top
+   of RStudio.
 
-If the package source folder is already on the computer, install directly from
-that folder. The folder must contain `DESCRIPTION`, `NAMESPACE`, and the `R`
-directory.
+## Each time you work
 
-```r
-install.packages("remotes")
-remotes::install_local("C:/MICSPlus/micsPlusTableRv2")
-```
-
-On macOS or Linux, use the appropriate path, for example:
-
-```r
-remotes::install_local("/Users/name/projects/micsPlusTableRv2")
-```
-
-Alternatively, install a built package archive without `remotes`:
-
-```r
-install.packages(
-  "micsPlusTableR_0.2.7.tar.gz",
-  repos = NULL,
-  type = "source"
-)
-```
-
-The installation command is needed after the source code changes. Editing the
-source folder does not automatically update an already installed copy.
-
-## Start the application
-
-Start the application with:
+1. Open your survey's **.Rproj** file as above.
+2. In the **Console**, paste this line and press **Enter**:
 
 ```r
 micsPlusTableR::run_app()
 ```
 
-When `run_app()` starts, it uses `here::here()` to find the user's project root
-and automatically creates `micsPlusTableR-output` there. This works across
-Windows, macOS, and Linux. Generated Output and Formatted workbooks are written
-there. The folder is a runtime destination rather than part of the package
-source; if an empty copy is removed, the application creates it again at the
-next startup.
+3. The application opens in a browser. Click **Data Preparation** at the top
+   if it is not already selected. The next page lists the files you will need.
 
-To choose a different default output folder:
+**You are ready when:** you can see **Data Preparation**, **Tabulator**,
+**Consistency Checks**, and **Write to Excel** across the top. Click
+**User's Guide** to read these instructions inside the application. Use
+**Open full guide** there if you want a separate browser tab.
 
-```r
-micsPlusTableR::run_app(
-  output_dir = "C:/MICSPlus/outputs"
-)
-```
+**While working:** keep RStudio and the application open. A busy Console without
+ a `>` prompt is normal while the app runs. Do not paste more commands there.
+Do not refresh the browser; you may lose work not yet written to Excel.
 
-On macOS or Linux, use the corresponding path format. The application creates
-the directory if it does not exist.
+**No browser window?** Find the address beginning `http://127.0.0.1:` in the
+Console. Copy the complete address into your browser's address bar and press
+**Enter**. The number at the end can change each time you start.
 
-## Update the package
+Install again only when your survey lead asks you to update. For installation
+help, show your support person the Console message and the
+[package setup instructions](https://github.com/bariscr/micsPlusTableR#install-and-run).
 
-Run the same installation command when a new version is released. For a
-reproducible production cycle, record the package version used for the final
-tables:
+{{< pagebreak >}}
 
-```r
-packageVersion("micsPlusTableR")
-```
+# 2. Gather your survey files
 
-## Confirm the installed functions
+Ask your survey lead for these **four items for the same country, period, and
+wave**. Keep them together in a folder you can find again.
 
-Restart R after installing or updating the package. An R session that loaded an
-older release keeps that release's namespace in memory, even if newer files
-have already been installed on disk. In RStudio, select **Session > Restart R**
-or press **Ctrl+Shift+F10** on Windows and Linux or **Cmd+Shift+F10** on macOS.
-
-Verify the installed release and its public functions:
-
-```r
-packageVersion("micsPlusTableR")
-sort(getNamespaceExports("micsPlusTableR"))
-```
-
-The exported functions include `run_app()`, `mics_session()`,
-`prepare_mics_data()`, `tabulate_mics_table()`, `pivot_mics_table()`,
-`check_mics_table()`, and the Excel writing and comparison helpers documented
-in the next section.
-
-If `remotes` reports that it is skipping a local installation while the source
-folder has changed, force one clean installation and restart R again:
-
-```r
-remotes::install_local(
-  "/path/to/micsPlusTableRv2",
-  force = TRUE,
-  upgrade = "never"
-)
-```
-
-# Use the package without the application
-
-The same supported tabulation workflow is available from R scripts. This is
-useful for reproducible production runs, batch processing, diagnostics, and
-analyses that need the prepared data or tabulated cells outside Shiny.
-
-Create one explicit session object for each survey run. The session holds the
-prepared data and engine state without adding objects to the global workspace.
-
-```r
-library(micsPlusTableR)
-
-job <- mics_session()
-
-prepare_mics_data(
-  job,
-  hh_path = "inputs/hh.sav",
-  hl_path = "inputs/hl.sav",
-  prep_script = "inputs/survey-preparation/country_wave_prep.R",
-  output_dir = "micsPlusTableR-output"
-)
-
-result <- tabulate_mics_table(
-  job, "inputs/tabulation-plan.xlsx", "1.1a"
-)
-
-preview <- pivot_mics_table(job, result, type = "header")
-checks <- check_mics_table(job, result)
-
-write_mics_table(
-  job,
-  destination = "outputs/Output Tables.xlsx",
-  sheet = "1.1a",
-  table = result
-)
-```
-
-The main functions for work outside the application are:
-
-| Function | Purpose |
-|---|---|
-| `mics_session()` | Create isolated state for one survey workflow |
-| `prepare_mics_data()` | Read survey files through the trusted prep script |
-| `read_mics_tabulation()` | Read one table definition from the Excel plan |
-| `tabulate_mics_table()` | Tabulate one sheet and retain its result |
-| `pivot_mics_table()` | Create index, header, or logic-oriented previews |
-| `check_mics_table()` | Run the applicable count and percentage checks |
-| `write_mics_table()` | Write numeric or formatted cells to a workbook |
-| `write_mics_footnotes()` | Add standard footnotes to a workbook sheet |
-| `read_previous_mics_table()` | Read a prior table for comparison |
-| `compare_mics_tables()` | Compare two table data frames cell by cell |
-| `mics_table_name()` | Return the current table identifier |
-| `create_excel_workbooks()` | Create collision-safe workbook copies |
-
-`write_mics_table()` writes to an existing workbook, so create a working copy
-of the plan first. The helper below creates timestamped copies safely:
-
-```r
-books <- create_excel_workbooks(
-  path_tab_excel = "inputs/tabulation-plan.xlsx",
-  output_dir = "outputs",
-  country_code = "MNG",
-  period = "2025-26",
-  wave = "Wave 1"
-)
-
-write_mics_table(
-  job,
-  destination = books$output,
-  sheet = "1.1a",
-  table = result
-)
-```
-
-Do not run two tabulations at the same time with the same session object. Use a
-separate `mics_session()` for each concurrent survey or workflow. The lower
-level engine functions remain internal because they depend on mutable engine
-state; the public wrappers above are the supported scripting interface.
-
-# Prepare the inputs
-
-## Tabulation plan workbook
-
-The workbook must contain an `IDX` sheet and one sheet for each table.
-
-### Survey information on IDX
-
-The application checks these cells:
-
-| Cell | Required content | Example |
+| Item to obtain | How to recognize it | Where it goes in the app |
 |---|---|---|
-| `B2` | Country | `Mongolia` |
-| `B3` | Survey name | `MICS Plus` |
-| `B4` | Period | `2025-26` |
-| `B5` | Wave | `Wave 2` |
+| Household data | Name often ends in `hh.sav` | **Select household file** |
+| Household members data | Name often ends in `hl.sav` | **Select household members file** |
+| Tabulation plan | Excel file ending in `.xlsx` | **Select tabulation file** |
+| Preparation folder | Folder containing the team's preparation file | **Select preparation folder** |
 
-The table list on `IDX` must use names beginning with `Table`, followed by the
-table code and table title. Every table sheet that should be processed must be
-listed consistently.
+Your team may supply longer names. Do not rename the files just to match the
+pictures. You do not need to open the `.sav` files or the preparation code.
 
-### Minimum table-sheet structure
+## How to choose a file
 
-- Row 1 contains the table code and cell statistic types.
-- Row 2 contains the table title.
-- Row 3 starts the highest header level.
-- One row between rows 4 and 7 contains the data/filter definition. It is
-  identified by content such as `.sav`, `filter(...)`, or `mutate(...)`.
-- The first table-wide filter is in column B of the condition row.
-- A block-specific filter is placed at the beginning of its column block.
-- Dataset and weight definitions are written in the same condition cell.
-- Row and column conditions must be valid R expressions for the prepared data.
+1. Click **Browse...** beside the relevant item in the application.
+2. In the window that opens, find the folder your team gave you. If it was
+   downloaded, first look in **Downloads**.
+3. Double-click a folder to open it. Click the required file once to select it.
+4. Click **Open**. Wait until its name appears in the application and the upload
+   finishes. Repeat for the other files.
 
-Do not insert manual line breaks in cells unless the plan convention explicitly
-requires them. Leave the active cell at `A1` before saving the workbook to make
-review easier.
+## How to choose the preparation folder
 
-### Conditions and block behavior
+1. If the team supplied a ZIP file, extract it first: on Windows, right-click
+   it and choose **Extract All**; on a Mac, double-click it.
+2. Beside **Select preparation folder**, click **Browse...**.
+3. Select the folder that contains the preparation file, then click **Upload**,
+   **Select**, or **Open**, depending on your browser. Select the folder itself,
+   rather than an individual file inside it.
+4. If the browser asks to upload the folder's files, check its name and confirm.
 
-The condition row is both executable logic and a compact description of each
-table block. A condition cell can identify the dataset, a `filter(...)` or
-`mutate(...)` expression, a `weight by` variable, and the final row or column
-condition. The first condition in column B establishes the table-wide context;
-conditions at the beginning of later column blocks refine that context.
+**Check before continuing:** use the complete preparation folder supplied by
+your team. Keep any folders inside it, such as **FIES-inputs**, in place.
+If you cannot tell which files belong together, ask your survey lead.
 
-The parser recognizes these established aliases:
+{{< pagebreak >}}
 
-- `total1 == 1` through `total5 == 1` are normalized to `total == 1`.
-- `totalHL == 1` and `totalHL1 == 1` through `totalHL4 == 1` select the
-  household-member total used by the horizontal engine.
-- `ph` is reserved for extra-table placeholders and must not be used as an
-  ordinary analytic condition.
+# 3. Choose the files and click Set
 
-Keep separate percentage distributions in separate blocks and end each block
-with its own `100` or `100.0` cell. When a block uses a different dataset,
-filter, or weight, declare that information at the beginning of the block
-rather than relying on a definition from a neighboring block.
+![Data Preparation: survey choices and four Browse controls are on the left; the survey match message and Excel plan are on the right.](screenshots/01-data-preparation.png){fig-alt="Data Preparation screen with Mongolia 2025-26 Wave 1 selected, four inputs loaded, Set at lower left, and a successful survey consistency message at upper right." fig-pos="H" width="100%"}
 
-## Statistic types
+1. Click **Data Preparation**. Under **Select country and period**, click the
+   small arrow and choose your survey. Choose the matching **wave** below it.
+2. Use the four **Browse...** controls as described on the previous page.
+3. Read **Main prep** below the folder control. Check that it names your team's
+   preparation file. **FIES helpers: none** is normal for surveys without FIES.
+4. Click **Set** once. If it is below the visible area, scroll down inside the
+   left panel. Wait for preparation to finish.
+5. Read **Survey info consistency** at the upper right. Check the country,
+   period, and wave. The example says the reference information is consistent.
 
-The following types are recognized by the established engines. Availability
-can depend on the table direction and engine.
+**Ready to continue:** the survey details agree and there is no preparation
+error. A matching survey message alone does not resolve a separate error.
+If a mismatch or error appears, check your choices or ask your survey lead.
 
-- `n`, `n2`: weighted count; `n2` is excluded from selected checks.
-- `n_unw`, `n_unw2`: unweighted count; `n_unw2` is excluded from selected checks.
-- `p`, `p(100)`: weighted percentage.
-- `p_unw`, `p_unw(100)`: unweighted percentage.
-- `mean`, `mean(var)`: mean or weighted mean of `var`.
-- `mean_unw`, `mean_unw(var)`: unweighted mean.
-- `median(var)`, `median_unw(var)`: weighted-context or unweighted median.
-- `p_sum(var)`: weighted sum of `var` divided by the weight total, times 100.
-- `100`, `100.0`: fixed total cell.
-- `ph`: placeholder used by extra-table workflows.
+{{< pagebreak >}}
 
-Use the exact spelling and parentheses shown in the approved plans. Before
-introducing a new statistic, add a regression fixture and confirm how both the
-numerator and denominator should be defined.
+# 4. Calculate and look at one table
 
-## Totals, groups, indents, and suppression
+![Tabulator: select a sheet on the left and click Run; the calculated table appears on the right.](screenshots/02-tabulator.png){fig-alt="Tabulator screen with sheet 1.1a, Formatted and Header selected, Run at left, and a calculated response-rate table at right." fig-pos="H" width="100%"}
 
-- A total condition is normally written as `total == 1`.
-- `all` means no additional variable filter; it is not automatically a total.
-- Separate a total row from the rows above it with an empty row when it defines
-  a row-group consistency block.
-- Percentage blocks expected to sum to 100 must end with their `100` cell.
-- Use types such as `n2` or `p2` only where a cell must be excluded from a
-  consistency check while retaining its tabulation behavior.
-- Supported indentation levels for automatic checks are 1 and 2.
-- Suppression requires an `n_unw` column before the `IDX` marker column.
+1. Click **Tabulator** at the top.
+2. Under **Select a sheet**, click the arrow. Choose the table code requested
+   by your survey lead. The picture uses **1.1a**.
+3. Leave **Format type** on **Formatted** and **Pivot type** on **Header** for
+   an easy-to-read preview.
+4. Click **Run** once and wait for the table to appear.
+5. Read **Table name** above the result. Check that it is the table you intended
+   to produce. Scroll inside the preview to see more rows or columns.
 
-## Survey data files
+**Ready to continue:** the correct table name and calculated values appear.
+The next step is **Consistency Checks**. A preview has not yet saved your
+calculated table to an Excel file.
 
-Provide two SPSS `.sav` files:
+If your reviewer asks for plain numbers, choose **Unformatted**. Choose
+**Suppressed** to inspect the small-sample display rules. Keep **Header**
+selected unless your reviewer asks for another view.
 
-- `hh`: household-level data.
-- `hl`: household-member-level data.
+{{< pagebreak >}}
 
-Variable names used in the plan must exist after the preparation script runs.
-Weight variables must be numeric after preparation. Preserve value and variable
-labels when they are needed for Data Exploration or Data View.
+# 5. Check the table
 
-## Preparation folder contract
+![Consistency Checks: click Run Checks and examine the smaller check tabs and their result tables.](screenshots/03-consistency-checks.png){fig-alt="Consistency Checks screen with Run Checks on the left and a Row Group N result showing matching totals and zero differences on the right." fig-pos="H" width="100%"}
 
-Select the preparation **folder** with the same native browser control used by
-the other app inputs. The folder is uploaded into the app session so the
-workflow behaves consistently on Windows, macOS, and Linux without fixed local
-paths or the nonstandard in-app filesystem browser.
+1. Click **Consistency Checks**. Confirm the **Table name** matches the table
+   you just ran.
+2. Click **Run Checks** and wait for the results.
+3. Click each of the smaller check tabs, such as **Row Group (N)**. They compare
+   counts or percentages in different parts of the table.
+4. If a tab is red, tick **Show only inconsistent cells** to find the differences.
+   Record the table code and ask your survey lead to review them.
 
-The app chooses the main preparation script from top-level `.R` files:
+**Green:** this check ran and found no difference beyond its tolerance.
+**Red:** a difference needs review.
+**No color or no rows:** the check may not apply; it does not mean it passed.
+Read the result as well as the color. The example's **diff_value** column shows
+zero where the compared totals agree.
 
-- if there is only one top-level `.R` file, it is the main script;
-- if there are several, exactly one filename must contain `prep`
-  (case-insensitive); and
-- if the choice is still ambiguous, the app reports the candidate filenames
-  and asks you to keep one main prep-like file at the top level.
+**Ready to continue:** the applicable checks pass, or the survey lead has
+reviewed and accepted any exceptions. Passing checks do not replace the
+survey lead's review of the table and its meaning.
 
-Use this structure:
+{{< pagebreak >}}
 
-```text
-survey-preparation/
-|-- country_wave_prep.R       # detected as the main top-level prep script
-`-- FIES-inputs/              # optional subfolder; use this exact folder name
-    |-- fies-entry.R
-    |-- fies-functions.R
-    `-- fies-reference.RData
-```
+# 6. Save the reviewed table to Excel
 
-The application stages the uploaded folder for the current session, treats its
-root as `prep_dir`, and supplies `hh_path`, `hl_path`, `prep_dir`, and
-`prep_script` to the main script. The script must create `hh` and `hl` in its
-own execution environment.
+![Write to Excel: create Both workbooks, write the current table with the two write buttons, and find the saved files using Open folder.](screenshots/04-write-to-excel.png){fig-alt="Write to Excel screen showing Both, Create Excel Files, two write buttons, and Output and Formatted file paths with Open file and Open folder buttons." fig-pos="H" width="100%"}
 
-```r
-hh <- haven::read_sav(hh_path) |>
-  dplyr::mutate(total = 1)
+1. Click **Write to Excel**. Under **Create**, choose **Both** unless your survey
+   lead requests one type only.
+2. Click **Create Excel File(s)** **once for this run**. Two file paths appear
+   on the right. This creates workbook copies; it does not fill every table.
+3. Click **Write to Output Table**. Wait for the write to finish.
+4. Click **Write to Formatted Table**. Wait again. Both buttons write the
+   **current table** to its matching sheet.
+5. Under **Formatted file path**, click **Open folder** to find the saved file,
+   or **Open file** to view it. Check the expected sheet in Excel.
 
-hl <- haven::read_sav(hl_path) |>
-  dplyr::mutate(total = 1)
-```
+**Output** keeps numeric values for review. **Formatted** contains the table's
+presentation values and applicable notes. Close the workbook in Excel before
+writing another table. If **Open folder** does not work, copy the displayed
+folder path into File Explorer or Finder.
 
-Recommended rules:
+**Next table:** repeat **Tabulator > Run**, **Consistency Checks > Run Checks**,
+then the two **Write** buttons. Reuse the same workbooks; do not click
+**Create Excel File(s)** again for every table.
 
-- Use `package::function()` notation in production scripts.
-- Do not call `install.packages()` from a preparation script.
-- Do not use fixed paths for the uploaded `hh` and `hl` files.
-- Keep helper scripts and reference assets below `FIES-inputs`, not beside the
-  main prep script.
-- Keep table-specific recodes documented near the extra table that uses them.
-- Stop with a clear message when required variables are missing.
-- Avoid writing files outside a user-selected output folder.
+{{< pagebreak >}}
 
-The app isolates ordinary objects created by the script within the current
-session. A script can still perform external actions such as reading other files
-or loading packages, which is why scripts must be trusted and reviewed.
+# 7. Run several tables together (optional)
 
-## Extra tables and FIES
+![Multi-Sheet Tabulator: choose sheets, choose Both, then run and inspect one result row per sheet.](screenshots/05-multi-sheet.png){fig-alt="Multi-Sheet Tabulator showing selected table codes, the Both write target, Run and write selected, and results for the selected sheets." fig-pos="H" width="100%"}
 
-For a table produced outside the generic logic, the preparation script can
-create:
+Use this after you can run and review one table successfully.
 
-```r
-tables_extra <- c("4.1")
-extra_tables_dict <- list("4.1" = "tb_41")
-tb_41 <- data.frame(...)
-```
+1. First create your workbook files in **Write to Excel** (step 6), if you have
+   not already done so for this run.
+2. Click **Multi-Sheet Tabulator**. Click **Select sheet(s)** and choose a table.
+   Click again to add another. Use **Deselect all** to clear the selection.
+3. Under **Write to**, choose **Both** or your agreed destination.
+4. Click **Run and write selected** once. Keep RStudio and the browser open
+   until it finishes.
+5. When the completion message appears, click **OK**. Read every row in
+   **Run-and-write results**, especially **status**,
+   **message**, and **Consistency issues**. Use the horizontal scrollbar if
+   a column is off the right edge.
 
-`tables_extra` lists the relevant sheet names. `extra_tables_dict` maps each
-sheet to the object holding the precomputed table. The object must match the row
-and column structure expected by the sheet.
+**Ready to continue:** every requested table has completed and its results have
+been reviewed. This action writes tables as it runs; it does not wait for your
+review of each table. A completed write is not approval of a flagged result.
 
-For an extra table, row and column conditions in the workbook are retained in
-the logic preview but are not evaluated against the base `hh` or `hl` object.
-The supplied extra-table object is the source of the numeric values. A `ph`
-condition therefore remains visible as `ph`; it is never rewritten in the
-display as `total == 1`. This allows the workbook to document the relevant
-extra-table conditions without changing the table's shape or causing an error
-when those conditions refer to variables created only inside the extra-table
-preparation code.
+If a table fails or has consistency issues, note its code and message. Review
+it separately with your survey lead before sharing the workbook. Start with a
+small selection; use **Select all** only when you are ready for the full run.
 
-FIES is a specialized extra-table workflow. When the selected preparation
-folder contains a top-level subfolder named `FIES-inputs`, the app:
+{{< pagebreak >}}
 
-1. exposes its full path as both `fies_inputs_dir` and `path_fies`;
-2. exposes the staged preparation folder as `prep_dir`;
-3. creates `FIES-outputs` under the configured main output folder only if it
-   does not already exist; and
-4. exposes that destination as both `fies_output_dir` and
-   `path_fies_output`.
+# 8. Download a data file (optional)
 
-With the default app configuration, the output structure is:
+![Long Format Data: prepare the data with the button on the left, then use a download button below it.](screenshots/06-long-format.png){fig-alt="Long Format Data screen with Run all tables and prepare on the left and Excel, CSV, and RDS download controls below it, beside the preview on the right." fig-pos="H" width="100%"}
 
-```text
-micsPlusTableR-output/
-|-- Output ... .xlsx
-|-- Formatted ... .xlsx
-`-- FIES-outputs/             # created only when FIES-inputs exists
-    |-- *.csv
-    |-- *.pdf
-    |-- *.png
-    `-- *.RData
-```
+Use this only if your survey lead asks for the tables as a combined data file.
+For ordinary presentation tables, use **Write to Excel** instead.
 
-The main prep script controls which FIES entry script runs. It can source a
-helper by name because the app searches the prep folder and then `FIES-inputs`:
+1. Complete **Data Preparation** first.
+2. Click **Long Format Data**.
+3. Click **Run all tables and prepare...**. Wait while the application calculates
+   the tables. This may take longer than running one table.
+4. When the data preview appears without an error, find **Download output**
+   in the left panel. Click **Excel (.xlsx)** for
+   a spreadsheet, or the format your recipient requested.
+5. Find the file in your browser's **Downloads** list or your computer's
+   **Downloads** folder. Some browsers ask you to choose a save location.
 
-```r
-# path_fies and path_fies_output are supplied by micsPlusTableR.
-source("fies-functions.R")
-source(file.path(path_fies, "fies-entry.R"))
-```
+**What you receive:** one combined file of calculated table cells. It is a
+different layout from the **Formatted** workbook. **CSV (.csv)** is a plain
+text table; **RDS (.rds)** is for someone working in R.
 
-Do not redefine `path_fies` or `path_fies_output` in the prep code. FIES code
-should write explicit artifacts with `file.path(path_fies_output, filename)`.
-The app also runs preparation with `FIES-outputs` as the temporary working
-directory, so legacy helper code that writes a relative filename is routed to
-the same place. Keep FAO-derived code and reference assets versioned with the
-survey preparation project, confirm package dependencies before running, and
-do not assume files from one country or wave are reusable without review.
+The download contains all prepared rows, including rows hidden by preview
+filters or pages. Check the country, period, and wave in the filename before
+sending it. If preparation reports a failed table, ask your survey lead to
+resolve the error and rerun before relying on a download.
 
-# Run the application
+{{< pagebreak >}}
 
-## Data Preparation
+# 9. Look at prepared data (optional)
 
-1. Select the supported country/period and wave.
-2. Upload the household `.sav` file.
-3. Upload the household-member `.sav` file.
-4. Upload the tabulation-plan workbook.
-5. Select the preparation folder. Confirm that **Main prep** shows the intended
-   top-level `.R` file and whether **FIES helpers** reports `FIES-inputs` or
-   `none`.
-6. Select **Set**.
+![Data View: select the household or household members data, select variables, then click Run Data View.](screenshots/07-data-view.png){fig-alt="Data View screen showing dataset and variable selectors and Run Data View, with the preview area on the right." fig-pos="H" width="100%"}
 
-The app loads the prepared data and compares the `IDX` metadata with the chosen
-survey settings. Resolve every mismatch before producing tables. Use the
-workbook preview to confirm that the expected sheets are available.
+This tool shows the data after preparation. Use it when your survey lead asks
+you to check a particular item. A **variable** is a named item in the data,
+like age or region.
 
-## Tabulator
+1. Complete **Data Preparation**, then click **Data View**.
+2. Under **Select data to view**, choose **hh** for households or **hl** for
+   household members, as directed by your reviewer.
+3. Select the variable names your reviewer gives you.
+4. Click **Run Data View**. Read the preview and its labels.
 
-Select one sheet and select **Run**. Choose the preview mode:
+**Check:** you are looking at the intended dataset and variables. This screen
+may show individual survey records. Share only what your survey team's data
+handling rules allow, and avoid including records in a help screenshot.
 
-- **Unformatted:** numeric output intended for checking.
-- **Suppressed:** applies the established small-denominator display rules.
-- **Formatted:** presentation-oriented preview.
+You can return to **Tabulator** by clicking its tab at the top. Viewing data
+here does not save a presentation table to Excel. The picture shows the
+controls before any individual records are displayed.
 
-The pivot mode controls whether the preview emphasizes worksheet indices,
-labels, or row/column logic. Review the table title and several cells against
-the source plan before continuing.
+{{< pagebreak >}}
 
-## Consistency Checks
+# 10. Explore a question (optional)
 
-Select **Run Checks** after tabulating a sheet. The app checks applicable row,
-column, and indent groups for counts and percentages.
+![Data Exploration: choose the dataset, variables, and analysis type before clicking Run Data Explorer.](screenshots/08-data-exploration.png){fig-alt="Data Exploration screen with dataset, weighting, variable and analysis controls on the left and the analysis preview area on the right." fig-pos="H" width="100%"}
 
-| Tab color | Meaning |
+Use this for a question your survey lead wants to investigate. It does not
+replace the approved tabulation plan.
+
+1. After **Data Preparation**, click **Data Exploration**.
+2. Under **Select data set**, choose **hh** for households or **hl** for household
+   members. Under **Select variable(s)**, choose the names your reviewer gives you.
+3. Choose **Unweighted** or **Weighted**, as your reviewer specifies. If weighted,
+   enter their exact variable name in **Type weight variable**. Do not guess it.
+4. Choose **Frequency** to count categories of one variable, or **Cross table**
+   to compare two variables. Select the second variable if requested.
+5. Leave any filter box blank unless your reviewer supplies the exact text to
+   use. Click **Run Data Explorer** and read the result.
+
+**Check:** the selected data, variables, and weighting match the question you
+were asked to explore. These choices can change the meaning of a result.
+Ask your reviewer before treating it as a final survey finding.
+
+{{< pagebreak >}}
+
+# 11. Finish, return later, or get help
+
+## Finish your work
+
+1. Write every reviewed table you want to keep to Excel (step 6).
+2. Find the saved workbook. Open it and check the country, wave, and expected
+   sheets. Keep your review notes with it.
+3. Close the workbook, then close the application's browser tab.
+4. In RStudio, click the red **Stop** button in the Console to stop the app.
+   You may then close RStudio. Saving an R workspace is not a substitute for
+   saving the Excel workbooks.
+
+**When you return:** start the app again and select your inputs again. The app
+does not automatically restore the previous browser session. For a fresh run,
+create new workbook files. To continue an existing workbook, ask your survey
+lead to help select it using the **Choose existing...** buttons in **Write to
+Excel**. Writing the same sheet again replaces its previously written values.
+
+## If something goes wrong
+
+| What you see | What to do next |
 |---|---|
-| Green | The check ran and no difference exceeded the tolerance |
-| Red | One or more differences exceeded the tolerance |
-| No color | The check was not applicable or produced no check table |
+| Missing file or wrong filename | Return to **Data Preparation**, select the correct file, and click **Set** again. Rerun and recheck the table. |
+| Country or wave mismatch | Compare your dropdown choices with the files supplied by your team. Ask for a matched set if unsure. |
+| Preparation error or missing variable | Record the message and send it to your survey lead. Do not edit the preparation code yourself. |
+| Empty preview or no table | Check that **Set** completed, choose a sheet, and click **Run**. If the workbook preview alone is blank, check your connection and report that detail. |
+| Red consistency tab | Record the table code and the displayed differences. Have your survey lead review them before sharing. |
+| Excel file cannot be written | Close that workbook in Excel, then try its **Write** button again. |
+| Cannot find the saved workbook | Use **Write to Excel > Open folder** or the path shown there. For a data download, check **Downloads** instead. |
+| Browser disconnected or refreshed | Save any work still available. Restart the app if needed and select the inputs again; check existing files before rewriting. |
 
-Select **Show only inconsistent cells** to focus on failures. A passing check
-does not prove that a table is conceptually correct; also review conditions,
-weights, denominators, missing-value rules, and the table title.
-
-## Write to Excel
-
-Choose whether to create an Output workbook, a Formatted workbook, or both.
-Select **Create Excel File(s)** once for a production run. The application copies
-the plan and adds a timestamp to the workbook name. If a name already exists, a
-numeric suffix is used rather than silently overwriting it.
-
-After a single table is reviewed, use **Write to Output Table** or **Write to
-Formatted Table**. The table is written to its matching worksheet.
-
-## Multi-Sheet Tabulator
-
-Select one or more sheets, choose the write target, and select **Run and write
-selected**. The results panel reports each sheet, elapsed time, message, and
-consistency status. Run sheets sequentially within a session and do not close
-the browser or R process before completion.
-
-Start with a small representative set after any package, plan, or prep-script
-change. Run the full workbook only after those tables pass review.
-
-## Data Exploration, Data View, and Long Format Data
-
-- **Data Exploration** creates frequency or two-variable cross tables from the
-  prepared `hh` or `hl` data. A typed filter must be a valid R expression.
-- **Data View** displays selected prepared variables and their labels.
-- **Long Format Data** runs all table sheets and combines cell-level results
-  with survey, wave, sheet, and table identifiers.
-
-These tools support diagnosis and review. They do not replace the approved
-tabulation plan or formal consistency checks.
-
-# Output workbooks
-
-The package creates two workbook types from the uploaded plan:
-
-- **Output Tables:** preserves unformatted numeric values for validation and
-  downstream review.
-- **Formatted Tables:** uses formatted and suppressed display values, hides the
-  condition column, reduces the condition-row height, and adds standard
-  footnotes where applicable.
-
-The footnote writer scans the formatted values and adds only the standard notes
-whose markers occur in the table:
-
-- `( ) Figures that are based on 25-49 unweighted cases`
-- `(*) Figures that are based on fewer than 25 unweighted cases`
-- `- denotes 0 unweighted cases in the denominator`
-
-Keep any survey-specific footnotes in the tabulation plan. Do not give the last
-manual footnote a bottom border; the writer places the final table border after
-the standard notes it adds.
-
-The workbook remains the operational record of a run. Keep the following items
-together for reproducibility:
-
-- input `.sav` files or their controlled archive identifiers;
-- the exact tabulation plan;
-- the exact preparation and extra-table code;
-- package version;
-- generated Output and Formatted workbooks;
-- review notes and approved exceptions.
-
-# Troubleshooting
-
-## The app does not start
-
-Reinstall the package and restart R. Then verify:
-
-```r
-packageVersion("micsPlusTableR")
-micsPlusTableR::run_app(launch.browser = TRUE)
-```
-
-If GitHub installation reports a dependency error, record the full message.
-Survey-specific scripts can require additional packages beyond the generic
-application dependencies.
-
-## Newly installed functions do not appear
-
-If autocomplete shows only `run_app()` and `create_excel_workbooks()`, the
-current R session still has an older namespace loaded. Restart R, confirm that
-`packageVersion("micsPlusTableR")` reports `0.2.7`, and inspect
-`getNamespaceExports("micsPlusTableR")`. If necessary, reinstall from the local
-folder with `force = TRUE` as shown under **Confirm the installed functions**,
-then restart R once more.
-
-## The preparation script fails
-
-Check that:
-
-- the selected folder contains the intended main `.R` file at its top level;
-- if multiple top-level `.R` files exist, exactly one filename contains `prep`;
-- the script uses the supplied `hh_path` and `hl_path`;
-- it creates both `hh` and `hl`;
-- required packages are installed and functions are namespaced;
-- every selected variable exists in the corresponding data;
-- fixed project paths have been removed or replaced by supplied paths;
-- optional FIES helpers are in a top-level subfolder named exactly
-  `FIES-inputs`; and
-- FIES code does not overwrite `path_fies` or `path_fies_output`.
-
-## A table cannot find a variable
-
-Compare the variable named in the error with the prepared data in Data View.
-Check spelling, capitalization, the selected dataset, and whether the variable
-is created before the table runs.
-
-## A weight is missing or invalid
-
-Confirm the weight named in the condition row exists after all mutations and is
-numeric. For block-aware tables, inspect every block because later blocks can
-select a different weight.
-
-## A consistency tab is red
-
-Review the displayed differences, then check the total condition, empty-row
-group boundaries, excluded `n2` or `p2` cells, block filters, and percentage
-denominators. Do not increase the tolerance simply to hide an unexplained
-difference.
-
-## The Excel preview is blank
-
-Confirm the uploaded workbook is a readable `.xls` or `.xlsx` file, contains at
-least one worksheet, and is not password protected. The preview uses a browser
-component, while the tabulation engine reads the workbook on the R side; report
-which of those two actions failed.
-
-If one worksheet repeatedly fails while other sheets in the same workbook work,
-copy that worksheet's used cells into a new worksheet, preserve the required
-sheet name and formatting, and test the copy. This can isolate workbook-level
-cell metadata corruption. Keep the original file for diagnosis rather than
-overwriting it immediately.
-
-## The output workbook is locked
-
-Close the workbook in Excel and try again. Writing to a workbook open in another
-program can fail, especially on Windows.
-
-# Statistical and security notes
-
-The package intentionally retains two complementary tabulation engines:
-
-- `tabulate_v2()` handles single-context, column-first tables.
-- `tabulate_h2()` builds block-specific filter, calculation, and weight contexts
-  and delegates cell calculations to `calc_cells()`.
-
-`tabulate_mics()` selects the engine from the table direction read from the
-plan: direction `v` uses `tabulate_v2()`; every other direction uses
-`tabulate_h2()`. Both engines return the same long-format cell structure, but
-they interpret the table through different execution models.
-
-| Characteristic | `tabulate_v2()` | `tabulate_h2()` with `calc_cells()` |
-|---|---|---|
-| Intended table | One coherent data, filter, and calculation context | Multiple filter, calculation, or weight contexts across column windows |
-| Evaluation order | Column first, then row | Row first, then column predicate |
-| Preparation | Applies one consolidated row-calculation chain once | Builds a shared calculation chain plus block-specific calculations |
-| Filtering | One primary filter, followed by each column condition | A separate filter chain for each detected block |
-| Weight | Uses the primary context's weight | Resolves and validates the latest applicable weight in each block |
-| Main advantage | Direct flow and rich built-in statistic parsing | Block-aware context and robust calculation/weight handling |
-
-## Single-context engine: `tabulate_v2()`
-
-`tabulate_v2()` is appropriate when the complete table uses one base dataset,
-one primary filter, and one unified row-calculation layer. It reads the column
-and row conditions, filters the base data, applies all row-derived calculations
-once, and then computes cells in nested loops. The outer loop creates each
-column subset; the inner loop evaluates each row statistic inside that subset.
-
-This column-first model is useful for questions such as "within this column
-subgroup, what is the distribution across rows?" Its built-in statistic parser
-supports weighted and unweighted counts and percentages, means, unweighted
-means, medians, constants, and computed weighted-mean expressions. It assumes
-that the plan's row indices and parsed row conditions remain aligned and that
-the table does not require block-specific filter windows.
-
-## Block-aware engine: `tabulate_h2()` and `calc_cells()`
-
-`tabulate_h2()` is appropriate when different column ranges need different
-filters, calculations, or weights. It identifies filter starts in the plan,
-assigns column windows to blocks, combines shared and block-specific
-calculations, resolves the applicable weight after those calculations, and
-validates that the weight column exists. It then delegates each block's cell
-statistics to `calc_cells()` and joins the results.
-
-`calc_cells()` evaluates rows first. For each row subset, it applies every
-column predicate and calculates the requested count, percentage, mean, median,
-sum-based percentage, or constant. Therefore a percentage in this engine is
-the proportion satisfying the column condition within the selected row subset.
-The engine also applies the established display rules for zero denominators and
-small unweighted sample sizes.
-
-The engines are intentionally kept separate. Their numerator and denominator
-models, filter staging, weight resolution, and calculation ordering are not
-interchangeable. Version 0.2.4 packages and isolates the established behavior
-instead of forcing a universal implementation that could change approved
-results. Changes to either engine require regression testing with representative
-single-context and multi-block tables.
-
-The internal workflow follows a fixed sequence. `read_tabulation()` parses the
-worksheet into its original grid, row and column logic, block filters, weights,
-headers, empty rows and columns, indentation, group information, and formatting
-flags. `tabulate_mics()` selects the applicable engine, `pivot_table()` creates
-review views, the six check functions validate applicable totals, and the Excel
-writers persist approved results and footnotes. `clear_previous()` resets table
-state while retaining prepared survey data in the explicit package session.
-
-These engine functions remain internal because they share mutable table state.
-Analysts working outside Shiny should use the exported explicit-session
-wrappers, which provide the same sequence with input validation and a stable
-interface.
-
-The plan and preparation script contain executable R expressions. Treat both as
-code: review changes, use version control, restrict write locations, and run
-only trusted inputs. The current application is designed for sequential work
-inside each session. Do not use one session to run overlapping table jobs.
-
-# Production checklist
-
-Before release of final tables, confirm all items below.
-
-- The package version is recorded.
-- `IDX` country, period, and wave match the selected survey.
-- The preparation script completed without warnings that affect results.
-- Required variables and weights are present and plausible.
-- Representative tables were compared with an approved reference.
-- Applicable row, column, and indent checks pass or have documented exceptions.
-- Extra tables and FIES outputs were reviewed separately.
-- Output and Formatted workbooks were created once for the production run.
-- Standard and survey-specific footnotes are present.
-- Final files and code are stored together in the controlled archive.
-
+**When asking for help, include:** country and wave, table code, the button you
+clicked, and the exact error text. A screenshot of the message helps; leave
+individual survey records out of it. Your support person can check the installed package
+version in RStudio.

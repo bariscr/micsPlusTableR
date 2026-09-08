@@ -20,4 +20,6 @@ detected by \code{here::here()}.}
 \item{...}{Additional arguments passed to \code{shiny::runApp()}.}
 }
 \value{Invisibly returns the value from \code{shiny::runApp()}.}
-\description{Starts the Shiny application bundled with micsPlusTableR.}
+\description{Starts the Shiny application bundled with micsPlusTableR.
+The Download Files tab saves survey plans and preparation files to the current
+project by default; its destination can be changed in the tab.}

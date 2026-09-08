@@ -59,12 +59,15 @@ tables. You do not need to write calculations or change computer code.
 Follow one step at a time. Ask your survey lead for help if a file or a result
 is different from what you expect.
 
-**Your route through the application**
+**Your route from setup to finished tables**
 
-1. **Data Preparation** - choose the files for your survey.
-2. **Tabulator** - calculate one table.
-3. **Consistency Checks** - check that its totals agree.
-4. **Write to Excel** - save the reviewed table.
+1. **Set up your computer** - install R and an editor such as RStudio.
+2. **Create or open a survey project** - choose where your work belongs.
+3. **Install the package and start the app** - copy the commands in section 1.
+4. **Download Files** - download plans and preparation files to your project.
+5. **Data Preparation** - select your survey documents and authorized data, then click Set.
+6. **Tabulator**, then **Consistency Checks** - calculate and review a table.
+7. **Write to Excel** - save the reviewed table.
 
 The later pages explain running several tables, downloading data, and optional
 viewing tools. You can leave those until you have completed your first table.
@@ -75,11 +78,15 @@ viewing tools. You can leave those until you have completed your first table.
 - **Tab:** a section name across the top of the application.
 - **Browse:** open a window to find a file on your computer.
 - **Folder:** a place that holds files. A preparation folder may contain smaller folders.
+- **Project:** a folder for one piece of survey work, with a file that helps RStudio reopen it.
+- **Console:** the panel where you paste R commands and see messages.
+- **Package:** an add-on for R; `micsPlusTableR` contains this application.
 - **Sheet:** one page of an Excel workbook, such as `1.1a`.
 - **Wave:** one round of the survey. Use the wave your team gave you.
 
-**About the pictures.** These are actual application screenshots from version
-0.2.7, using Mongolia Wave 1 as an example. Your file names and results will
+**About the pictures.** The Download Files picture shows the new tab in the
+0.3.0 development version, before loading the survey list. Other pictures are
+actual screenshots from version 0.2.7, using Mongolia Wave 1 as an example. Your file names and results will
 differ. Use the files for your own survey. Screenshots show a temporary example
 output folder; your project normally saves to **micsPlusTableR-output**.
 In the HTML guide, click a picture to enlarge it; press **Esc** to return.
@@ -92,67 +99,328 @@ Those documents cover programming and technical details.
 
 {{< pagebreak >}}
 
-# 1. Open the application
+# 1. Set up your project and open the application
 
-## The first time: ask a support person to help
+## 1A. Choose where to run R
 
-Your computer needs **R**, **RStudio**, and a web browser. Ask your support
-person to install them and give you a survey project folder. You need internet
-access to install the application package from GitHub.
+**If you are new to R, follow the RStudio Desktop steps below.** R does the
+calculations; RStudio gives you a window in which to start them. These are two
+separate programs. The tabulation application then runs in your web browser.
+You only need to copy a few commands; the table-making steps use buttons.
 
-1. Open your survey project folder in **File Explorer** on Windows or **Finder**
-   on a Mac. Double-click its file ending in **.Rproj** to open RStudio.
-2. Find the panel named **Console**. Click beside the `>` prompt.
-3. Copy the first line below into the Console and press **Enter** (**Return**
-   on a Mac). Wait for the `>` prompt to return. Then run the second line and
-   wait again:
+An **IDE** is a program that brings together tools for working with code.
+The package can run in an R session started from different editors and code
+systems. You only need one of these options:
+
+| Option | What you need to know |
+|---|---|
+| **RStudio Desktop** | The route explained here, with an R Console and a project menu. Install R separately. |
+| **Positron** | An alternative with built-in R support. Install R, open your survey folder, and choose an R session. |
+| **Visual Studio Code (VS Code)** | Install R and configure the R extension; run the commands in an R terminal. |
+| **Cursor** | Use its code editor with R installed and a compatible R extension, or start R in its terminal. |
+| **JupyterLab / Jupyter Notebook** | Use an R kernel, such as IRkernel. This requires extra setup. |
+| **R's own console / a terminal** | Run the same R commands from your survey folder. No separate IDE is required. |
+
+For setup details, see [Positron's R guide](https://positron.posit.co/guide-r.html),
+[VS Code's R guide](https://code.visualstudio.com/docs/languages/r),
+[Cursor's extension guide](https://prod.cursor.com/help/customization/extensions),
+and [IRkernel for Jupyter](https://irkernel.github.io/installation/).
+The optional [other environments](#other-environments) section explains project
+folders and browser access for these routes. The remaining click-by-click
+computer setup instructions use RStudio Desktop.
+
+**What belongs to you:** create or use your own survey project folder and
+install the **micsPlusTableR** package. Your survey lead supplies the input
+files. Your project holds your survey work and generated results. The package
+is installed separately in R's package library (its storage area for add-ons).
+You do not need to download the package's source project to use the app.
+
+{{< pagebreak >}}
+
+## 1B. Install R, then RStudio Desktop (once)
+
+If both programs already open on your computer, go to **1C**. You need internet
+access for installation. Use a recent R version supported by your editor;
+the package requires **R 4.2 or later**. You also need a web browser and an Excel
+viewer to review the saved workbooks. Keep internet access available for the
+app's workbook preview, which uses external browser resources.
+
+### Install R first
+
+1. Open your web browser and go to the
+   [official R download site](https://cloud.r-project.org/).
+2. **Windows:** click **Download R for Windows**, then **base**, then the
+   download link for R. Open the downloaded `.exe` file from **Downloads**.
+   Follow the installer, using its standard options, and click **Finish**.
+3. **Mac:** click **Download R for macOS**. Choose the `.pkg` installer matching
+   your Mac and macOS version. **Apple menu > About This Mac** shows whether
+   your Mac has an Apple chip or an Intel processor. Open the downloaded file
+   and follow the installer.
+4. **Linux:** follow the R download page's instructions for your Linux
+   distribution, with your support person's help if needed.
+
+### Install RStudio Desktop next
+
+1. Go to [Posit's RStudio Desktop download page](https://posit.co/download/rstudio-desktop/).
+   Choose the **free RStudio Desktop** download for your operating system.
+2. **Windows:** open the downloaded installer and follow its steps.
+   **Mac:** open the downloaded `.dmg` and drag RStudio into **Applications**.
+   **Linux:** use the installer and instructions for your distribution.
+3. Open **RStudio** from the Windows **Start** menu or Mac **Applications**.
+   If it asks you to choose R, select the version you just installed.
+4. Find the **Console** panel. When you see a `>` prompt, R is ready.
+
+**Ready to continue:** RStudio opens and its Console shows `>`. If you see
+“R not found,” finish installing R, close RStudio, and reopen it. If your
+computer requires an administrator password you do not have, ask your IT
+support person to complete the installation.
+
+{{< pagebreak >}}
+
+## 1C. Create or open your survey project {#survey-project}
+
+**Do this before installing the package or starting the application.** Choose
+one route below. A project keeps each survey's files and results together.
+Use a memorable name, such as **Mongolia-Wave1**; substitute your own survey.
+
+### New work: create a new project folder
+
+1. In RStudio, click **File > New Project**.
+2. Choose **New Directory**, then **New Project**.
+3. Under **Directory name**, enter your survey project name.
+4. Beside **Create project as subdirectory of**, click **Browse** and choose
+   a location you can find again, such as **Documents**.
+5. Click **Create Project**. RStudio creates and opens the folder.
+
+### You already have a folder, but no .Rproj file
+
+1. Click **File > New Project > Existing Directory**.
+2. Click **Browse** and choose your existing survey folder.
+3. Click **Create Project**. RStudio adds a project file to that folder;
+   your existing survey files stay in place.
+
+### You already have an RStudio project
+
+1. Click **File > Open Project**.
+2. Find your survey folder, select its **.Rproj** file, and click **Open**.
+   You can also double-click that file in File Explorer or Finder.
+
+These routes follow the [RStudio project instructions](https://docs.posit.co/ide/user/ide/guide/code/projects.html).
+To switch surveys later, stop the app and use **File > Open Project** again.
+
+**Check your location:** the project name should appear at the top right of
+RStudio. In the Console, type `getwd()` and press **Enter**. The printed path
+(the folder's address on your computer) should be your chosen survey folder.
+If it is wrong, open the correct project before continuing.
+
+**Your files:** keep your supplied survey data, Excel plan, and complete
+preparation folder inside an **inputs** subfolder if convenient. Copying
+files into the project does not load them into the app; you will select them
+with **Browse** in sections 2 and 3. Files may also remain in another accessible
+folder. Keep the project available while working; extract ZIP folders first.
+
+The app normally creates **micsPlusTableR-output** inside your project for
+Excel results. Browser downloads may go to **Downloads** instead. The
+**Write to Excel** screen shows the actual saved workbook paths.
+
+{{< pagebreak >}}
+
+## 1D. Install the micsPlusTableR package (once)
+
+1. Keep your survey project open. Click the **Console** beside `>`.
+   Use the **Console**, rather than the **Terminal** tab or a search box.
+2. Copy the first line below, paste it, and press **Enter** (**Return** on a
+   Mac). Wait for `>` to return before running the second line:
 
 ```r
 install.packages("remotes")
 remotes::install_github("bariscr/micsPlusTableR")
 ```
 
-4. If installation asks a question or reports an error, ask your support person
-   to help before continuing. For a working-directory or lock error, see
-   [Installation cannot finish](#installation-cannot-finish).
-5. When installation finishes, click **Session**, then **Restart R** at the top
-   of RStudio.
+Copy only the command, without the surrounding box or any `>` prompt.
+On Windows, use **Ctrl+C** to copy and **Ctrl+V** to paste; on a Mac, use
+**Command+C** and **Command+V**. `remotes` is the helper that installs the
+application package from GitHub. Installation also downloads needed packages
+and may take several minutes. Leave RStudio open while messages scroll.
 
-## Each time you work
+3. If R asks to create a personal library, accept it. If asked to choose a
+   CRAN download mirror, choose **0-Cloud** if offered. If asked which existing
+   packages to update, choose the numbered **None** option unless your support
+   person has requested updates. Required missing dependencies still install.
+4. If an error appears, copy the message and ask your support person for help.
+   A returned `>` alone does not prove installation succeeded. For folder or
+   lock errors, see [Installation cannot finish](#installation-cannot-finish).
+5. Click **Session > Restart R**, then run this check in the Console:
 
-1. Open your survey's **.Rproj** file as above.
+```r
+packageVersion("micsPlusTableR")
+```
+
+**Ready to continue:** a version number appears without an error saying the
+package is missing. Continue to **1E** to launch the application.
+
+You normally install once for the R library you use, not once per survey or
+on every launch. A different R installation or an isolated project library
+may need its own package installation. To update, finish and save your work,
+stop the app, and follow your survey lead's instructions. Run the GitHub
+installation command again and restart R before using the updated package.
+
+{{< pagebreak >}}
+
+## 1E. Start the application (each time you work)
+
+1. Open your survey's **.Rproj** file. Confirm its name at the top right of
+   RStudio. You do not need to repeat installation for ordinary launches.
 2. In the **Console**, paste this line and press **Enter**:
 
 ```r
 micsPlusTableR::run_app()
 ```
 
-3. The application opens in a browser. Click **Data Preparation** at the top
-   if it is not already selected. The next page lists the files you will need.
+3. The application opens in a browser on **Download Files**, immediately before
+   **Data Preparation**. On a narrow window, use **Toggle navigation** to see
+   the tabs. If you already have all inputs, go straight to **Data Preparation**.
+4. Follow **section 2** to locate your household data, household members data,
+   Excel tabulation plan, and preparation folder. Then follow **section 3**
+   to select the country and wave, upload the files, and click **Set**.
 
-**You are ready when:** you can see **Data Preparation**, **Tabulator**,
+**You are ready when:** you can open **Download Files**, **Data Preparation**, **Tabulator**,
 **Consistency Checks**, and **Write to Excel** across the top. Click
 **User's Guide** to read these instructions inside the application. Use
 **Open full guide** there if you want a separate browser tab.
 
-**While working:** keep RStudio and the application open. A busy Console without
- a `>` prompt is normal while the app runs. Do not paste more commands there.
-Do not refresh the browser; you may lose work not yet written to Excel.
+**While working:** keep RStudio (or your chosen R environment) and the
+application open. A busy Console without a `>` prompt is normal while the
+app runs. Do not paste more commands there. Do not refresh the browser;
+you may lose work not yet written to Excel.
 
 **No browser window?** Find the address beginning `http://127.0.0.1:` in the
 Console. Copy the complete address into your browser's address bar and press
 **Enter**. The number at the end can change each time you start.
 
-Install again only when your survey lead asks you to update. For installation
-help, show your support person the Console message and the
+**Where the work happens:** with this local setup, the browser connects to R
+on your computer. Selecting input files loads them into the running app; it
+does not install them into the package. Opening a project later does not
+restore the app's uploaded inputs or unsaved results.
+
+For help, show your support person the Console message and the
 [package setup instructions](https://github.com/bariscr/micsPlusTableR#install-and-run).
 
 {{< pagebreak >}}
 
 # 2. Gather your survey files
 
-Ask your survey lead for these **four items for the same country, period, and
-wave**. Keep them together in a folder you can find again.
+You need two sets of files for the **same country, period, and wave**:
+
+- **Household and household-member data (`.sav`):** obtain them from the
+  [MICS surveys page](https://mics.unicef.org/surveys) with the required
+  permission. These data are never distributed through this files repository
+  or the package's download functions.
+- **Tabulation plans and preparation files:** download them from
+  [micsPlusTableR-Files](https://github.com/bariscr/micsPlusTableR-Files)
+  using the app or one of the alternatives below. These downloads require no GitHub account once
+  the repository is public. Before publication, ask your survey lead for them.
+
+## Download with the app
+
+1. Open **Download Files** and click **Load / refresh surveys**. Internet access
+   and a public files repository are needed to load the list.
+2. To download **one** folder, keep **Selected surveys** and tick that survey,
+   such as `JAM_W1`. To download **several**, tick each survey you want. For
+   **every** published survey folder, select **All surveys**.
+3. Review **Selected survey folders** for the file count and total size.
+4. Check **Download folder**. It starts at the current project you opened before
+   launching the app. For example, selecting `JAM_W1` saves its materials in
+   a `JAM_W1` subfolder directly inside that project.
+5. To choose another destination, click **Browse folders...**, select a folder,
+   and click **Select**, or type a path. You may create a folder in the picker.
+   A relative path such as `inputs` means a subfolder of the current project.
+   **Use current project** restores the original default.
+6. Leave **Replace existing files** off to protect local copies. If the selected
+   files already exist, use a different folder or turn it on deliberately.
+7. Click **Download files** and wait for the success message, which shows where
+   the files were saved. The preparation subfolders are preserved.
+8. Open **Data Preparation**. Select the downloaded plan and complete preparation
+   folder, along with the household and member data you obtained separately
+   from the [MICS surveys page](https://mics.unicef.org/surveys) with permission.
+
+Files are saved directly by R to the chosen location. They do not go through
+your browser's **Downloads** folder. In a remotely hosted R session, the path
+is on that remote machine; use your host's file access tools to retrieve files.
+
+{{< pagebreak >}}
+
+## Download Files screen
+
+![Download Files: survey selection and destination controls are on the left; instructions and download status are on the right.](screenshots/00-download-files.png){fig-alt="Download Files screen before loading the survey list, with Selected surveys and All surveys options, a project-based download folder, Browse folders, Use current project, Replace existing files, and Download files controls." fig-pos="H" width="85%"}
+
+This picture shows the screen before **Load / refresh surveys** is clicked.
+Your own project path appears in **Download folder**. After loading, the
+available survey checkboxes appear under **Choose one or more surveys**.
+
+{{< pagebreak >}}
+
+## Alternative: download a ZIP through your browser
+
+1. Click [Download all plans and preparation files (ZIP)](https://github.com/bariscr/micsPlusTableR-Files/archive/refs/heads/main.zip).
+2. Find the ZIP in **Downloads**. On Windows, right-click it and choose
+   **Extract All**; on a Mac, double-click it.
+3. Open the extracted `micsPlusTableR-Files-main` folder. Copy the survey
+   folder you need, such as `JAM_W1`, into your survey project's
+   **inputs** folder. Keep its preparation folder and all subfolders together.
+
+## Alternative: download from the R Console
+
+Open your survey project. Run these commands in the **R Console before
+starting the app**. If the app is running, stop it first so the `>` prompt
+returns. First list the available surveys:
+
+```r
+available <- micsPlusTableR::list_survey_files()
+unique(available$survey)
+```
+
+Choose **one** of these alternatives:
+
+```r
+# One survey
+micsPlusTableR::download_survey_files("JAM_W1")
+
+# Several surveys
+micsPlusTableR::download_survey_files(c("JAM_W1", "MNG_W2"))
+
+# All published surveys
+micsPlusTableR::download_survey_files()
+```
+
+The Console function defaults to **inputs** under `getwd()`, while the app tab
+defaults to the project itself. Console downloads preserve the
+survey and preparation subfolders. Use `dest_dir = "other-folder"`
+to choose another destination. Existing files are protected: use a new folder,
+or add `overwrite = TRUE` only when you intend to replace them.
+
+For individual files, inspect `available$path` and pass the exact paths:
+
+```r
+micsPlusTableR::download_survey_files(
+  files = available$path[1],
+  dest_dir = "selected-inputs"
+)
+```
+
+Select a whole survey folder to include its preparation helpers. Add the
+separately authorized household/member data before running the app. If GitHub
+limits requests, retry later or use the ZIP link.
+
+{{< pagebreak >}}
+
+## Check your input set
+
+Keep these **four items for the same country, period, and wave** together in
+your survey project's **inputs** folder, or another folder you can find again.
+The household and member files come from the MICS Plus website with permission;
+the Excel plan and preparation folder come from `micsPlusTableR-Files`.
+Once you have both, run `micsPlusTableR::run_app()`.
 
 | Item to obtain | How to recognize it | Where it goes in the app |
 |---|---|---|
@@ -292,7 +560,7 @@ Use this after you can run and review one table successfully.
 2. Click **Multi-Sheet Tabulator**. Click **Select sheet(s)** and choose a table.
    Click again to add another. Use **Deselect all** to clear the selection.
 3. Under **Write to**, choose **Both** or your agreed destination.
-4. Click **Run and write selected** once. Keep RStudio and the browser open
+4. Click **Run and write selected** once. Keep your R environment and the browser open
    until it finishes.
 5. When the completion message appears, click **OK**. Read every row in
    **Run-and-write results**, especially **status**,
@@ -304,8 +572,8 @@ been reviewed. This action writes tables as it runs; it does not wait for your
 review of each table. A completed write is not approval of a flagged result.
 
 If a table fails or has consistency issues, note its code and message. Review
-it separately with your survey lead before sharing the workbook. Start with a
-small selection; use **Select all** only when you are ready for the full run.
+it with your survey lead before sharing. Start with a few tables; use
+**Select all** when ready for the full run.
 
 {{< pagebreak >}}
 
@@ -393,10 +661,12 @@ Ask your reviewer before treating it as a final survey finding.
    sheets. Keep your review notes with it.
 3. Close the workbook, then close the application's browser tab.
 4. In RStudio, click the red **Stop** button in the Console to stop the app.
-   You may then close RStudio. Saving an R workspace is not a substitute for
+   In another editor, use its R session interrupt/stop control.
+   You may then close the editor. Saving an R workspace is not a substitute for
    saving the Excel workbooks.
 
-**When you return:** start the app again and select your inputs again. The app
+**When you return:** reopen the same survey project, run
+`micsPlusTableR::run_app()`, and select your inputs again. The app
 does not automatically restore the previous browser session. For a fresh run,
 create new workbook files. To continue an existing workbook, ask your survey
 lead to help select it using the **Choose existing...** buttons in **Write to
@@ -407,6 +677,8 @@ Excel**. Writing the same sheet again replaces its previously written values.
 | What you see | What to do next |
 |---|---|
 | Installation reports `setwd(startdir)` or a `00LOCK` folder | Follow [Installation cannot finish](#installation-cannot-finish) with your support person. |
+| Download list unavailable | Check internet access and that the files repository is public, then click **Load / refresh surveys**. |
+| Download says files already exist | Choose another download folder, or deliberately enable **Replace existing files**. |
 | Missing file or wrong filename | Return to **Data Preparation**, select the correct file, and click **Set** again. Rerun and recheck the table. |
 | Country or wave mismatch | Compare your dropdown choices with the files supplied by your team. Ask for a matched set if unsure. |
 | Preparation error or missing variable | Record the message and send it to your survey lead. Do not edit the preparation code yourself. |
@@ -484,3 +756,56 @@ For investigation, record `getwd()`, `.libPaths()`, and `sessionInfo()` before
 retrying. These commands only report information. Review paths for personal
 details before sharing the report. See the
 [R installation documentation](https://search.r-project.org/R/refmans/utils/html/install.packages.html).
+
+
+{{< pagebreak >}}
+
+# Other editors and code systems (optional) {#other-environments}
+
+The RStudio route is sufficient for the whole workflow. If you already use
+another environment, the same package installation and launch commands apply.
+These are alternative ways to start R, not separate versions of the app.
+
+1. **Create or open a survey folder** using your editor's folder/workspace
+   control. An `.Rproj` file is RStudio's project shortcut; other editors do
+   not need it just to run R. You can open the same folder in another editor.
+2. **Start an R session in that folder.** In Positron, select an R interpreter
+   and use its Console. In VS Code, configure the R extension and use
+   **R: Create R terminal**. In Cursor, use compatible R tooling or run `R`
+   in its terminal if R is available there. In Jupyter, choose an R kernel;
+   a Python kernel cannot run these commands. R's own console also works.
+3. **Check the folder in R** with `getwd()` before installing or launching.
+   Opening an editor folder does not always change an existing R session's
+   working directory. Start a fresh R session in your survey folder if needed.
+4. **Install the package** using the two commands in **1D**, in that R session.
+   Then check `here::here()` after installation: it shows the project root
+   used for the default Excel output. If it selects a parent folder, supply
+   your intended output directory explicitly when launching.
+5. **Launch in a browser** with the command below, then follow sections 2-6
+   for uploads, preparation, table calculation, review, and Excel output:
+
+```r
+micsPlusTableR::run_app(launch.browser = TRUE)
+```
+
+To choose the results folder explicitly, replace the example path below with
+an existing location on your computer. On Windows, use forward slashes, for
+example `C:/Users/YourName/Documents/MySurvey/results`:
+
+```r
+micsPlusTableR::run_app(
+  launch.browser = TRUE,
+  output_dir = "/full/path/to/MySurvey/results"
+)
+```
+
+**Keep R running:** the session or notebook cell stays busy while the app is
+open. Use its interrupt/stop control after saving your results. A terminal
+running R can usually be interrupted with **Ctrl+C**.
+
+**Remote or hosted environments:** RStudio Server, Posit Workbench, and remote
+editor or notebook sessions need server-side package installation, access to
+the inputs, and a browser connection arranged by the administrator (often a
+proxy or port forwarding). Their output paths are on the server. The local
+`127.0.0.1` browser instructions assume R runs on your own computer; ask your
+support person for the hosted application's address and file-retrieval steps.

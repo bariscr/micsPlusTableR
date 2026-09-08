@@ -6,14 +6,60 @@ tables through a Shiny application.
 
 ## Install and run
 
-Install from the [GitHub repository](https://github.com/bariscr/micsPlusTableR):
+Start with the [printable User's Guide](inst/doc/user-guide.pdf) for instructions
+that assume no previous R experience: installing R and RStudio, creating or
+opening a survey project, installing the package, selecting survey files,
+checking tables, and saving Excel workbooks. You can read it before installing.
+
+1. Install [R](https://cloud.r-project.org/) (4.2 or later) and
+   [RStudio Desktop](https://posit.co/download/rstudio-desktop/). Install R first.
+2. In RStudio, create a survey project with **File > New Project > New Directory
+   > New Project**. To use an existing folder, choose **Existing Directory**.
+   To open an existing `.Rproj` file, use **File > Open Project**. Check that the
+   intended survey project name appears at the top right before continuing.
+3. In the **R Console**, run these lines one at a time, waiting for `>` between
+   them. They install from the [package repository](https://github.com/bariscr/micsPlusTableR):
 
 ```r
 install.packages("remotes")
 remotes::install_github("bariscr/micsPlusTableR")
+```
 
+4. Use **Session > Restart R**, then run `packageVersion("micsPlusTableR")` to
+   confirm installation. Start the application:
+
+```r
 micsPlusTableR::run_app()
 ```
+
+5. In **Download Files**, load the survey list, choose one, several, or all
+   survey folders, and choose a download folder (your current project by default).
+   Download the plans and preparation files. Obtain household/member data from
+   the [MICS surveys page](https://mics.unicef.org/surveys) with permission.
+6. In **Data Preparation**, choose the country/period and wave, use **Browse**
+   to select the household and household members `.sav` files, Excel tabulation
+   plan, and complete preparation folder, then
+   click **Set**. In **Tabulator**, calculate a table; review **Consistency
+   Checks**, then use **Write to Excel** to create and fill the output workbooks.
+
+On later visits, reopen the survey project and run `micsPlusTableR::run_app()`.
+Select your inputs again; installation is not an everyday step. Keep the R
+session and browser open while working. Each user works in their own survey
+project; no maintainer workspace or source checkout is needed.
+
+### Other R environments
+
+You can also use **Positron**, **Visual Studio Code**, **Cursor**,
+**JupyterLab/Notebook with an R kernel**, or **R's own console/a terminal**.
+Install R and any R support needed by the chosen editor. Open your survey
+folder, start R there, and run the same commands in R. Check `getwd()` and
+`here::here()` before launching so results go to the intended project, or
+set `output_dir` explicitly. Use `launch.browser = TRUE` when your environment
+does not open the browser automatically. Remote sessions need administrator
+setup for browser access and retrieving server-side files. The User's Guide
+includes links to editor setup documentation and explains these alternatives.
+
+### Installation options for support staff
 
 The installation workflow checks clean installation and replacement of an
 existing copy on macOS, Windows, and Linux. It builds the current checkout
@@ -32,7 +78,7 @@ Or install a built source archive using base R:
 
 ```r
 install.packages(
-  "build/micsPlusTableR_0.2.7.tar.gz",
+  "build/micsPlusTableR_0.3.0.tar.gz",
   repos = NULL,
   type = "source"
 )
@@ -47,7 +93,7 @@ there. Choose another default directory when launching:
 micsPlusTableR::run_app(output_dir = "path/to/project-output")
 ```
 
-## Maintain survey and wave choices
+## Maintain survey and wave choices (maintainers)
 
 Edit `inst/extdata/survey_choices.csv` in the
 development checkout to change the app's country/period and wave dropdowns.
@@ -75,10 +121,81 @@ package folder and restart the app. The installed copy can be located with
 `system.file("extdata", "survey_choices.csv", package = "micsPlusTableR")`;
 direct edits to that copy are replaced on reinstall or upgrade.
 
+## Download tabulation plans and preparation files
+
+Tabulation plans, preparation scripts, and supporting reference assets are maintained in
+[micsPlusTableR-Files](https://github.com/bariscr/micsPlusTableR-Files).
+Household and household-member microdata are **not** distributed there or by
+these functions. Obtain the `.sav` data files separately from the
+[MICS surveys page](https://mics.unicef.org/surveys) with the required permission.
+Once the files repository is public, no GitHub account is needed for its
+plans and preparation files. You can
+[download all plans and preparation files as a ZIP](https://github.com/bariscr/micsPlusTableR-Files/archive/refs/heads/main.zip)
+and extract it, use the app tab, or run the Console commands below.
+
+### Download from the application
+
+The app opens on **Download Files**, before **Data Preparation**. Click
+**Load / refresh surveys**, then choose **Selected surveys** and tick one or
+more folders, or choose **All surveys**. The preview shows the selected file
+count and size. **Download folder** defaults to the current project captured
+when `run_app()` starts. Each survey is saved in its own subfolder, such as
+`<project>/JAM_W1/`.
+
+Use **Browse folders...** or type another path; relative paths are resolved
+against the current project. **Use current project** restores the default.
+Leave **Replace existing files** off unless you intend to replace local copies.
+Click **Download files**, wait for the saved-location message, then open
+**Data Preparation** and select the materials together with your separately
+authorized household/member data. On a remote R host, these paths refer to
+that host's filesystem.
+
+### Download from the R Console
+
+The functions below are an alternative to the app tab. Their default destination
+is `inputs/` under `getwd()`; the app tab instead defaults to the project itself.
+
+```r
+# See available survey IDs and file paths
+available <- micsPlusTableR::list_survey_files()
+unique(available$survey)
+
+# Plans and complete preparation folder for one survey
+micsPlusTableR::download_survey_files("JAM_W1")
+
+# Several surveys
+micsPlusTableR::download_survey_files(c("JAM_W1", "MNG_W2"))
+
+# All published surveys
+micsPlusTableR::download_survey_files()
+
+# Individual files: use exact paths from available$path
+micsPlusTableR::download_survey_files(
+  files = available$path[1],
+  dest_dir = "selected-inputs"
+)
+```
+
+These are alternative examples. Downloads go under `inputs` in the current
+working directory (`getwd()`), keeping folders such as `JAM_W1`
+and all preparation subfolders. To replace an existing selection deliberately,
+pass `overwrite = TRUE`; otherwise an existing file stops the download.
+Select a whole survey folder to include all its preparation helpers. These
+downloads do not include the household/member data needed to run the app.
+Save your separately authorized data alongside the matching plans and scripts.
+Downloaded scripts are saved without being executed. Select the files in the app as usual.
+New survey folders are discovered from GitHub without updating the package.
+Use `ref = "<commit-or-tag>"` to retrieve a recorded version; the returned table's
+`commit` attribute records the resolved commit. Internet access and a public
+files repository are required. If GitHub limits requests, retry later or use
+the ZIP link. Before publication, obtain the plans and preparation files from
+your survey lead.
+
 ## Required inputs
 
 - An Excel tabulation plan with an `IDX` sheet and one sheet per table.
-- Household (`hh`) and household-member (`hl`) SPSS `.sav` files.
+- Household (`hh`) and household-member (`hl`) SPSS `.sav` files obtained
+  separately from the MICS Plus website with permission.
 - A selected preparation folder containing one top-level prep-like `.R` script
   that reads `hh_path` and `hl_path` and creates objects named `hh` and `hl`.
 - An optional `FIES-inputs` subfolder containing FIES helper code and assets.
@@ -146,7 +263,7 @@ date, for example `MNG MICSPlus 2025-26 Wave2_LongFormatData_20260907.csv`.
 - [Reference manual](output/pdf/micsPlusTableR-manual.pdf): CRAN-style package
   overview, function arguments, return values, examples, and survey CSV format.
 - [Illustrated user guide (HTML)](inst/doc/user-guide.html): everyday application
-  tasks with step-by-step instructions and expandable screenshots. Open the app
+  setup and tasks with beginner instructions and expandable screenshots. Open the app
   and click **User's Guide** to read it; GitHub displays HTML as source.
 - [Printable user guide (PDF)](inst/doc/user-guide.pdf): the same application guide.
 - [Getting started](vignettes/getting-started.Rmd): editable package vignette.
@@ -164,6 +281,13 @@ To install the vignette from GitHub, add `build_vignettes = TRUE` to the
 `remotes::install_github()` call.
 
 ## Development and GitHub
+
+Version `0.3.0` marks the changed workflow and separation of this package from
+the previous project. The versioning policy, release checklist, and planned
+`1.0.0` milestone are maintained in the maintainer-only
+`micsPlusTableR-manager/docs/setup-and-maintenance.md`. That private management
+project is not distributed to users; user setup and operating instructions
+are maintained here in the package documentation. See [NEWS.md](NEWS.md) for package release notes.
 
 This folder is the package source and GitHub repository root.
 `DESCRIPTION`, `NAMESPACE`, `R/`, `man/`, and `inst/` stay at the top level.

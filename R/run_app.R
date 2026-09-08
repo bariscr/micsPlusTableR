@@ -2,6 +2,8 @@
 #'
 #' Starts the packaged Shiny application. Output workbooks are written to
 #' `output_dir` unless the user selects another destination in the app.
+#' The Download Files tab saves survey plans and preparation files to the
+#' current project by default; its destination can be changed in the tab.
 #'
 #' @param host Host interface passed to [shiny::runApp()].
 #' @param port Port passed to [shiny::runApp()]. Use `NULL` to select a free port.
@@ -34,7 +36,10 @@ run_app <- function(host = "127.0.0.1",
          call. = FALSE)
   }
 
-  old_options <- options(micsPlusTableR.output_dir = output_dir)
+  # Capture the caller's project before Shiny changes to the installed app directory.
+  project_dir <- normalizePath(here::here(), winslash = "/", mustWork = TRUE)
+  old_options <- options(micsPlusTableR.output_dir = output_dir,
+                         micsPlusTableR.project_dir = project_dir)
   on.exit(options(old_options), add = TRUE)
 
   shiny::runApp(

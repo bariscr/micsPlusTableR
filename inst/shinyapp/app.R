@@ -5,6 +5,10 @@
 micsPlusTableR:::bind_namespace_symbols(environment())
 
 survey_choices <- micsPlusTableR:::read_survey_choices()
+project_dir <- normalizePath(
+  getOption("micsPlusTableR.project_dir", here::here()),
+  winslash = "/", mustWork = TRUE
+)
 
 # Serve the HTML guide and printable PDF from their canonical package location.
 guide_resource_prefix <- "micsPlusTableR-guide"
@@ -496,7 +500,7 @@ ui <- tagList(
   page_navbar(
     title = NULL,
     theme = bs_theme(version = 5, bootswatch = "flatly"),
-    selected = "Data Preparation",
+    selected = "Download Files",
 
     
     # TAB 0: USER'S GUIDE -------------------------------------------------------------
@@ -528,6 +532,11 @@ ui <- tagList(
       )
     ),
 
+
+    nav_panel(
+      "Download Files",
+      micsPlusTableR:::download_files_ui("survey_download", project_dir)
+    ),
 
     # TAB 0: DATA PREPARATION --------------------------------------------------------
     nav_panel(
@@ -866,6 +875,7 @@ ui <- tagList(
 )
 
 server <- function(input, output, session) {
+  micsPlusTableR:::download_files_server("survey_download", project_dir)
   engine_env <- micsPlusTableR::mics_session()
   micsPlusTableR:::bind_engine_functions(engine_env, environment())
 

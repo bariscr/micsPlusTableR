@@ -1,6 +1,6 @@
 # Application screenshots
 
-Captured on 8 September 2026 from the installed `micsPlusTableR` 0.2.7
+Screenshots `01` through `08` were captured on 8 September 2026 from the installed `micsPlusTableR` 0.2.7
 application, GitHub commit `29e158ad20201b0d528d307461ae07f92b5c0fff`.
 These are actual Chrome application screenshots, not mockups. They are
 embedded in `../user-guide.qmd`; keep them with that source when rendering.
@@ -15,6 +15,7 @@ ordinary project runs use `micsPlusTableR-output`.
 
 | File | State shown |
 |---|---|
+| `00-download-files.png` | New Download Files tab before loading the published survey list |
 | `01-data-preparation.png` | Inputs selected and survey metadata matched |
 | `02-tabulator.png` | Table 1.1a calculated, Formatted/Header preview |
 | `03-consistency-checks.png` | Checks run, numeric comparison results |
@@ -30,3 +31,14 @@ individual records out of the guide. Update the recorded version and commit,
 then render and inspect both HTML and PDF outputs. A screenshot of a successful
 calculation documents application behavior; it is not statistical approval of
 the full survey.
+
+## Download Files screenshot
+
+`00-download-files.png` was captured on 8 September 2026 from the 0.3.0
+package development changes, installed into a disposable library and launched
+from a separate temporary survey project. It is an actual in-app browser
+capture of the initial screen, before any GitHub listing or download. It shows
+no survey data. The temporary project path demonstrates the default destination;
+users see their own project path. The new tab may be reached through Toggle
+navigation when the browser window is narrow. The older screenshots predate
+this tab and retain their historical navigation bars.

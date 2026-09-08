@@ -1,0 +1,30 @@
+# micsPlusTableR (development)
+
+- Add a Download Files tab before Data Preparation. Download one, several,
+  or all published survey folders, with a destination defaulting to the user's
+  project captured at app launch. Support folder browsing, typed paths, a reset
+  to the project, overwrite control, and selection/status feedback.
+- Document the app download workflow and link to the permission-based data
+  access page at https://mics.unicef.org/surveys.
+
+- Add `list_survey_files()` and `download_survey_files()` for the separate
+  public `bariscr/micsPlusTableR-Files` repository. Download plans, preparation scripts, and reference assets for
+  all surveys, selected survey folders, or exact files while preserving subfolders.
+  Survey folders are named `JAM_W1`, `MNG_W2`, etc. Household/member microdata
+  are excluded and must be obtained separately from MICS Plus with permission.
+- Protect existing files by default, stage network downloads before writing
+  destinations, and resolve a single Git commit for each request.
+- Preserve the maintained guide source and rendered assets during devtools builds.
+- Add direct ZIP links and beginner download instructions to the user guide,
+  README, and workflow vignette. Add `jsonlite` as an explicit dependency.
+
+# micsPlusTableR 0.3.0
+
+- Mark the changed workflow and separation of `micsPlusTableR` from the previous
+  project as a standalone package with a minor version increase.
+- Document the versioning policy, release checklist, and planned 1.0.0 milestone
+  for the start of actual survey use in the maintainer-only
+  `micsPlusTableR-manager/docs/setup-and-maintenance.md`.
+- Expand the user guide with R/RStudio installation, new and existing survey
+  projects, package setup, and the complete path from file selection to Excel.
+  Document alternative R editors and keep user workflows in the package docs.

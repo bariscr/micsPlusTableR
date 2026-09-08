@@ -18,12 +18,36 @@ R preparation script that reads \code{hh_path} and \code{hl_path} and creates da
 frames named \code{hh} and \code{hl}. A sibling \code{FIES-inputs} directory is optional.
 }
 
+\section{User setup}{
+
+Install R and an editor such as RStudio Desktop. Before installing this
+package or starting the app, create or open your own survey project.
+In RStudio, use File > New Project for a new or existing folder, or
+File > Open Project for an existing \code{.Rproj} file. Install the package with
+\code{remotes::install_github("bariscr/micsPlusTableR")} after installing \code{remotes},
+then restart R. The bundled \code{doc/user-guide.pdf} and \code{doc/user-guide.html}
+explain computer setup, project creation, installation, and file uploads
+for beginners. The app's User's Guide tab opens the guide after launch.
+
+Positron, VS Code, Cursor, Jupyter with an R kernel, and R's own console
+can also run the package. Configure R support and start R in the survey
+folder. Check \code{getwd()} and \code{here::here()} or set \code{output_dir} explicitly;
+use \code{launch.browser = TRUE} if needed. Remote sessions need browser routing
+and access to server files. Users do not need the maintainer's project.
+}
+
 \section{Interactive workflow}{
 
-Start \code{\link[=run_app]{run_app()}}, select the survey and wave, provide the inputs, prepare
+Reopen the survey project on each visit; installation is normally needed
+only once per R library. Select inputs again for each app session.
+Start \code{\link[=run_app]{run_app()}}. In Download Files, load the list and download one, several,
+or all survey folders to the current project or a chosen location. This saves
+plans and preparation materials; household/member data must be obtained from
+\url{https://mics.unicef.org/surveys} with permission. In Data Preparation,
+select the survey and wave, provide the inputs, prepare
 the data, calculate tables, review checks, and export the results. The app
-creates \code{micsPlusTableR-output} in the project root by default; use
-\code{run_app(output_dir = "path/to/output")} to select another location.
+creates \code{micsPlusTableR-output} in the project root by default.
+To select another location, pass the \code{output_dir} argument to \code{\link[=run_app]{run_app()}}.
 }
 
 \section{Scripting workflow}{

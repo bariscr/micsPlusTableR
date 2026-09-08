@@ -15,6 +15,13 @@ remotes::install_github("bariscr/micsPlusTableR")
 micsPlusTableR::run_app()
 ```
 
+The installation workflow checks clean installation and replacement of an
+existing copy on macOS, Windows, and Linux. It builds the current checkout
+through `remotes`, keeps R's staged installation and load checks enabled, and
+uses a disposable library. Maintainers can run the same checks locally with
+`Rscript tools/test-installation.R` after installing the package dependencies
+and `remotes`.
+
 Install directly from a package source folder with:
 
 ```r

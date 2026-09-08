@@ -1,6 +1,7 @@
 # Run with Rscript tools/build-package.R from the package root.
 local({
   stopifnot(file.exists("DESCRIPTION"), file.exists("R/survey_choices.R"))
+  source("tools/check-documentation.R", local = TRUE)
   root <- normalizePath(".", winslash = "/", mustWork = TRUE)
   reader <- new.env(parent = baseenv())
   sys.source(file.path(root, "R", "survey_choices.R"), envir = reader)

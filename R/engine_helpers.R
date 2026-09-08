@@ -1,19 +1,3 @@
-#' Calculate a table with a specific direction
-#'
-#' These lower-level entry points use the currently loaded plan. Vertical
-#' tabulation filters by column and computes row indicators; horizontal
-#' tabulation processes column filter blocks and computes column indicators.
-#' The direction must match the loaded plan. Both save the returned result in
-#' `session$cell_results`. Use [tabulate_mics_table()] for automatic selection
-#' and the additional variable-explanation labels.
-#' @param session A session created by [mics_session()] with prepared data and
-#'   a plan loaded by [read_mics_tabulation()].
-#' @param skip_row_conditions Logical; replace row predicates with TRUE during
-#'   calculation while retaining their labels. Intended for extra-table testing.
-#' @return A long-format cell-results data frame.
-#' @name direction-tabulation
-NULL
-
 run_direction_tabulation <- function(session, direction, skip_row_conditions) {
   validate_mics_session(session)
   result <- session_engine_function(session, paste0("tabulate_", direction))(
@@ -23,13 +7,34 @@ run_direction_tabulation <- function(session, direction, skip_row_conditions) {
   result
 }
 
-#' @rdname direction-tabulation
+#' Calculate a vertical table
+#'
+#' Filter prepared data by column and calculate row indicators using the
+#' currently loaded vertical plan. The direction must match the plan.
+#' Results are also saved in `session$cell_results`.
+#' Use [tabulate_mics_table()] for automatic direction selection and additional
+#' variable-explanation labels.
+#' @param session A session created by [mics_session()] with prepared data and
+#'   a plan loaded by [read_mics_tabulation()].
+#' @param skip_row_conditions Logical; replace row predicates with TRUE during
+#'   calculation while retaining their labels. Intended for extra-table testing.
+#' @return A long-format cell-results data frame.
+#' @seealso [tabulate_h()], [tabulate_mics_table()]
 #' @export
 tabulate_v <- function(session, skip_row_conditions = FALSE) {
   run_direction_tabulation(session, "v", skip_row_conditions)
 }
 
-#' @rdname direction-tabulation
+#' Calculate a horizontal table
+#'
+#' Process column filter blocks and calculate column indicators using the
+#' currently loaded horizontal plan. The direction must match the plan.
+#' Results are also saved in `session$cell_results`.
+#' Use [tabulate_mics_table()] for automatic direction selection and additional
+#' variable-explanation labels.
+#' @inheritParams tabulate_v
+#' @inherit tabulate_v return
+#' @seealso [tabulate_v()], [tabulate_mics_table()]
 #' @export
 tabulate_h <- function(session, skip_row_conditions = FALSE) {
   run_direction_tabulation(session, "h", skip_row_conditions)
@@ -79,26 +84,27 @@ calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
   )
 }
 
-#' Parse row and column conditions from a plan
+#' Parse row conditions from a plan
 #' @param tab_r Data frame containing `row_index` and `row_lgc`.
-#' @param tab_c Data frame containing `col_index` and `col_lgc`.
-#' @return A tibble containing the index, original condition, cleaned condition,
-#'   and generated variable name. Row output also contains `calculation`.
-#' @details Row parsing separates mutate calls from predicates; blank or NA
-#'   row logic means TRUE. Column parsing uses the last meaningful line after
-#'   excluding source, filter, calculation, separator, and weight lines.
-#'   These helpers parse text; they do not evaluate it against survey data.
-#' @name condition-parsing
-NULL
-
-#' @rdname condition-parsing
+#' @return A tibble containing the row index, original condition, cleaned
+#'   condition, generated variable name, and `calculation`.
+#' @details Separates mutate calls from predicates; blank or NA row logic
+#'   means TRUE. Parses text without evaluating it against survey data.
+#' @seealso [col_condition_f()], [normalize_condition_text()]
 #' @export
 row_condition_f <- function(tab_r) {
   mics_require_columns(tab_r, c("row_index", "row_lgc"), "tab_r")
   session_engine_function(mics_session(), "row_condition_f")(tab_r)
 }
 
-#' @rdname condition-parsing
+#' Parse column conditions from a plan
+#' @param tab_c Data frame containing `col_index` and `col_lgc`.
+#' @return A tibble containing the column index, original condition, cleaned
+#'   condition, and generated variable name.
+#' @details Uses the last meaningful line after excluding source, filter,
+#'   calculation, separator, and weight lines. Parses text without evaluating
+#'   it against survey data.
+#' @seealso [row_condition_f()], [normalize_condition_text()]
 #' @export
 col_condition_f <- function(tab_c) {
   mics_require_columns(tab_c, c("col_index", "col_lgc"), "tab_c")

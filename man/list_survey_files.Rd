@@ -2,45 +2,18 @@
 % Please edit documentation in R/survey_files.R
 \name{list_survey_files}
 \alias{list_survey_files}
-\alias{download_survey_files}
-\title{List or download survey tabulation plans and preparation files}
+\title{List survey tabulation plans and preparation files}
 \usage{
 list_survey_files(repo = "bariscr/micsPlusTableR-Files", ref = "main")
-
-download_survey_files(
-  surveys = NULL,
-  files = NULL,
-  dest_dir = "inputs",
-  overwrite = FALSE,
-  quiet = FALSE,
-  repo = "bariscr/micsPlusTableR-Files",
-  ref = "main"
-)
 }
 \arguments{
 \item{repo}{GitHub repository in \code{owner/name} form.}
 
 \item{ref}{Branch, tag, or commit to download. Defaults to \code{"main"}.}
-
-\item{surveys}{Character vector of root survey folder names, such as
-\code{"JAM_W1"}. \code{NULL} selects all surveys.}
-
-\item{files}{Character vector of exact repository-relative paths from
-\code{\link[=list_survey_files]{list_survey_files()}}. \code{NULL} selects all files in the selected surveys.}
-
-\item{dest_dir}{Destination folder, relative to the current R working
-directory unless an absolute path is supplied. Defaults to \code{"inputs"}.}
-
-\item{overwrite}{Replace existing files? Defaults to \code{FALSE}; any existing
-selected file stops the operation before downloading file contents.}
-
-\item{quiet}{Suppress file download progress and the completion message?}
 }
 \value{
 \code{list_survey_files()} returns a data frame with \code{survey}, \code{path},
 \code{size} (bytes), and \code{url} columns, plus a \code{commit} attribute.
-\code{download_survey_files()} invisibly returns the selected rows with an
-additional \code{local_path} column and the same \code{commit} attribute.
 }
 \description{
 Discover or download tabulation plans, preparation scripts, and their
@@ -74,10 +47,9 @@ later. The browser ZIP link in the user's guide is an alternative.
 \dontrun{
 available <- list_survey_files()
 unique(available$survey)
-download_survey_files("JAM_W1")
-download_survey_files(c("JAM_W1", "MNG_W2"), dest_dir = "survey-inputs")
-download_survey_files() # Plans and preparation files for all surveys
-available$path # Copy exact paths to select individual files
-download_survey_files(files = available$path[1])
+available$path
 }
+}
+\seealso{
+\code{\link[=download_survey_files]{download_survey_files()}}
 }

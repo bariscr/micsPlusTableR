@@ -1,4 +1,4 @@
-#' List or download survey tabulation plans and preparation files
+#' List survey tabulation plans and preparation files
 #'
 #' Discover or download tabulation plans, preparation scripts, and their
 #' supporting reference assets from the separate survey files repository.
@@ -9,15 +9,6 @@
 #'
 #' @param repo GitHub repository in `owner/name` form.
 #' @param ref Branch, tag, or commit to download. Defaults to `"main"`.
-#' @param surveys Character vector of root survey folder names, such as
-#'   `"JAM_W1"`. `NULL` selects all surveys.
-#' @param files Character vector of exact repository-relative paths from
-#'   [list_survey_files()]. `NULL` selects all files in the selected surveys.
-#' @param dest_dir Destination folder, relative to the current R working
-#'   directory unless an absolute path is supplied. Defaults to `"inputs"`.
-#' @param overwrite Replace existing files? Defaults to `FALSE`; any existing
-#'   selected file stops the operation before downloading file contents.
-#' @param quiet Suppress file download progress and the completion message?
 #'
 #' @details
 #' Survey folders use a three-letter country code and wave, such as `JAM_W1`.
@@ -41,17 +32,12 @@
 #'
 #' @return `list_survey_files()` returns a data frame with `survey`, `path`,
 #'   `size` (bytes), and `url` columns, plus a `commit` attribute.
-#'   `download_survey_files()` invisibly returns the selected rows with an
-#'   additional `local_path` column and the same `commit` attribute.
+#' @seealso [download_survey_files()]
 #' @examples
 #' \dontrun{
 #' available <- list_survey_files()
 #' unique(available$survey)
-#' download_survey_files("JAM_W1")
-#' download_survey_files(c("JAM_W1", "MNG_W2"), dest_dir = "survey-inputs")
-#' download_survey_files() # Plans and preparation files for all surveys
-#' available$path # Copy exact paths to select individual files
-#' download_survey_files(files = available$path[1])
+#' available$path
 #' }
 #' @export
 list_survey_files <- function(repo = "bariscr/micsPlusTableR-Files", ref = "main") {
@@ -114,7 +100,34 @@ list_survey_files <- function(repo = "bariscr/micsPlusTableR-Files", ref = "main
   result
 }
 
-#' @rdname list_survey_files
+#' Download survey tabulation plans and preparation files
+#'
+#' Save selected plans, preparation scripts, and supporting reference assets
+#' from the public survey files repository. Household and household-member
+#' microdata must be obtained separately with the required permission.
+#' @inheritParams list_survey_files
+#' @param surveys Character vector of root survey folder names, such as
+#'   `"JAM_W1"`. `NULL` selects all surveys.
+#' @param files Character vector of exact repository-relative paths from
+#'   [list_survey_files()]. `NULL` selects all files in the selected surveys.
+#' @param dest_dir Destination folder, relative to the current R working
+#'   directory unless an absolute path is supplied. Defaults to `"inputs"`.
+#' @param overwrite Replace existing files? Defaults to `FALSE`; any existing
+#'   selected file stops the operation before downloading file contents.
+#' @param quiet Suppress file download progress and the completion message?
+
+#' @inherit list_survey_files details
+#' @return Invisibly returns the selected file-list rows with `survey`, `path`,
+#'   `size`, `url`, and `local_path` columns, plus the resolved `commit` attribute.
+#' @seealso [list_survey_files()]
+#' @examples
+#' \dontrun{
+#' download_survey_files("JAM_W1")
+#' download_survey_files(c("JAM_W1", "MNG_W2"), dest_dir = "survey-inputs")
+#' download_survey_files() # All surveys
+#' available <- list_survey_files()
+#' download_survey_files(files = available$path[1])
+#' }
 #' @export
 download_survey_files <- function(surveys = NULL, files = NULL, dest_dir = "inputs",
                                   overwrite = FALSE, quiet = FALSE,

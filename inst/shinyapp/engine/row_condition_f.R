@@ -104,6 +104,7 @@ row_condition_f <- function(tab_r) {
   
   for (r in seq_along(tab_r$row_index)) {
     raw_cond  <- normalize_condition_text(tab_r$row_lgc[r] %||% "")
+    if (is.na(raw_cond)) raw_cond <- ""
     calc_part <- extract_calc(raw_cond)
     cleaned   <- strip_all_mutates(raw_cond)   # <- strips all, defaults to "TRUE" if empty
     

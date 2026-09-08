@@ -277,9 +277,9 @@ installation command again and restart R before using the updated package.
 micsPlusTableR::run_app()
 ```
 
-3. The application opens in a browser on **Download Files**, immediately before
-   **Data Preparation**. On a narrow window, use **Toggle navigation** to see
-   the tabs. If you already have all inputs, go straight to **Data Preparation**.
+3. The application opens in a browser on **Data Preparation**. On a narrow
+   window, use **Toggle navigation** to see the tabs. If you need plans or
+   preparation files, open **Download Files**.
 4. Follow **section 2** to locate your household data, household members data,
    Excel tabulation plan, and preparation folder. Then follow **section 3**
    to select the country and wave, upload the files, and click **Set**.
@@ -694,6 +694,40 @@ individual survey records out of it. Your support person can check the installed
 version in RStudio.
 
 {{< pagebreak >}}
+
+## Read a calculation error
+
+Calculation errors now identify the worksheet and, where available, the filter
+block, Excel row and column, statistic, and condition that failed. For example:
+
+```text
+Worksheet 'Example', horizontal block 2, starting column 4 ...
+Excel row 9, column 4; column condition: age >= 18; statistic: p
+object 'age' not found
+```
+
+Here, `age` is missing from the prepared data used for that block. The row and
+column refer to positions in the Excel plan. A block is a group of columns that
+share a filter. An index alone (such as “In index: 1”) does not explain the cause;
+keep the complete message, including the expression and the final cause.
+
+- **Prepared data source unavailable:** confirm that data preparation finished
+  and that the plan names the correct household or household-member file.
+- **Weight column not found or not numeric:** ask the survey lead to check the
+  plan's “weight by” entry and the variable created by the preparation script.
+- **Unknown variable or invalid expression:** send the named condition and its
+  Excel position to the survey lead to check spelling and R expression syntax.
+- **Unsupported statistic:** the statistic cell contains a code that this
+  direction of tabulation does not support. Ask the survey lead to correct it.
+- **No data-source condition in B4:B7:** check that the selected worksheet is a
+  table plan and contains its source/filter instructions in the expected cells.
+- **Extra-table dimensions differ:** the preparation script's supplied table
+  must match the plan's row count, with one label column and the value columns.
+- **Comparison row or column counts differ:** align the two tables and check
+  skipped header rows before comparing again.
+
+After correcting the input, repeat data preparation if the script changed,
+then calculate and check the table again.
 
 ## Installation cannot finish {#installation-cannot-finish}
 

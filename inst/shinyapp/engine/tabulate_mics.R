@@ -1,14 +1,15 @@
 tabulate_mics <- function(skip_row_conditions = FALSE) {
 
+  mics_require_plan(environment(sys.function()))
   tab_direction <- out_glob$tab_direction
   
   if (tab_direction == "v") {
     
-    result <- tabulate_v2(skip_row_conditions = skip_row_conditions)
+    result <- tabulate_v(skip_row_conditions = skip_row_conditions)
     
   } else {
     
-    result <- tabulate_h2(skip_row_conditions = skip_row_conditions)
+    result <- tabulate_h(skip_row_conditions = skip_row_conditions)
     
   }
 

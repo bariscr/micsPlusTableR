@@ -45,6 +45,11 @@ compare_tables <- function(df1, df2,
                            ignore_col_names = FALSE,
                            show_diff_over = 0) {
   
+  mics_require_columns(df1, character(), "df1")
+  mics_require_columns(df2, character(), "df2")
+  mics_scalar_flag(ignore_col_names, "ignore_col_names")
+  mics_tolerance(show_diff_over, "show_diff_over")
+  if (!ncol(df1) || !ncol(df2)) stop("Both comparison tables must contain at least one column.", call. = FALSE)
   # helper for paratheses
   normalize_paren_1dp <- function(s) {
     s <- as.character(s)
@@ -62,8 +67,8 @@ compare_tables <- function(df1, df2,
   }
   
   # basic shape checks
-  if (nrow(df1) != nrow(df2)) stop("Row counts differ.")
-  if (ncol(df1) != ncol(df2)) stop("Column counts differ.")
+  if (nrow(df1) != nrow(df2)) stop("Row counts differ: previous table has ", nrow(df1), "; current table has ", nrow(df2), ". Align the data rows and check skipped headers before comparing.", call. = FALSE)
+  if (ncol(df1) != ncol(df2)) stop("Column counts differ: previous table has ", ncol(df1), "; current table has ", ncol(df2), ". Align the selected columns before comparing.", call. = FALSE)
   
   n1 <- names(df1); n2 <- names(df2)
   if (!ignore_col_names && !identical(n1, n2)) {

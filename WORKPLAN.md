@@ -27,7 +27,7 @@
 
 ## Deferred architectural work
 
-The two established tabulation engines (`tabulate_v2()` and `tabulate_h2()` +
+The two established tabulation engines (`tabulate_v()` and `tabulate_h()` +
 `calc_cells()`) use different denominator and block models. They will be kept
 separate in version 0.2.4 to avoid changing statistical results during the
 packaging migration. A later release can replace string evaluation and implicit

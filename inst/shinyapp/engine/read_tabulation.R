@@ -38,6 +38,8 @@
 #' @importFrom tidyxl xlsx_cells xlsx_formats
 read_tabulation <- function(path_tab_excel, sheet) {
   
+  mics_file(path_tab_excel, "path_tab_excel")
+  mics_sheet(path_tab_excel, sheet)
   # tab_org --------------------------------------------------
   # We get the original table, nothing is changed except for column 3 is filled
   tab_org <- 
@@ -46,6 +48,9 @@ read_tabulation <- function(path_tab_excel, sheet) {
                                 col_names = FALSE
     )) 
   
+  if (ncol(tab_org) < 3L || nrow(tab_org) < 4L) {
+    stop("Worksheet '", sheet, "' is too small for a tabulation plan. It needs at least three columns and a data-source condition in B4:B7.", call. = FALSE)
+  }
   # The column names are now column indices
   names(tab_org) <- str_replace(names(tab_org), "...", "")
   
@@ -84,6 +89,8 @@ read_tabulation <- function(path_tab_excel, sheet) {
     condition_row_index <- 6
   } else if (isTRUE(stringr::str_detect(tab_org[7, 3], fixed(".sav")))) {
     condition_row_index <- 7
+  } else {
+    stop("Worksheet '", sheet, "' has no .sav data-source condition in cells B4:B7. Add the household or household-member source and filter to the plan.", call. = FALSE)
   }
   
   out_glob$condition_row_index <- condition_row_index

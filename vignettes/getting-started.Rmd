@@ -62,7 +62,7 @@ and extract it, use the app tab, or run the Console commands below.
 
 ### Download from the application
 
-The app opens on **Download Files**, before **Data Preparation**. Click
+The app opens on **Data Preparation**. To download files, open **Download Files** and click
 **Load / refresh surveys**, then choose **Selected surveys** and tick one or
 more folders, or choose **All surveys**. The preview shows the selected file
 count and size. **Download folder** defaults to the current project captured
@@ -190,6 +190,75 @@ write_mics_footnotes(session, workbooks$output, sheet = "1.1", table = result)
 `compare_mics_tables()` and `read_previous_mics_table()` support review against
 previous results. Consistency checks help find issues but cannot validate the
 substantive choices in a preparation script or tabulation plan.
+
+## Test individual steps in R
+
+The smaller engine helpers are available directly from the package. Stateful
+helpers take `session` as their first argument, so independent sessions do not
+share results. The direction-specific names are now `tabulate_v()` and
+`tabulate_h()`; replace any old `tabulate_v2()` or `tabulate_h2()` calls. Calls
+through `tabulate_mics_table()` continue to select the direction automatically.
+
+```{r individual-checks, eval=FALSE}
+# After preparing session and reading a plan:
+plan <- read_mics_tabulation(session, "TabulationPlan.xlsx", "1.1")
+row_rules <- row_condition_f(plan$tab_r)
+column_rules <- col_condition_f(plan$tab_c)
+result <- if (plan$tab_direction == "v") tabulate_v(session) else tabulate_h(session)
+
+# Run only the check of interest, using long-format numeric results:
+row_check <- row_group_total_check(session, result, diff = 1e-6)
+row_check$status
+row_check$issues
+```
+
+Each individual check returns `status`, `issue_count`, `details` (all
+comparisons), and `issues` (failing comparisons). `not_applicable` means the
+required total or distribution is absent; it is not a passing validation.
+`check_mics_table()` still runs all six checks with a default tolerance of
+`1e-6`; individual helpers retain the engine default `diff = 1e-11`.
+
+| Function | Purpose |
+|---|---|
+| `tabulate_v()`, `tabulate_h()` | Calculate the currently loaded vertical or horizontal plan and save results in the session. |
+| `tabulate_extra_table()` | Map a supplied numeric table to the plan by position, retaining row logic as labels. |
+| `calc_cells()` | Test individual horizontal cells using explicit data, row/column specifications, statistics, and weights. |
+| `row_condition_f()`, `col_condition_f()` | Inspect cleaned predicates and generated variable names; row output also separates calculations. |
+| `normalize_condition_text()` | Convert Excel smart quotes and Unicode operators to R syntax. |
+| `extract_var()` | Extract the leading variable from a supported condition; return NA for unsupported syntax. |
+| `get_blank_cols()` | Identify blank header columns in worksheet rows 3–8. |
+| `filter_second()` | Remove rows whose second column is NA. |
+| `row_group_total_check()` | Compare row-group counts with the overall total. |
+| `row_group_perc_total_check()` | Check row-group percentage totals. |
+| `col_group_total_check()` | Compare column-group counts with the overall total. |
+| `col_group_perc_total_check()` | Check column-block percentages against 100. |
+| `row_indent_group_total_check()` | Compare indented child counts with their parent row. |
+| `row_indent_group_perc_total_check()` | Compare indented child percentages with their parent row. |
+
+A complete, runnable cell example:
+
+```{r individual-cell}
+calc_cells(
+  df = data.frame(total = 1, sex = c(1, 2, 2), weight = c(1, 2, 3)),
+  tab_r = data.frame(row_index = 9L, row_lgc = "TRUE"),
+  tab_c3 = data.frame(col_index = 3L, col_condition = "sex == 2",
+                       col_var_name = "sex_2"),
+  tab = data.frame(row_index = 9L, col_index = 3L, stat_type = "n"),
+  weight_var = "weight", weighted = TRUE
+)
+```
+
+This returns a weighted count of 5. `weighted = FALSE` returns 2. For historical
+compatibility, `weighted = "both"` returns the unweighted result only; call the
+helper twice to compare both modes. Use `?calc_cells` for supported statistics
+and their weighting rules. Direction helpers return the engine result;
+`tabulate_mics_table()` additionally attaches variable-explanation labels.
+
+Errors identify the worksheet, block or cell and the relevant expression when
+available. A missing-variable message means the condition or statistic refers
+to a column absent from that block's prepared data. Fix the named input and
+rerun. Use raw long-format results for checks, not pivoted or formatted tables.
+Each helper's help page documents arguments, return values, and requirements.
 
 ## Edit surveys and waves (maintainers)
 

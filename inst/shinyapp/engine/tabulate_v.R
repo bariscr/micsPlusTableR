@@ -1,4 +1,9 @@
-tabulate_v2 <- function(skip_row_conditions = FALSE) {
+tabulate_v <- function(skip_row_conditions = FALSE) {
+  context <- mics_sheet_context(environment(sys.function()))
+  tryCatch({
+  mics_scalar_flag(skip_row_conditions, "skip_row_conditions")
+  mics_require_plan(environment(sys.function()), "v")
+
   
   tab <- out_glob$tab
   tab_c <- out_glob$tab_c
@@ -62,7 +67,9 @@ tabulate_v2 <- function(skip_row_conditions = FALSE) {
   }
   
   # resolve base df (works for character name or object)
-  df0 <- if (is.character(df_base)) get(df_base, inherits = TRUE) else df_base
+  context <- paste0(context, "; source: ", if (is.character(df_base)) df_base else "data frame",
+    "; primary filter: ", filt1)
+  df0 <- mics_data_source(df_base, environment())
   
   # 1) apply the primary filter (if present)
   df <- if (is_present(filt1)) apply_chain_df(df0, filt1) else df0
@@ -85,7 +92,9 @@ tabulate_v2 <- function(skip_row_conditions = FALSE) {
   }
   
   # 3) apply the full calculation chain (create ALL row vars once)
+  context <- paste0(context, "; row calculations: ", calc_chain_all)
   df <- apply_chain_df(df, calc_chain_all)
+  base_context <- context
   
   # ---------- helpers used during cell computation ----------
   extract_paren_arg <- function(x, pattern) {
@@ -108,6 +117,8 @@ tabulate_v2 <- function(skip_row_conditions = FALSE) {
   
   for (c in seq_along(tab_c2$col_index)) {
     
+    context <- paste0(base_context, "; Excel column ", tab_c2$col_index[c],
+      "; column condition: ", tab_c2$col_condition[c])
     col_condition <- tab_c2$col_condition[c]
     
     if (startsWith(trimws(col_condition), "filter(")) {
@@ -135,6 +146,11 @@ tabulate_v2 <- function(skip_row_conditions = FALSE) {
       
       row_condition <- row_condition_eval$row_condition[r]
       row_var_name  <- row_condition_eval$row_var_name[r]
+      context <- paste0(base_context, "; Excel row ", tab_r$row_index[r],
+        ", column ", tab_c2$col_index[c], "; statistic '", st,
+        "'; row condition: ", row_condition, "; column condition: ", col_condition)
+      if (st %in% c("n", "n1", "n2", "p", "p1", "p(100)") ||
+          grepl("^mean\\s*\\(", st)) mics_weight(df_c, weight_var)
       
       # ---- UNWEIGHTED ----
       
@@ -243,7 +259,8 @@ tabulate_v2 <- function(skip_row_conditions = FALSE) {
         value <- 100.0
         
       } else {
-        next
+        stop("Unsupported statistic '", st,
+             "' for vertical tabulation. Check the statistic cell; use n, n_unw, p, p_unw, mean(variable), median(variable), or 100.", call. = FALSE)
       }
       
       out <- dplyr::bind_rows(out, tibble::tibble(
@@ -283,6 +300,8 @@ out <-
 
 return(out)
 
+
+  }, error = function(e) mics_abort_context(e, context))
 }
 
 

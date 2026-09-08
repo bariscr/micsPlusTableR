@@ -68,6 +68,34 @@ The main steps are:
 See \link{offline-workflow} for a complete scripting example.
 }
 
+\section{Individual steps and testing}{
+
+\code{\link[=tabulate_v]{tabulate_v()}} and \code{\link[=tabulate_h]{tabulate_h()}} calculate a loaded plan in a specific
+direction; \code{\link[=calc_cells]{calc_cells()}} tests cells against explicit input data.
+\code{\link[=tabulate_extra_table]{tabulate_extra_table()}} maps supplied values to the loaded plan.
+\code{\link[=row_condition_f]{row_condition_f()}} parses row predicates.
+\code{\link[=col_condition_f]{col_condition_f()}} parses column predicates.
+
+\code{\link[=normalize_condition_text]{normalize_condition_text()}} normalizes Excel text.
+\code{\link[=extract_var]{extract_var()}} identifies variables.
+
+\code{\link[=get_blank_cols]{get_blank_cols()}} supports worksheet cleanup.
+\code{\link[=filter_second]{filter_second()}} supports comparison cleanup.
+
+Run a single consistency check:
+\itemize{
+\item \code{\link[=row_group_total_check]{row_group_total_check()}} checks row counts.
+\item \code{\link[=row_group_perc_total_check]{row_group_perc_total_check()}} checks row percentages.
+\item \code{\link[=col_group_total_check]{col_group_total_check()}} checks column counts.
+\item \code{\link[=col_group_perc_total_check]{col_group_perc_total_check()}} checks column percentages.
+\item \code{\link[=row_indent_group_total_check]{row_indent_group_total_check()}} checks indented counts.
+\item \code{\link[=row_indent_group_perc_total_check]{row_indent_group_perc_total_check()}} checks indented percentages.
+}
+Each returns status, issue count, all comparisons, and failing comparisons.
+Stateful helpers take a session;
+see the getting-started vignette for examples.
+}
+
 \section{Survey and wave configuration}{
 
 Maintain \code{inst/extdata/survey_choices.csv} in the package source. It remains

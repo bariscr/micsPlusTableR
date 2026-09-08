@@ -4,17 +4,20 @@ extract_var <- function(x) {
   
   # 1) between(x, ...)
   if (is_call(e, "between")) {
-    return(as.character(e[[2]]))
+    vars <- all.vars(e[[2]])
+    return(if (length(vars)) vars[[1L]] else NA_character_)
   }
   
   # 2) x %in% ...
   if (is_call(e, "%in%")) {
-    return(as.character(e[[2]]))
+    vars <- all.vars(e[[2]])
+    return(if (length(vars)) vars[[1L]] else NA_character_)
   }
   
   # 3) Comparison operators: ==, !=, >, <, >=, <=
   if (is_call(e) && call_name(e) %in% c("==", "!=", ">", "<", ">=", "<=")) {
-    return(as.character(e[[2]]))
+    vars <- all.vars(e[[2]])
+    return(if (length(vars)) vars[[1L]] else NA_character_)
   }
   
   # 4) Pure numeric or something without a variable

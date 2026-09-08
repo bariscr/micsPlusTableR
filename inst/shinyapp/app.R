@@ -500,7 +500,7 @@ ui <- tagList(
   page_navbar(
     title = NULL,
     theme = bs_theme(version = 5, bootswatch = "flatly"),
-    selected = "Download Files",
+    selected = "Data Preparation",
 
     
     # TAB 0: USER'S GUIDE -------------------------------------------------------------

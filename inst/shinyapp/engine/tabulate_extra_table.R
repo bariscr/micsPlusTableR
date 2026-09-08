@@ -18,6 +18,18 @@ apply_extra_table_suppression_basis <- function(results, tab) {
 
 tabulate_extra_table <- function(table = table_new) {
 
+  mics_require_columns(table, character(), "table")
+  expected_rows <- nrow(out_glob$tab_r)
+  expected_cols <- nrow(out_glob$tab_c) + 1L
+  if (nrow(table) != expected_rows || ncol(table) != expected_cols) {
+    stop("Extra table has ", nrow(table), " rows and ", ncol(table),
+         " columns; worksheet '", sheet, "' requires ", expected_rows,
+         " rows and ", expected_cols,
+         " columns (one label column followed by values in plan order).", call. = FALSE)
+  }
+  if (!all(vapply(table[-1L], is.numeric, logical(1)))) {
+    stop("Extra-table value columns must be numeric. Keep row labels in the first column and remove display formatting from values.", call. = FALSE)
+  }
   # Extra-table values are supplied by the preparation script. Run the common
   # engine only to build the cell/layout metadata: Excel row conditions are
   # retained for review but must not be evaluated against the base hh/hl data.

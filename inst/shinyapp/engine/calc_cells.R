@@ -2,6 +2,17 @@
 ## Stat function ----
 
 calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
+  context <- mics_sheet_context(environment(sys.function()))
+  tryCatch({
+  mics_require_columns(df, character(), "df")
+  mics_require_columns(tab_r, c("row_index", "row_lgc"), "tab_r")
+  mics_require_columns(tab_c3, c("col_index", "col_condition", "col_var_name"), "tab_c3")
+  mics_require_columns(tab, c("row_index", "col_index", "stat_type"), "tab")
+  if (!(identical(weighted, TRUE) || identical(weighted, FALSE) || identical(weighted, "both"))) {
+    stop("'weighted' must be TRUE, FALSE, or 'both'.", call. = FALSE)
+  }
+  if (isTRUE(weighted)) mics_weight(df, weight_var)
+
   # normalize to "unweighted" / "weighted" / "both"
   weight_mode <- if (isTRUE(weighted)) "weighted" else
     if (identical(weighted, "both")) "both" else "unweighted"
@@ -9,6 +20,8 @@ calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
   cell_results <- tibble()
   
   for (r in seq_along(tab_r$row_index)) {
+    context <- paste0(mics_sheet_context(environment(sys.function())),
+      "; Excel row ", tab_r$row_index[r], "; row condition: ", tab_r$row_lgc[r])
     row_condition <- tab_r$row_lgc[r]
     row_condition_eval <- normalize_condition_text(row_condition)
     if (!is.na(row_condition_eval) && identical(trimws(row_condition_eval), "ph")) {
@@ -25,6 +38,10 @@ calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
     }
     
     for (c in seq_along(tab_c3$col_index)) {
+      context <- paste0(mics_sheet_context(environment(sys.function())),
+        "; Excel row ", tab_r$row_index[r], ", column ", tab_c3$col_index[c],
+        "; row condition: ", tab_r$row_lgc[r],
+        "; column condition: ", tab_c3$col_condition[c])
       # stat type for this cell
       stat_type <- tab %>%
         dplyr::filter(row_index == tab_r$row_index[r],
@@ -32,6 +49,7 @@ calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
         dplyr::pull(stat_type)
       stat_type <- if (length(stat_type)) stat_type[[1]] else NA_character_
       
+      context <- paste0(context, "; statistic: ", stat_type)
       value <- NA_real_
       
       if (!is.na(stat_type)) {
@@ -183,6 +201,7 @@ calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
           }
         } else if (grepl("^p_sum\\(", stat_type)) {
           col_condition <- tab_c3$col_condition[c]
+          mics_weight(filtered_data, weight_var)
           p_sum_var <- sub(".*\\(([^)]*)\\).*", "\\1", stat_type)
           
           tmp <- filtered_data %>%
@@ -196,6 +215,9 @@ calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
             
           } else if (stat_type %in% c("100","100.0")) {
           value <- 100.0
+        } else {
+          stop("Unsupported statistic '", stat_type,
+               "' for horizontal cell calculation. Use n, n_unw, p, mean(variable), median(variable), p_sum(variable), or 100.", call. = FALSE)
         }
       } 
       
@@ -219,5 +241,7 @@ calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
   }
   
   cell_results
+
+  }, error = function(e) mics_abort_context(e, context))
 }
 

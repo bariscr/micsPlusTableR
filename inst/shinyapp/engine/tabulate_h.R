@@ -1,4 +1,10 @@
-tabulate_h2 <- function(skip_row_conditions = FALSE) {
+tabulate_h <- function(skip_row_conditions = FALSE) {
+  sheet_context <- mics_sheet_context(environment(sys.function()))
+  context <- sheet_context
+  tryCatch({
+  mics_scalar_flag(skip_row_conditions, "skip_row_conditions")
+  mics_require_plan(environment(sys.function()), "h")
+
   
   tab <- out_glob$tab
   tab_c <- out_glob$tab_c
@@ -132,8 +138,12 @@ tabulate_h2 <- function(skip_row_conditions = FALSE) {
   
   # ---------- block processor ----------
   .process_block <- function(b, i_block) {
+    context <<- paste0(sheet_context,
+      ", horizontal block ", i_block, ", starting column ", b$col_start[[1]],
+      "; source: ", b$df_base[[1]], "; filter: ", b$filt[[1]],
+      "; calculation: ", b$calc_chain[[1]])
     df_b <- b$df_base[[1]]
-    df0  <- if (is.character(df_b)) get(df_b, inherits = TRUE) else df_b
+    df0  <- mics_data_source(df_b, environment())
     
     filt_chain <- b$filt[[1]]
     calc_chain <- b$calc_chain[[1]]
@@ -143,12 +153,7 @@ tabulate_h2 <- function(skip_row_conditions = FALSE) {
     
     # Determine latest valid weight name after all chains
     wcol <- resolve_block_weight(b$weight_seq[[1]])
-    if (is.na(wcol) || !nzchar(wcol) || !wcol %in% names(df)) {
-      stop(sprintf(
-        "Weight column '%s' not found after chains.\ncalc_chain: %s\ncols(df): %s",
-        wcol, calc_chain, paste(names(df), collapse = ", ")
-      ))
-    }
+    mics_weight(df, wcol)
     
     tab_c3 <- tab_c2 |>
       dplyr::filter(col_index >= b$col_start[[1]], col_index < b$col_end_exl[[1]]) |>
@@ -213,8 +218,13 @@ tabulate_h2 <- function(skip_row_conditions = FALSE) {
     cell_results_all <- purrr::map_dfr(seq_along(start_rows), function(i_block) {
       
       cond    <- start_rows[i_block]
+      context <<- paste0(sheet_context, ", horizontal block ", i_block,
+        ", starting column ", filter_row$col_index[cond],
+        "; source: ", filter_row$df[[cond]],
+        "; filter: ", filter_row$filter_condition[cond],
+        "; calculation: ", filter_row$calculation[cond])
       df_base <- filter_row$df[[cond]]
-      df0     <- if (is.character(df_base)) get(df_base, inherits = TRUE) else df_base
+      df0     <- mics_data_source(df_base, environment())
       
       # universal + adjacent filters
       filt1      <- filter_row$filter_condition[start_rows[1]]
@@ -236,12 +246,7 @@ tabulate_h2 <- function(skip_row_conditions = FALSE) {
       
       # detect weight across all cells in this window
       wcol <- resolve_block_weight(filter_row$weight[rows_in_block])
-      if (is.na(wcol) || !wcol %in% names(df)) {
-        stop(sprintf(
-          "Missing weight column '%s' in block %d\ncalc_chain: %s\ncols(df): %s",
-          wcol, i_block, calc_chain, paste(names(df), collapse = ", ")
-        ))
-      }
+      mics_weight(df, wcol)
       
       tab_c3 <- tab_c2 |>
         dplyr::filter(col_index >= col_start, col_index < col_end_ex) |>
@@ -276,7 +281,7 @@ tabulate_h2 <- function(skip_row_conditions = FALSE) {
                                        ~ .process_block(blocks[.x, , drop = FALSE], .x))
     
   } else {
-    stop("No valid filter configuration detected: check filter_row.")
+    stop("No usable filter block was found. Add a filter(...) entry beside the .sav data source in the worksheet condition row.")
   }
   
   # ---------- output ----------
@@ -392,4 +397,6 @@ if (out_glob$is_supp) {
 return(out)
   
 
+
+  }, error = function(e) mics_abort_context(e, context))
 }

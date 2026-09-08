@@ -1,5 +1,16 @@
 # micsPlusTableR (development)
 
+- Rename the internal engines to `tabulate_v()` and `tabulate_h()` and expose
+  session-based entry points. Replace direct calls to the old names ending in 2.
+- Export and document 16 smaller tabulation, parsing, cleaning, and individual
+  consistency-check helpers for focused testing from R.
+- Add worksheet, filter-block, expression, statistic, and cell context to
+  calculation errors; validate missing data, weights, plan markers, extra-table
+  shape, comparison dimensions, and public arguments.
+- Add regression coverage for both directions, filter-block layouts, weighted
+  calculations, individual checks, and actionable errors. Update the guide and
+  scripting vignette with troubleshooting and individual-step examples.
+
 - Add a Download Files tab before Data Preparation. Download one, several,
   or all published survey folders, with a destination defaulting to the user's
   project captured at app launch. Support folder browsing, typed paths, a reset

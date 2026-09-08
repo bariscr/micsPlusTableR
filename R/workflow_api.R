@@ -21,6 +21,8 @@ session_engine_function <- function(session, name) {
 #' @return A mutable, isolated tabulation session environment.
 #' @export
 mics_session <- function(hh = NULL, hl = NULL) {
+  if (!is.null(hh)) mics_require_columns(hh, character(), "hh")
+  if (!is.null(hl)) mics_require_columns(hl, character(), "hl")
   session <- load_engine_environment()
   class(session) <- c("mics_tabulation_session", "environment")
   if (!is.null(hh)) assign("hh", hh, envir = session)
@@ -61,6 +63,8 @@ prepare_mics_data <- function(session,
                               prep_script,
                               output_dir = NULL) {
   validate_mics_session(session)
+  mics_file(hh_path, "hh_path")
+  mics_file(hl_path, "hl_path")
   prep_inputs <- resolve_preparation_inputs(prep_script)
   prep_script <- prep_inputs$prep_script
   prep_dir <- prep_inputs$prep_dir
@@ -142,11 +146,9 @@ prepare_mics_data <- function(session,
   old_dir <- setwd(if (is.null(fies_output_dir)) prep_dir else fies_output_dir)
   on.exit(setwd(old_dir), add = TRUE)
 
-  base::sys.source(
-    prep_script,
-    envir = prep_env,
-    keep.source = FALSE
-  )
+  tryCatch(base::sys.source(prep_script, envir = prep_env, keep.source = FALSE),
+    error = function(e) mics_abort_context(e, paste0("Preparation script '", prep_script,
+      "' failed. Check the named variable or expression in that script")))
 
   for (name in c("hh", "hl")) {
     if (!exists(name, envir = prep_env, inherits = FALSE)) {
@@ -331,12 +333,8 @@ resolve_preparation_source <- function(file, prep_dir, fies_inputs_dir = NULL) {
 #' @export
 read_mics_tabulation <- function(session, path_tab_excel, sheet) {
   validate_mics_session(session)
-  if (!file.exists(path_tab_excel)) {
-    stop("Tabulation plan does not exist: ", path_tab_excel, call. = FALSE)
-  }
-  if (length(sheet) != 1L || is.na(sheet)) {
-    stop("'sheet' must identify exactly one worksheet.", call. = FALSE)
-  }
+  mics_file(path_tab_excel, "path_tab_excel")
+  mics_sheet(path_tab_excel, sheet)
 
   session_engine_function(session, "clear_previous")()
   assign(
@@ -345,7 +343,8 @@ read_mics_tabulation <- function(session, path_tab_excel, sheet) {
     envir = session
   )
   assign("sheet", sheet, envir = session)
-  session_engine_function(session, "read_tabulation")(path_tab_excel, sheet)
+  tryCatch(session_engine_function(session, "read_tabulation")(path_tab_excel, sheet),
+    error = function(e) mics_abort_context(e, paste0("Reading worksheet '", sheet, "' from '", path_tab_excel, "'")))
 
   context <- get0("out_glob", envir = session, inherits = FALSE)
   if (!is.list(context)) {
@@ -422,10 +421,14 @@ pivot_mics_table <- function(session,
                              type = c("index", "header", "logic")) {
   validate_mics_session(session)
   type <- match.arg(type)
+  if (!(identical(formatted, TRUE) || identical(formatted, FALSE) || identical(formatted, "view"))) {
+    stop("'formatted' must be TRUE, FALSE, or 'view'.", call. = FALSE)
+  }
   if (is.null(table)) table <- get0("cell_results", envir = session, inherits = FALSE)
   if (!is.data.frame(table)) {
     stop("No cell results are available to pivot.", call. = FALSE)
   }
+  mics_require_columns(table, c("row_index", "col_index", "value", "stat_type"), "table")
   session_engine_function(session, "pivot_table")(
     table = table,
     formatted = formatted,
@@ -446,40 +449,14 @@ check_mics_table <- function(session, table = NULL, tolerance = 1e-6) {
   if (!is.data.frame(table)) {
     stop("No cell results are available to check.", call. = FALSE)
   }
-  if (!is.numeric(tolerance) || length(tolerance) != 1L ||
-      is.na(tolerance) || tolerance < 0) {
-    stop("'tolerance' must be one non-negative number.", call. = FALSE)
-  }
+  mics_tolerance(tolerance)
 
-  checks <- list(
-    row_group_count = c("row_group_total_check", "totals_row_df", "totals_row_df_issue_n"),
-    row_group_percent = c("row_group_perc_total_check", "totals_row_perc_df", "totals_row_perc_df_issue_n"),
-    column_group_count = c("col_group_total_check", "totals_col_df", "totals_col_df_issue_n"),
-    column_group_percent = c("col_group_perc_total_check", "totals_col_perc_df", "totals_col_perc_df_issue_n"),
-    row_indent_count = c("row_indent_group_total_check", "totals_indent_row_df", "totals_indent_row_df_issue_n"),
-    row_indent_percent = c("row_indent_group_perc_total_check", "totals_indent_row_perc_df", "totals_indent_row_perc_df_issue_n")
-  )
-
-  details <- vector("list", length(checks))
-  names(details) <- names(checks)
-  issue_count <- integer(length(checks))
-
-  for (i in seq_along(checks)) {
-    specification <- checks[[i]]
-    assign(specification[[2]], NULL, envir = session)
-    assign(specification[[3]], 0L, envir = session)
-    session_engine_function(session, specification[[1]])(table, diff = tolerance)
-
-    detail <- get0(specification[[2]], envir = session, inherits = FALSE)
-    if (!is.data.frame(detail)) detail <- data.frame()
-    details[[i]] <- detail
-
-    count <- suppressWarnings(as.integer(
-      get0(specification[[3]], envir = session, inherits = FALSE, ifnotfound = 0L)
-    ))
-    if (length(count) != 1L || is.na(count)) count <- 0L
-    issue_count[[i]] <- count
-  }
+  checks <- mics_check_specs()
+  results <- lapply(checks, function(spec) {
+    run_mics_check(session, spec[[1]], table, tolerance)
+  })
+  details <- lapply(results, `[[`, "details")
+  issue_count <- vapply(results, `[[`, integer(1), "issue_count")
 
   applicable <- vapply(details, nrow, integer(1)) > 0L
   summary <- data.frame(
@@ -509,15 +486,17 @@ write_mics_table <- function(session,
                              formatted = FALSE,
                              drop_n_unw = FALSE) {
   validate_mics_session(session)
-  if (!file.exists(destination)) {
-    stop("Destination workbook does not exist: ", destination, call. = FALSE)
-  }
+  mics_file(destination, "destination")
   if (is.null(sheet)) sheet <- get0("sheet", envir = session, inherits = FALSE)
   if (is.null(table)) table <- get0("cell_results", envir = session, inherits = FALSE)
   if (is.null(sheet) || !is.data.frame(table)) {
     stop("A current sheet and cell-results table are required.", call. = FALSE)
   }
 
+  mics_sheet(destination, sheet)
+  mics_scalar_flag(formatted, "formatted")
+  mics_scalar_flag(drop_n_unw, "drop_n_unw")
+  mics_require_columns(table, c("row_index", "col_index", "value", "stat_type"), "table")
   session_engine_function(session, "write_to_excel")(
     dest = destination,
     table = table,
@@ -538,15 +517,15 @@ write_mics_table <- function(session,
 #' @export
 write_mics_footnotes <- function(session, destination, sheet = NULL, table = NULL) {
   validate_mics_session(session)
-  if (!file.exists(destination)) {
-    stop("Destination workbook does not exist: ", destination, call. = FALSE)
-  }
+  mics_file(destination, "destination")
   if (is.null(sheet)) sheet <- get0("sheet", envir = session, inherits = FALSE)
   if (is.null(table)) table <- get0("cell_results", envir = session, inherits = FALSE)
   if (is.null(sheet) || !is.data.frame(table)) {
     stop("A current sheet and cell-results table are required.", call. = FALSE)
   }
 
+  mics_sheet(destination, sheet)
+  mics_require_columns(table, c("row_index", "col_index", "stat_type"), "table")
   session_engine_function(session, "write_footnotes")(
     dest = destination,
     sheet = sheet,
@@ -584,7 +563,11 @@ compare_mics_tables <- function(previous,
 #' @return A cleaned table.
 #' @export
 read_previous_mics_table <- function(path, sheet, skip = 3) {
-  if (!file.exists(path)) stop("Workbook does not exist: ", path, call. = FALSE)
+  mics_file(path, "path")
+  mics_sheet(path, sheet)
+  if (!is.numeric(skip) || length(skip) != 1L || !is.finite(skip) || skip < 0 || skip != floor(skip)) {
+    stop("'skip' must be one non-negative whole number of header rows.", call. = FALSE)
+  }
   engine <- mics_session()
   assign("path_final_table", path, envir = engine)
   assign("sheet", sheet, envir = engine)

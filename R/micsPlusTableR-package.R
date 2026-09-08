@@ -54,6 +54,32 @@
 #' }
 #' See [offline-workflow] for a complete scripting example.
 #'
+#' @section Individual steps and testing:
+#' [tabulate_v()] and [tabulate_h()] calculate a loaded plan in a specific
+#' direction; [calc_cells()] tests cells against explicit input data.
+#' [tabulate_extra_table()] maps supplied values to the loaded plan.
+#' [row_condition_f()] parses row predicates.
+#' [col_condition_f()] parses column predicates.
+#'
+#' [normalize_condition_text()] normalizes Excel text.
+#' [extract_var()] identifies variables.
+#'
+#' [get_blank_cols()] supports worksheet cleanup.
+#' [filter_second()] supports comparison cleanup.
+#'
+#' Run a single consistency check:
+#' \itemize{
+#'   \item [row_group_total_check()] checks row counts.
+#'   \item [row_group_perc_total_check()] checks row percentages.
+#'   \item [col_group_total_check()] checks column counts.
+#'   \item [col_group_perc_total_check()] checks column percentages.
+#'   \item [row_indent_group_total_check()] checks indented counts.
+#'   \item [row_indent_group_perc_total_check()] checks indented percentages.
+#' }
+#' Each returns status, issue count, all comparisons, and failing comparisons.
+#' Stateful helpers take a session;
+#' see the getting-started vignette for examples.
+#'
 #' @section Survey and wave configuration:
 #' Maintain `inst/extdata/survey_choices.csv` in the package source. It remains
 #' a plain, editable CSV on GitHub and is bundled automatically on installation.

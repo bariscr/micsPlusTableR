@@ -135,7 +135,7 @@ and extract it, use the app tab, or run the Console commands below.
 
 ### Download from the application
 
-The app opens on **Download Files**, before **Data Preparation**. Click
+The app opens on **Data Preparation**. To download files, open **Download Files** and click
 **Load / refresh surveys**, then choose **Selected surveys** and tick one or
 more folders, or choose **All surveys**. The preview shows the selected file
 count and size. **Download folder** defaults to the current project captured
@@ -349,3 +349,13 @@ does not require CRAN submission.
 
 The standard directory layout and reference manual follow R's
 [Writing R Extensions](https://cran.r-project.org/doc/manuals/r-release/R-exts.html).
+
+### Test individual tabulation steps
+
+Use `tabulate_v(session)` or `tabulate_h(session)` for a loaded plan,
+`calc_cells()` for explicit cell calculations, and the six individual
+`*_total_check()` helpers to investigate one consistency check. Parsing and
+cleaning helpers are also exported. See the getting-started vignette and
+`help(package = "micsPlusTableR")` for arguments and examples. The direction
+functions replace the old names ending in `2`. Calculation errors now include
+the worksheet and relevant block, cell, or expression when available.

@@ -1,0 +1,123 @@
+---
+title: "Getting started with micsPlusTableR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with micsPlusTableR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+`micsPlusTableR` turns an Excel tabulation plan, survey data, and a preparation
+script into checked survey tables. Use its Shiny application for interactive
+review or its R functions for a scripted workflow.
+
+## Inputs
+
+Prepare these files before starting:
+
+1. An Excel plan with an `IDX` sheet and one worksheet per table.
+2. Household (`hh`) and household-member (`hl`) SPSS `.sav` files.
+3. A preparation folder with one top-level prep-like `.R` script. The script
+   reads `hh_path` and `hl_path` and creates data frames named `hh` and `hl`.
+   Optional FIES assets belong in a sibling `FIES-inputs` subdirectory.
+
+Preparation scripts execute R code and define survey-specific recodes and
+additional tables. Review and validate them for the survey being analysed.
+Survey input files are supplied by the analyst and are not bundled here.
+
+## Interactive use
+
+```{r launch, eval=FALSE}
+library(micsPlusTableR)
+run_app()
+# Or select the output location:
+run_app(output_dir = "survey-results")
+```
+
+Select the survey and wave, provide the plan, data files, and preparation
+folder, then prepare the data. Calculate the required tables, inspect the
+consistency checks, and export the workbooks. By default, workbooks are written
+to `micsPlusTableR-output` below the project root detected by `here::here()`.
+
+The **Long Format Data** tab offers Excel, CSV, and RDS downloads. Downloads
+include the full prepared dataset even when the preview is filtered. RDS
+preserves R column types. The SDMX-compatible fields follow the package's
+observation contract; review requirements of any external SDMX system separately.
+
+## Scripted use
+
+A session keeps prepared data, the table plan, and results together. Create a
+separate session for independent workflows:
+
+```{r session}
+library(micsPlusTableR)
+session <- mics_session()
+session
+```
+
+The following example requires your own input files:
+
+```{r workflow, eval=FALSE}
+prepare_mics_data(
+  session,
+  hh_path = "hh.sav",
+  hl_path = "hl.sav",
+  prep_script = "survey-preparation/survey_prep.R",
+  output_dir = "survey-results"
+)
+result <- tabulate_mics_table(session, "TabulationPlan.xlsx", "1.1")
+checks <- check_mics_table(session, result)
+preview <- pivot_mics_table(session, result, type = "header")
+
+workbooks <- create_excel_workbooks(
+  "TabulationPlan.xlsx", "survey-results",
+  country_code = "JAM", period = "2023-24", wave = "Wave 1"
+)
+write_mics_table(session, workbooks$output, sheet = "1.1", table = result)
+write_mics_footnotes(session, workbooks$output, sheet = "1.1", table = result)
+```
+
+`compare_mics_tables()` and `read_previous_mics_table()` support review against
+previous results. Consistency checks help find issues but cannot validate the
+substantive choices in a preparation script or tabulation plan.
+
+## Edit surveys and waves
+
+In the development source, edit **`inst/extdata/survey_choices.csv`**. It is a
+normal CSV and remains editable when stored on GitHub. R includes it in the
+installed package automatically. Its current contents can be read with:
+
+```{r survey-choices}
+path <- system.file("extdata", "survey_choices.csv", package = "micsPlusTableR")
+read.csv(path, colClasses = "character", fileEncoding = "UTF-8-BOM")
+```
+
+Keep the four columns `country`, `country_code`, `period`, and `wave`. Add one
+row per available combination, with no blank fields or duplicates. Country
+codes must be three uppercase letters and consistent within a country/period.
+Treat periods such as `2025-26` as text in spreadsheet editors. Save as UTF-8.
+Row order controls dropdown order; the first survey and its first wave are the
+defaults. Only the selected survey's waves are offered.
+
+From the package root, `source("run_dev.R")` loads the source files directly.
+Stop the app and relaunch after saving changes. For an installed package,
+reinstall the updated source and restart. Avoid maintaining the installed CSV:
+installation replaces that copy.
+
+## Documentation and distribution
+
+Use `help(package = "micsPlusTableR")` for the function index and
+`help("survey_choices", package = "micsPlusTableR")` for the CSV specification.
+The detailed application guide is available at:
+
+```{r guide}
+system.file("doc", "user-guide.pdf", package = "micsPlusTableR")
+```
+
+The repository root is already a standard R source package. Commit the source
+files to GitHub, including the CSV, `man/` help pages, and this vignette. From
+that root, `Rscript tools/build-package.R` validates the CSV and creates an
+installable source archive in `build/`. `Rscript tools/build-manual.R` creates
+the CRAN-style reference PDF from the help pages in `output/pdf/`.
+
+No conversion or duplicate package folder is needed before pushing to GitHub.

@@ -1,0 +1,22 @@
+Package: micsPlusTableR
+Title: MICS Plus Excel Tabulation and Review Application
+Version: 0.2.7
+Authors@R: person("MICS Plus", "Tabulation Team", email = "micsplustabler@example.org", role = c("aut", "cre"))
+Description: Runs interactive and scriptable workflows for preparing,
+    tabulating, checking, reviewing, and exporting MICS Plus tables from an
+    Excel tabulation plan, survey data files, and a survey-specific preparation
+    script.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Depends: R (>= 4.2.0)
+Imports: bslib, DiagrammeR, dplyr, flextable, ggplot2, gt, haven,
+        Hmisc, here, htmltools, htmlwidgets, janitor, knitr, labelled,
+        later, officer, openxlsx2, purrr, reactable, readr, readxl,
+        reshape2, rlang, RM.weights, shiny, shinyFiles, sjlabelled,
+        srvyr, stringdist, stringr, survey, tibble, tidyr, tidyxl
+Suggests: testthat (>= 3.0.0), rmarkdown
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+NeedsCompilation: no

@@ -1,0 +1,14 @@
+# Run with Rscript tools/build-package.R from the package root.
+local({
+  stopifnot(file.exists("DESCRIPTION"), file.exists("R/survey_choices.R"))
+  root <- normalizePath(".", winslash = "/", mustWork = TRUE)
+  reader <- new.env(parent = baseenv())
+  sys.source(file.path(root, "R", "survey_choices.R"), envir = reader)
+  choices <- reader$read_survey_choices(file.path(root, "inst", "extdata", "survey_choices.csv"))
+  message("Validated ", nrow(choices), " survey/wave rows.")
+  dir.create("build", showWarnings = FALSE)
+  old_dir <- setwd("build")
+  on.exit(setwd(old_dir))
+  status <- system2(file.path(R.home("bin"), "R"), c("CMD", "build", shQuote(root)))
+  if (status != 0L) stop("Package build failed; see the output above.")
+})

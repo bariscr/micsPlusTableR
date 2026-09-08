@@ -96,6 +96,17 @@ Stateful helpers take a session;
 see the getting-started vignette for examples.
 }
 
+\section{Dependencies}{
+
+\link{package-dependencies} explains required app/engine packages and development
+tools. \link{prep-script-dependencies} documents survey packages separately.
+Both dependency groups install with the package; no separate preparation
+setup is needed.
+
+For diagnosis, use \code{\link[=check_prep_dependencies]{check_prep_dependencies()}}. For repairs or extra
+custom-script requirements, use \code{\link[=install_prep_dependencies]{install_prep_dependencies()}}.
+}
+
 \section{Survey and wave configuration}{
 
 Maintain \code{inst/extdata/survey_choices.csv} in the package source. It remains

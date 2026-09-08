@@ -26,3 +26,9 @@ The session, invisibly.
 \description{
 Run a survey preparation script outside the Shiny application
 }
+\details{
+Checks declared and detected preparation dependencies before running
+any preparation code. Maintained survey dependencies install with the package.
+\code{\link[=install_prep_dependencies]{install_prep_dependencies()}} is available for repair or extra custom-script
+requirements. See \link{prep-script-dependencies} for the separate dependency list.
+}

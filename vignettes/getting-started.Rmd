@@ -135,6 +135,33 @@ Plans and preparation files are downloaded separately from `micsPlusTableR-Files
 Microdata are obtained from the MICS Plus website with permission. Neither is
 bundled in the package.
 
+## Preparation script dependencies
+
+All packages required by the maintained preparation scripts are installed
+with `micsPlusTableR` through the normal package installation command. There is
+no separate preparation dependency installation step. They are documented
+here separately to distinguish their purpose from app and tabulation packages.
+
+The maintained scripts declare `prep_dependencies` near the top of each main R
+file. The app checks these requirements automatically before preparation and
+reports the package and helper script if a package is missing or cannot load.
+
+Mongolia Waves 1 and 2 use **dplyr** and **haven**, already required by the app.
+Jamaica's FIES workflows additionally require **ggplot2**, **Hmisc**, **memisc**,
+**reshape2**, **RM.weights**, **survey**, and **srvyr**. Jamaica Wave 2 also uses
+**labelled**. Its other shared packages (including **purrr**) are already app
+requirements. The checker reads the selected script and its helpers, so use
+its results for the exact survey-specific list.
+
+Preparation-only packages are required `Imports`, alongside app dependencies.
+The `Config/micsPlusTableR/prep-packages` field identifies them separately for
+documentation. `check_prep_dependencies()` and `install_prep_dependencies()`
+remain available for diagnosis, repair, or custom scripts with additional
+requirements; they are not part of normal setup.
+Use `help("prep-script-dependencies", package = "micsPlusTableR")` for their
+purposes and script-author instructions, or `help("package-dependencies",
+package = "micsPlusTableR")` for the 23 required app/engine packages.
+
 ## Interactive use
 
 ```{r launch, eval=FALSE}

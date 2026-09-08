@@ -1,5 +1,14 @@
 # micsPlusTableR (development)
 
+- Audit runtime dependencies; remove unused DiagrammeR, gt, sjlabelled, and
+  stringdist dependencies and obsolete namespace imports. Keep knitr as a
+  vignette-building Suggests rather than a runtime Import.
+- Install all eight preparation-only packages with the package as required
+  Imports, including memisc for Jamaica FIES helpers. Document their purposes
+  separately without adding an installation step for users.
+- Add check_prep_dependencies() and install_prep_dependencies(), automatic
+  preflight checks in both preparation workflows, and separate dependency docs.
+
 - Rename the internal engines to `tabulate_v()` and `tabulate_h()` and expose
   session-based entry points. Replace direct calls to the old names ending in 2.
 - Export and document 16 smaller tabulation, parsing, cleaning, and individual

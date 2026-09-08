@@ -11,12 +11,13 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Depends: R (>= 4.2.0)
-Imports: bslib, DiagrammeR, dplyr, flextable, ggplot2, gt, haven,
-        Hmisc, here, htmltools, htmlwidgets, janitor, jsonlite, knitr, labelled,
-        later, officer, openxlsx2, purrr, reactable, readr, readxl,
-        reshape2, rlang, RM.weights, shiny, shinyFiles, sjlabelled,
-        srvyr, stringdist, stringr, survey, tibble, tidyr, tidyxl
-Suggests: testthat (>= 3.0.0), rmarkdown
+Imports: bslib, dplyr, flextable, haven, here, htmltools, htmlwidgets,
+        janitor, jsonlite, later, officer, openxlsx2, purrr, reactable, readr, readxl,
+        rlang, shiny, shinyFiles, stringr, tibble, tidyr, tidyxl,
+        ggplot2, Hmisc, labelled, memisc, reshape2, RM.weights, survey, srvyr
+Suggests: testthat (>= 3.0.0), knitr, rmarkdown
+Config/micsPlusTableR/prep-packages: ggplot2, Hmisc, labelled, memisc,
+        reshape2, RM.weights, survey, srvyr
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 NeedsCompilation: no

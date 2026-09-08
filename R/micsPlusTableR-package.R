@@ -80,6 +80,15 @@
 #' Stateful helpers take a session;
 #' see the getting-started vignette for examples.
 #'
+#' @section Dependencies:
+#' [package-dependencies] explains required app/engine packages and development
+#' tools. [prep-script-dependencies] documents survey packages separately.
+#' Both dependency groups install with the package; no separate preparation
+#' setup is needed.
+#'
+#' For diagnosis, use [check_prep_dependencies()]. For repairs or extra
+#' custom-script requirements, use [install_prep_dependencies()].
+#'
 #' @section Survey and wave configuration:
 #' Maintain `inst/extdata/survey_choices.csv` in the package source. It remains
 #' a plain, editable CSV on GitHub and is bundled automatically on installation.

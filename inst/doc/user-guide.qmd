@@ -267,6 +267,24 @@ installation command again and restart R before using the updated package.
 
 {{< pagebreak >}}
 
+### Preparation script dependencies {#prep-script-dependencies}
+
+The package installation in Section 1D also installs all packages needed by the
+maintained survey preparation scripts. **No separate installation step is
+needed before preparing data or when switching between the supported surveys.**
+These dependencies are documented separately here to explain their purpose.
+
+Mongolia Waves 1 and 2 use **dplyr** and **haven**, which are also used by the app.
+Jamaica FIES preparation also uses **ggplot2**, **Hmisc**, **memisc**,
+**reshape2**, **RM.weights**, **survey**, and **srvyr**; Wave 2 additionally uses
+**labelled**. All of these are included in the package's required dependencies.
+
+The app checks the selected script's requirements automatically before
+preparation. If a package is missing or cannot load, the message identifies the
+package and the script requiring it. Show that message to your support person;
+it includes a repair command for an incomplete installation or extra packages
+required by a custom script.
+
 ## 1E. Start the application (each time you work)
 
 1. Open your survey's **.Rproj** file. Confirm its name at the top right of

@@ -55,6 +55,10 @@ print.mics_tabulation_session <- function(x, ...) {
 #' @param output_dir Main output folder. If the script's folder contains
 #'   `FIES-inputs`, FIES artifacts are written to `FIES-outputs` below this
 #'   folder.
+#' @details Checks declared and detected preparation dependencies before running
+#'   any preparation code. Maintained survey dependencies install with the package.
+#'   [install_prep_dependencies()] is available for repair or extra custom-script
+#'   requirements. See [prep-script-dependencies] for the separate dependency list.
 #' @return The session, invisibly.
 #' @export
 prepare_mics_data <- function(session,
@@ -69,6 +73,7 @@ prepare_mics_data <- function(session,
   prep_script <- prep_inputs$prep_script
   prep_dir <- prep_inputs$prep_dir
   fies_inputs_dir <- prep_inputs$fies_inputs_dir
+  prep_packages <- check_prep_dependencies(prep_script, stop_on_missing = TRUE)
 
   paths <- c(hh_path = hh_path, hl_path = hl_path, prep_script = prep_script)
   missing <- names(paths)[!file.exists(paths)]
@@ -118,6 +123,7 @@ prepare_mics_data <- function(session,
   assign("extra_tables_dict", list(), envir = session)
 
   prep_env <- new.env(parent = session)
+  bind_preparation_packages(prep_packages$package, prep_env)
   prep_env$.GlobalEnv <- session
   prep_env$source <- function(file, local = parent.frame(), ...) {
     source_path <- resolve_preparation_source(

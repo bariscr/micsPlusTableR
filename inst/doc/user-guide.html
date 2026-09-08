@@ -2435,6 +2435,12 @@ html { scroll-padding-top: 6rem; }
 <p><strong>Ready to continue:</strong> a version number appears without an error saying the package is missing. Continue to <strong>1E</strong> to launch the application.</p>
 <p>You normally install once for the R library you use, not once per survey or on every launch. A different R installation or an isolated project library may need its own package installation. To update, finish and save your work, stop the app, and follow your survey lead’s instructions. Run the GitHub installation command again and restart R before using the updated package.</p>
 <div style="page-break-after: always;"></div>
+<section id="prep-script-dependencies" class="level3">
+<h3 class="anchored" data-anchor-id="prep-script-dependencies">Preparation script dependencies</h3>
+<p>The package installation in Section 1D also installs all packages needed by the maintained survey preparation scripts. <strong>No separate installation step is needed before preparing data or when switching between the supported surveys.</strong> These dependencies are documented separately here to explain their purpose.</p>
+<p>Mongolia Waves 1 and 2 use <strong>dplyr</strong> and <strong>haven</strong>, which are also used by the app. Jamaica FIES preparation also uses <strong>ggplot2</strong>, <strong>Hmisc</strong>, <strong>memisc</strong>, <strong>reshape2</strong>, <strong>RM.weights</strong>, <strong>survey</strong>, and <strong>srvyr</strong>; Wave 2 additionally uses <strong>labelled</strong>. All of these are included in the package’s required dependencies.</p>
+<p>The app checks the selected script’s requirements automatically before preparation. If a package is missing or cannot load, the message identifies the package and the script requiring it. Show that message to your support person; it includes a repair command for an incomplete installation or extra packages required by a custom script.</p>
+</section>
 </section>
 <section id="e.-start-the-application-each-time-you-work" class="level2">
 <h2 class="anchored" data-anchor-id="e.-start-the-application-each-time-you-work">1E. Start the application (each time you work)</h2>

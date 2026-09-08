@@ -2317,7 +2317,7 @@ html { scroll-padding-top: 6rem; }
 <div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;remotes&quot;</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;bariscr/micsPlusTableR&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ol start="4" type="1">
-<li>If installation asks a question or reports an error, ask your support person to help before continuing.</li>
+<li>If installation asks a question or reports an error, ask your support person to help before continuing. For a working-directory or lock error, see <a href="#installation-cannot-finish">Installation cannot finish</a>.</li>
 <li>When installation finishes, click <strong>Session</strong>, then <strong>Restart R</strong> at the top of RStudio.</li>
 </ol>
 </section>
@@ -2566,10 +2566,6 @@ html { scroll-padding-top: 6rem; }
 <section id="if-something-goes-wrong" class="level2">
 <h2 class="anchored" data-anchor-id="if-something-goes-wrong">If something goes wrong</h2>
 <table class="caption-top table">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
 <thead>
 <tr class="header">
 <th>What you see</th>
@@ -2578,40 +2574,72 @@ html { scroll-padding-top: 6rem; }
 </thead>
 <tbody>
 <tr class="odd">
+<td>Installation reports <code>setwd(startdir)</code> or a <code>00LOCK</code> folder</td>
+<td>Follow <a href="#installation-cannot-finish">Installation cannot finish</a> with your support person.</td>
+</tr>
+<tr class="even">
 <td>Missing file or wrong filename</td>
 <td>Return to <strong>Data Preparation</strong>, select the correct file, and click <strong>Set</strong> again. Rerun and recheck the table.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Country or wave mismatch</td>
 <td>Compare your dropdown choices with the files supplied by your team. Ask for a matched set if unsure.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Preparation error or missing variable</td>
 <td>Record the message and send it to your survey lead. Do not edit the preparation code yourself.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Empty preview or no table</td>
 <td>Check that <strong>Set</strong> completed, choose a sheet, and click <strong>Run</strong>. If the workbook preview alone is blank, check your connection and report that detail.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Red consistency tab</td>
 <td>Record the table code and the displayed differences. Have your survey lead review them before sharing.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Excel file cannot be written</td>
 <td>Close that workbook in Excel, then try its <strong>Write</strong> button again.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Cannot find the saved workbook</td>
 <td>Use <strong>Write to Excel &gt; Open folder</strong> or the path shown there. For a data download, check <strong>Downloads</strong> instead.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Browser disconnected or refreshed</td>
 <td>Save any work still available. Restart the app if needed and select the inputs again; check existing files before rewriting.</td>
 </tr>
 </tbody>
 </table>
 <p><strong>When asking for help, include:</strong> country and wave, table code, the button you clicked, and the exact error text. A screenshot of the message helps; leave individual survey records out of it. Your support person can check the installed package version in RStudio.</p>
+<div style="page-break-after: always;"></div>
+</section>
+<section id="installation-cannot-finish" class="level2">
+<h2 class="anchored" data-anchor-id="installation-cannot-finish">Installation cannot finish</h2>
+<p><strong>Recognize the messages:</strong> <code>Error in setwd(startdir) : cannot change working directory</code>, or <code>failed to lock directory</code> followed by a folder such as <code>00LOCK-micsPlusTableR</code>. Ask your support person to help with these steps.</p>
+<p><strong>What happened:</strong> the first message means R’s installer could not return to its starting folder. If that also prevents recovery, an unfinished installation can leave a lock folder that blocks later attempts. A lock error can also mean another installation is still running. These messages alone do not show why the starting folder became unavailable or prove a fault in the application.</p>
+<section id="recover-the-installation" class="level3">
+<h3 class="anchored" data-anchor-id="recover-the-installation">Recover the installation</h3>
+<ol type="1">
+<li>Save your work and the complete Console error. Close the app and other R sessions after any active installations finish.</li>
+<li>Open your survey’s <strong>.Rproj</strong> file from its normal, existing project folder. Keep that folder available throughout installation. Do not install from inside R’s installed <code>micsPlusTableR</code> folder.</li>
+<li><strong>Only if a lock error remains:</strong> have your support person check the library path printed in the error and confirm no installer is running. Move only the reported stale lock folder to a separate backup location outside the library. It may contain the previous package needed for recovery. Do not delete the library or remove locks belonging to active installations.</li>
+<li>Retry the original command in the Console:</li>
+</ol>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;bariscr/micsPlusTableR&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="5" type="1">
+<li>After installation reports <code>DONE (micsPlusTableR)</code>, verify that it loads:</li>
+</ol>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(micsPlusTableR)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">&quot;micsPlusTableR&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>No manual <code>setwd()</code> command or special installation options are required for this recovery route. If it fails again, keep the new error and stop repeating the installation until support has investigated it.</p>
+</section>
+<section id="prevent-repeated-working-directory-failures" class="level3">
+<h3 class="anchored" data-anchor-id="prevent-repeated-working-directory-failures">Prevent repeated working-directory failures</h3>
+<p><strong>For support staff:</strong> run installation in a separate R process with an explicit temporary working directory outside the package library. Keep that directory alive until installation and cleanup finish, and pass the intended library paths to the process. This avoids relying on the user’s current folder without changing their session’s working directory. It requires a separate installation launcher; the standard GitHub command does not acquire this behavior from a change to <code>micsPlusTableR</code> alone.</p>
+<p>Keep R’s staged installation, loading checks, and locking enabled. Clearing a stale lock repairs a failed attempt; it does not fix the original cause. Maintainers should require successful installation and reinstallation checks before release and report a reproducible installer failure to R or <code>remotes</code>. This addresses the known failure mode, not every possible installation error.</p>
+<p>For investigation, record <code>getwd()</code>, <code>.libPaths()</code>, and <code>sessionInfo()</code> before retrying. These commands only report information. Review paths for personal details before sharing the report. See the <a href="https://search.r-project.org/R/refmans/utils/html/install.packages.html">R installation documentation</a>.</p>
+</section>
 </section>
 </section>
 

@@ -113,7 +113,8 @@ remotes::install_github("bariscr/micsPlusTableR")
 ```
 
 4. If installation asks a question or reports an error, ask your support person
-   to help before continuing.
+   to help before continuing. For a working-directory or lock error, see
+   [Installation cannot finish](#installation-cannot-finish).
 5. When installation finishes, click **Session**, then **Restart R** at the top
    of RStudio.
 
@@ -405,6 +406,7 @@ Excel**. Writing the same sheet again replaces its previously written values.
 
 | What you see | What to do next |
 |---|---|
+| Installation reports `setwd(startdir)` or a `00LOCK` folder | Follow [Installation cannot finish](#installation-cannot-finish) with your support person. |
 | Missing file or wrong filename | Return to **Data Preparation**, select the correct file, and click **Set** again. Rerun and recheck the table. |
 | Country or wave mismatch | Compare your dropdown choices with the files supplied by your team. Ask for a matched set if unsure. |
 | Preparation error or missing variable | Record the message and send it to your survey lead. Do not edit the preparation code yourself. |
@@ -418,3 +420,67 @@ Excel**. Writing the same sheet again replaces its previously written values.
 clicked, and the exact error text. A screenshot of the message helps; leave
 individual survey records out of it. Your support person can check the installed package
 version in RStudio.
+
+{{< pagebreak >}}
+
+## Installation cannot finish {#installation-cannot-finish}
+
+**Recognize the messages:** `Error in setwd(startdir) : cannot change working
+directory`, or `failed to lock directory` followed by a folder such as
+`00LOCK-micsPlusTableR`. Ask your support person to help with these steps.
+
+**What happened:** the first message means R's installer could not return to
+its starting folder. If that also prevents recovery, an unfinished installation
+can leave a lock folder that blocks later attempts. A lock error can also mean
+another installation is still running. These messages alone do not show why
+the starting folder became unavailable or prove a fault in the application.
+
+### Recover the installation
+
+1. Save your work and the complete Console error. Close the app and other R
+   sessions after any active installations finish.
+2. Open your survey's **.Rproj** file from its normal, existing project folder.
+   Keep that folder available throughout installation. Do not install from
+   inside R's installed `micsPlusTableR` folder.
+3. **Only if a lock error remains:** have your support person check the library
+   path printed in the error and confirm no installer is running. Move only
+   the reported stale lock folder to a separate backup location outside the
+   library. It may contain the previous package needed for recovery. Do not
+   delete the library or remove locks belonging to active installations.
+4. Retry the original command in the Console:
+
+```r
+remotes::install_github("bariscr/micsPlusTableR")
+```
+
+5. After installation reports `DONE (micsPlusTableR)`, verify that it loads:
+
+```r
+library(micsPlusTableR)
+packageVersion("micsPlusTableR")
+```
+
+No manual `setwd()` command or special installation options are required for
+this recovery route. If it fails again, keep the new error and stop repeating
+the installation until support has investigated it.
+
+### Prevent repeated working-directory failures
+
+**For support staff:** run installation in a separate R process with an
+explicit temporary working directory outside the package library. Keep that
+directory alive until installation and cleanup finish, and pass the intended
+library paths to the process. This avoids relying on the user's current folder
+without changing their session's working directory. It requires a separate
+installation launcher; the standard GitHub command does not acquire this
+behavior from a change to `micsPlusTableR` alone.
+
+Keep R's staged installation, loading checks, and locking enabled. Clearing a
+stale lock repairs a failed attempt; it does not fix the original cause.
+Maintainers should require successful installation and reinstallation checks
+before release and report a reproducible installer failure to R or `remotes`.
+This addresses the known failure mode, not every possible installation error.
+
+For investigation, record `getwd()`, `.libPaths()`, and `sessionInfo()` before
+retrying. These commands only report information. Review paths for personal
+details before sharing the report. See the
+[R installation documentation](https://search.r-project.org/R/refmans/utils/html/install.packages.html).

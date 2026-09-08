@@ -104,12 +104,11 @@ roles are now part of the package: `DESCRIPTION` manages required packages,
 
 ## Install from GitHub
 
-The repository must first be published on GitHub. Replace `OWNER` with the
-GitHub organization or user that owns the repository.
+Install from the [GitHub repository](https://github.com/bariscr/micsPlusTableR).
 
 ```r
 install.packages("remotes")
-remotes::install_github("OWNER/micsPlusTableR")
+remotes::install_github("bariscr/micsPlusTableR")
 ```
 
 ## Install from a local folder

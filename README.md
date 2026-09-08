@@ -6,12 +6,11 @@ tables through a Shiny application.
 
 ## Install and run
 
-After this repository is published on GitHub, replace `OWNER` with the GitHub
-organization or user name:
+Install from the [GitHub repository](https://github.com/bariscr/micsPlusTableR):
 
 ```r
 install.packages("remotes")
-remotes::install_github("OWNER/micsPlusTableR")
+remotes::install_github("bariscr/micsPlusTableR")
 
 micsPlusTableR::run_app()
 ```
@@ -202,8 +201,8 @@ Commit the source files, help files, vignette, and reference PDF to GitHub.
 Build archives, check output, local R state, and generated survey output are
 excluded by `.gitignore`; `.Rbuildignore` keeps development artifacts out of
 the installable package. Before publishing, replace the placeholder maintainer
-name/email in `DESCRIPTION` and `OWNER` in installation examples with the real
-project details. Publishing on GitHub does not require CRAN submission.
+name/email in `DESCRIPTION` with the real project details. Publishing on GitHub
+does not require CRAN submission.
 
 The standard directory layout and reference manual follow R's
 [Writing R Extensions](https://cran.r-project.org/doc/manuals/r-release/R-exts.html).

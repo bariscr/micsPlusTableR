@@ -21,6 +21,24 @@ test_that("both direction helpers calculate and store the result in isolation", 
   }
 })
 
+test_that("empty-group means retain NaN and use the MICS dash for display", {
+  vertical <- small_plan_session("v")
+  vertical$out_glob$tab$stat_type <- "mean_unw(sex)"
+  vertical$out_glob$tab_r$row_lgc <- "sex == 99"
+  vertical_result <- tabulate_v(vertical)
+
+  horizontal <- small_plan_session("h")
+  horizontal$out_glob$tab$stat_type <- "mean(sex)"
+  horizontal$out_glob$tab_r$row_lgc <- "sex == 99"
+  horizontal_result <- tabulate_h(horizontal)
+
+  for (result in list(vertical_result, horizontal_result)) {
+    expect_true(is.nan(result$value))
+    expect_identical(result$value_f, "-")
+    expect_identical(result$value_f_view, "-")
+  }
+})
+
 test_that("cell calculations retain weighted and unweighted semantics", {
   expect_equal(cell_case()$value, 5)
   expect_equal(cell_case(weighted = FALSE)$value, 2)

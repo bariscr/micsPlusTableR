@@ -41,6 +41,10 @@ if (!sheet %in% current_sheets) {
   # helpers ---------------------------------------------------------------
   cell_ref     <- function(r, c) wb_dims(rows = r, cols = c)
   apply_numfmt <- function(fmt, dims) if (!is.null(fmt)) wb$add_numfmt(sheet = sheet, dims = dims, numfmt = fmt)
+  is_nanish    <- function(x) {
+    s <- tolower(trimws(as.character(x)))
+    length(s) == 1L && !is.na(s) && identical(s, "nan")
+  }
   is_naish     <- function(x) { s <- tolower(trimws(as.character(x))); is.na(x) | s %in% c("na","nan","n/a","n.a.","#n/a") }
   
   # choose fmt by decimals (0 vs 1) and adornment kind
@@ -81,6 +85,10 @@ if (!sheet %in% current_sheets) {
     
     # normalize empties
     if (is.factor(val)) val <- as.character(val)
+    if (is_nanish(val)) {
+      wb$add_data(sheet = sheet, x = "-", startRow = r, startCol = c, colNames = FALSE)
+      next
+    }
     if (is_naish(val)) {
       wb$add_data(sheet = sheet, x = "", startRow = r, startCol = c, colNames = FALSE)
       next
@@ -246,7 +254,6 @@ wb$add_data(sheet = "IDX", x = idx_table_name$character,
   # save once at the end
   wb_save(wb, file = dest, overwrite = TRUE)
 }
-
 
 
 

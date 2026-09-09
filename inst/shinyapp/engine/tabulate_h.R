@@ -345,6 +345,7 @@ count_col_ns <- tab |> distinct(col_index, stat_type) |> filter(stat_type == "n"
     results1 |> 
     dplyr::mutate(
       value_f_org = dplyr::case_when(
+        is.nan(value) ~ "-",
         stat_type %in% c("n", "n1", "n_unw", "n2", "n_unw2", "hhmembers") ~ as.character(format(round(value, 0), big.mark = ",")),
         stat_type %in% c("p", "n1", "p_unw", "p(100)", "p_unw(100)", "mean", "mean_unw") ~ as.character(round(value, 1)),
         TRUE ~ as.character(value)

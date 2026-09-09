@@ -1,4 +1,9 @@
-# micsPlusTableR (development)
+# micsPlusTableR 0.3.1
+
+- Display undefined estimates from empty groups with the standard MICS `-`
+  marker in the app and Excel exports while retaining `NaN` in the underlying
+  numeric results. The existing zero-denominator footnote is added
+  automatically when this marker appears.
 
 - Audit runtime dependencies; remove unused DiagrammeR, gt, sjlabelled, and
   stringdist dependencies and obsolete namespace imports. Keep knitr as a

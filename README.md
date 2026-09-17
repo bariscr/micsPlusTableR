@@ -234,6 +234,27 @@ reference material are documented separately below.
 
 ## Use the tabulation engine without Shiny
 
+### Worksheet filters
+
+The condition-row `filter(...)` in **column B is global**: it applies to every
+calculated population, including later horizontal filter blocks. An additional
+horizontal `filter(...)` starts at its own column and combines with B. It extends
+right within each row until another explicit filter starts or `stat_type`
+changes. The changed-statistic cell uses B alone unless it starts a new filter.
+Returning to the previous statistic does not reactivate an expired filter.
+Changes down rows do not stop filters. For example, a local filter over `p`
+columns stops before the following `n` column; B still applies to both.
+
+The exact effective statistic is compared after the reader fills worksheet
+statistic cells and trims surrounding whitespace: `n`, `n1`, and `n_unw` differ.
+Blank filter cells do not reset a filter; `filter(TRUE)` starts an unrestricted
+local block while preserving B. Filters are applied before block calculations.
+Vertical tables retain their existing first-filter behavior and do not process
+additional horizontal filter blocks. The User's Guide section **4A. Understand
+worksheet filters** includes a column-by-column example and direction details.
+
+### Scripted workflow
+
 The package also provides a supported scripting API. State is held in an
 explicit session rather than the global workspace:
 

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="MICS Team">
-<meta name="dcterms.date" content="2026-09-08">
+<meta name="dcterms.date" content="2026-09-17">
 
 <title>MICS Plus Tabulation</title>
 <style>
@@ -2268,7 +2268,7 @@ html { scroll-padding-top: 6rem; }
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 8, 2026</p>
+      <p class="date">September 17, 2026</p>
     </div>
   </div>
   
@@ -2623,6 +2623,91 @@ html { scroll-padding-top: 6rem; }
 <p><strong>Ready to continue:</strong> the correct table name and calculated values appear. The next step is <strong>Consistency Checks</strong>. A preview has not yet saved your calculated table to an Excel file.</p>
 <p>If your reviewer asks for plain numbers, choose <strong>Unformatted</strong>. Choose <strong>Suppressed</strong> to inspect the small-sample display rules. Keep <strong>Header</strong> selected unless your reviewer asks for another view.</p>
 <div style="page-break-after: always;"></div>
+<section id="worksheet-filters" class="level2">
+<h2 class="anchored" data-anchor-id="worksheet-filters">4A. Understand worksheet filters</h2>
+<p>This section is for people who prepare or review the Excel plan. It explains which records a <code>filter(...)</code> instruction includes when the table is calculated. These are worksheet instructions, separate from the app’s search boxes.</p>
+<p><strong>Find the filter instructions.</strong> The plan’s condition row contains the <code>.sav</code> data source in column B, on row 4, 5, 6, or 7. Filters for columns appear on that same row. The statistic written in the table body is called <code>stat_type</code>: for example, <code>p</code> calculates a percentage, <code>n</code> a weighted count, and <code>n_unw</code> an unweighted count.</p>
+<p><strong>Column B is global.</strong> A filter such as <code>filter(age &gt;= 18)</code> in B limits the whole table to adults. It remains active when another filter starts, when the statistic changes, and when a new table row begins. A later filter cannot bring excluded records back into the table.</p>
+<p><strong>Additional filters apply to horizontal blocks.</strong> In a horizontal table, a <code>filter(...)</code> in C or a later column combines with B. It applies to its own column and extends to the right while the statistic stays the same. Its position relative to B makes no difference: it always combines with B.</p>
+<p>There are two ways an additional filter stops:</p>
+<ul>
+<li><strong>A different statistic starts.</strong> If a row changes from <code>p</code> to <code>n</code>, the <code>n</code> cell and following cells use B alone. Returning to <code>p</code> does not restart the old filter. This rule is checked across columns separately for each row; a change down rows does not stop the filter.</li>
+<li><strong>Another explicit filter starts.</strong> The new filter replaces the previous additional filter and combines with B. It applies at its own starting column, even if the statistic changes there.</li>
+</ul>
+<p>Blank filter cells do not cancel an active filter. To remove an additional restriction explicitly, write <code>filter(TRUE)</code>; B still applies. To use the same additional restriction after a statistic change, repeat its <code>filter(...)</code> in the condition row above the new statistic.</p>
+<p><strong>How to recognize the table direction.</strong> The reader selects horizontal mode when the plan has <code>n_unw</code> immediately before <code>IDX</code>, or a <code>100</code>/<code>100.0</code> statistic. Other plans use vertical mode. In vertical tables, the first filter in B still restricts the common dataset; additional horizontal filter blocks are not processed. Check with the plan author before adding such blocks to a vertical table.</p>
+<div style="page-break-after: always;"></div>
+<section id="filter-example-follow-one-row-from-left-to-right" class="level3">
+<h3 class="anchored" data-anchor-id="filter-example-follow-one-row-from-left-to-right">Filter example: follow one row from left to right</h3>
+<p>Suppose B contains <code>filter(age &gt;= 18)</code>. In one horizontal table row, the instructions are:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Column</th>
+<th>Statistic</th>
+<th>Additional filter starts here</th>
+<th>Records available to this cell</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>C</td>
+<td><code>p</code></td>
+<td>None</td>
+<td>All adults</td>
+</tr>
+<tr class="even">
+<td>D</td>
+<td><code>p</code></td>
+<td><code>filter(sex == 2)</code></td>
+<td>Adults with sex code 2</td>
+</tr>
+<tr class="odd">
+<td>E</td>
+<td><code>p</code></td>
+<td>None</td>
+<td>Adults with sex code 2</td>
+</tr>
+<tr class="even">
+<td>F</td>
+<td><code>n</code></td>
+<td>None</td>
+<td>All adults: the statistic changed</td>
+</tr>
+<tr class="odd">
+<td>G</td>
+<td><code>p</code></td>
+<td>None</td>
+<td>All adults: the old filter stays off</td>
+</tr>
+<tr class="even">
+<td>H</td>
+<td><code>p</code></td>
+<td><code>filter(region == 1)</code></td>
+<td>Adults in region 1</td>
+</tr>
+<tr class="odd">
+<td>I</td>
+<td><code>n_unw</code></td>
+<td>None</td>
+<td>All adults: the statistic changed again</td>
+</tr>
+</tbody>
+</table>
+<p>No cell includes people under 18. D’s filter does not apply to F or G, and H’s filter does not also include D’s sex restriction. Other row and column conditions still determine what is measured within the populations shown.</p>
+<p><strong>Which changes count?</strong> The engine compares the effective statistic after the worksheet reader fills missing statistic cells. A blank statistic cell does not itself mean “stop the filter.” The comparison ignores surrounding spaces but otherwise uses the exact text. Thus <code>n</code> to <code>n1</code>, <code>n</code> to <code>n_unw</code>, and <code>mean(age)</code> to <code>mean(income)</code> each stop the additional filter. Repeating the same statistic does not stop it.</p>
+<p><strong>When filters run.</strong> For each required population, the engine loads the selected source, applies B, applies any active additional filter, and then runs the block’s calculations. It calculates cell values from that data. The filters therefore affect both the numerator and denominator of a percentage. A filter variable must already exist before those calculations.</p>
+<p>Only filter inheritance stops at a statistic change. Existing data-source, weight, calculation, and row/column-condition instructions keep their roles. A calculation-only instruction does not end the filter’s column range.</p>
+<p><strong>Review after upgrading.</strong> Older versions could omit B’s filter from later blocks when the first additional filter began after C. They could also carry additional filters into different statistics. Recalculate affected tables and review their counts and denominators using the rules above before saving.</p>
+<div style="page-break-after: always;"></div>
+</section>
+</section>
 </section>
 <section id="check-the-table" class="level1">
 <h1>5. Check the table</h1>

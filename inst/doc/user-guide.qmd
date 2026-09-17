@@ -2,7 +2,7 @@
 title: "MICS Plus Tabulation"
 subtitle: "A step-by-step guide to using the application"
 author: "MICS Team"
-date: "2026-09-08"
+date: "2026-09-17"
 format:
   html:
     lang: en
@@ -515,6 +515,95 @@ calculated table to an Excel file.
 If your reviewer asks for plain numbers, choose **Unformatted**. Choose
 **Suppressed** to inspect the small-sample display rules. Keep **Header**
 selected unless your reviewer asks for another view.
+
+{{< pagebreak >}}
+
+## 4A. Understand worksheet filters {#worksheet-filters}
+
+This section is for people who prepare or review the Excel plan. It explains
+which records a `filter(...)` instruction includes when the table is calculated.
+These are worksheet instructions, separate from the app's search boxes.
+
+**Find the filter instructions.** The plan's condition row contains the `.sav`
+data source in column B, on row 4, 5, 6, or 7. Filters for columns appear on
+that same row. The statistic written in the table body is called `stat_type`:
+for example, `p` calculates a percentage, `n` a weighted count, and `n_unw`
+an unweighted count.
+
+**Column B is global.** A filter such as `filter(age >= 18)` in B limits the
+whole table to adults. It remains active when another filter starts, when
+the statistic changes, and when a new table row begins. A later filter cannot
+bring excluded records back into the table.
+
+**Additional filters apply to horizontal blocks.** In a horizontal table,
+a `filter(...)` in C or a later column combines with B. It applies to its own
+column and extends to the right while the statistic stays the same. Its
+position relative to B makes no difference: it always combines with B.
+
+There are two ways an additional filter stops:
+
+- **A different statistic starts.** If a row changes from `p` to `n`, the `n`
+  cell and following cells use B alone. Returning to `p` does not restart the
+  old filter. This rule is checked across columns separately for each row;
+  a change down rows does not stop the filter.
+- **Another explicit filter starts.** The new filter replaces the previous
+  additional filter and combines with B. It applies at its own starting
+  column, even if the statistic changes there.
+
+Blank filter cells do not cancel an active filter. To remove an additional
+restriction explicitly, write `filter(TRUE)`; B still applies. To use the same
+additional restriction after a statistic change, repeat its `filter(...)` in
+the condition row above the new statistic.
+
+**How to recognize the table direction.** The reader selects horizontal mode
+when the plan has `n_unw` immediately before `IDX`, or a `100`/`100.0` statistic.
+Other plans use vertical mode. In vertical tables, the first filter in B still
+restricts the common dataset; additional horizontal filter blocks are not
+processed. Check with the plan author before adding such blocks to a vertical
+table.
+
+{{< pagebreak >}}
+
+### Filter example: follow one row from left to right
+
+Suppose B contains `filter(age >= 18)`. In one horizontal table row, the
+instructions are:
+
+| Column | Statistic | Additional filter starts here | Records available to this cell |
+|---|---|---|---|
+| C | `p` | None | All adults |
+| D | `p` | `filter(sex == 2)` | Adults with sex code 2 |
+| E | `p` | None | Adults with sex code 2 |
+| F | `n` | None | All adults: the statistic changed |
+| G | `p` | None | All adults: the old filter stays off |
+| H | `p` | `filter(region == 1)` | Adults in region 1 |
+| I | `n_unw` | None | All adults: the statistic changed again |
+
+No cell includes people under 18. D's filter does not apply to F or G, and
+H's filter does not also include D's sex restriction. Other row and column
+conditions still determine what is measured within the populations shown.
+
+**Which changes count?** The engine compares the effective statistic after
+the worksheet reader fills missing statistic cells. A blank statistic cell
+does not itself mean "stop the filter." The comparison ignores surrounding
+spaces but otherwise uses the exact text. Thus `n` to `n1`, `n` to `n_unw`,
+and `mean(age)` to `mean(income)` each stop the additional filter. Repeating
+the same statistic does not stop it.
+
+**When filters run.** For each required population, the engine loads the
+selected source, applies B, applies any active additional filter, and then
+runs the block's calculations. It calculates cell values from that data.
+The filters therefore affect both the numerator and denominator of a
+percentage. A filter variable must already exist before those calculations.
+
+Only filter inheritance stops at a statistic change. Existing data-source,
+weight, calculation, and row/column-condition instructions keep their roles.
+A calculation-only instruction does not end the filter's column range.
+
+**Review after upgrading.** Older versions could omit B's filter from later
+blocks when the first additional filter began after C. They could also carry
+additional filters into different statistics. Recalculate affected tables and
+review their counts and denominators using the rules above before saving.
 
 {{< pagebreak >}}
 

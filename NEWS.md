@@ -1,5 +1,14 @@
 # micsPlusTableR 0.3.1
 
+- Apply the condition-row filter in column B globally to every horizontal
+  block, regardless of the position of later filters. Stop additional column
+  filters at the first effective statistic change across each row; B remains
+  active, and a stopped filter restarts only with an explicit new filter.
+  Keep vertical filtering, statistic calculations, and row predicates intact.
+  Prevent mutate-only entries from prematurely cutting off horizontal columns.
+  Add regression tests and explain the rules in the HTML/PDF User's Guide,
+  README, scripting vignette, and function reference.
+
 - Display undefined estimates from empty groups with the standard MICS `-`
   marker in the app and Excel exports while retaining `NaN` in the underlying
   numeric results. The existing zero-denominator footnote is added

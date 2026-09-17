@@ -23,6 +23,20 @@ Results are also saved in \code{session$cell_results}.
 Use \code{\link[=tabulate_mics_table]{tabulate_mics_table()}} for automatic direction selection and additional
 variable-explanation labels.
 }
+\details{
+The condition-row \code{filter(...)} in Excel column B applies globally.
+Each additional horizontal \code{filter(...)} starts at its own column and
+combines with B. For each row independently, it extends right until the
+next explicit filter or the first change in the effective \code{stat_type}.
+The changed-statistic cell uses B alone unless it starts a new explicit
+filter. A stopped filter does not resume when the earlier statistic returns.
+Statistic names are compared exactly after trimming surrounding whitespace;
+\code{n}, \code{n1}, and \code{n_unw} are distinct. Worksheet statistic filling happens
+before scope is determined. Changes down rows do not stop a filter.
+Sources, calculation chains, weights, and column/row predicates retain their
+existing roles; filters run before calculations. Vertical tabulation keeps
+its separate primary-filter behavior; see \code{\link[=tabulate_v]{tabulate_v()}}.
+}
 \seealso{
 \code{\link[=tabulate_v]{tabulate_v()}}, \code{\link[=tabulate_mics_table]{tabulate_mics_table()}}
 }

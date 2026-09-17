@@ -136,56 +136,91 @@ tabulate_h <- function(skip_row_conditions = FALSE) {
     wrap_into_mutate_vec(filter_row$calculation[first_start])
   } else NA_character_
   
+  # B is the table-wide filter, independent of the first local filter's position.
+  global_filter <- filter_row$filter_condition[filter_row$col_index == 2L]
+  global_filter <- if (length(global_filter)) global_filter[[1L]] else NA_character_
+
   # ---------- block processor ----------
   .process_block <- function(b, i_block) {
+    local_filter <- if (b$col_start_raw[[1]] == 2L) NA_character_ else b$filt[[1]]
     context <<- paste0(sheet_context,
       ", horizontal block ", i_block, ", starting column ", b$col_start[[1]],
-      "; source: ", b$df_base[[1]], "; filter: ", b$filt[[1]],
-      "; calculation: ", b$calc_chain[[1]])
+      "; source: ", b$df_base[[1]], "; global filter: ", global_filter,
+      "; local filter: ", local_filter, "; calculation: ", b$calc_chain[[1]])
     df_b <- b$df_base[[1]]
-    df0  <- mics_data_source(df_b, environment())
-    
-    filt_chain <- b$filt[[1]]
+    df0 <- mics_data_source(df_b, environment())
+    df_global <- apply_chain_df(df0, global_filter)
     calc_chain <- b$calc_chain[[1]]
-    
-    df <- apply_chain_df(df0, filt_chain)
-    df <- apply_chain_df(df,  calc_chain)
-    
-    # Determine latest valid weight name after all chains
     wcol <- resolve_block_weight(b$weight_seq[[1]])
-    mics_weight(df, wcol)
-    
+
     tab_c3 <- tab_c2 |>
       dplyr::filter(col_index >= b$col_start[[1]], col_index < b$col_end_exl[[1]]) |>
       dplyr::mutate(col_condition = col_pred)
-    
-    calc_cells(
-      df         = df,
-      tab_r      = tab_r_eval,
-      tab_c3     = tab_c3,
-      tab        = tab,
-      weight_var = wcol,
-      weighted   = TRUE
-    ) |>
+    if (!nrow(tab_c3)) return(tibble::tibble())
+
+    # A local filter expires at the first different effective statistic in
+    # each row. It never resumes merely because the old statistic returns.
+    scope <- tab |>
+      dplyr::filter(col_index >= b$col_start[[1]], col_index < b$col_end_exl[[1]],
+                    !is.na(stat_type)) |>
+      dplyr::arrange(row_index, col_index) |>
+      dplyr::group_by(row_index) |>
+      dplyr::mutate(local_active = is_present(local_filter) &
+                      dplyr::cumall(trimws(stat_type) == dplyr::first(trimws(stat_type)))) |>
+      dplyr::ungroup()
+
+    # Keep the existing filter -> calculation -> cell-statistic order.
+    # Prepare each population only once, even when rows have different scopes.
+    prepared <- new.env(parent = emptyenv())
+    data_for <- function(active) {
+      key <- if (active) "local" else "global"
+      if (!exists(key, envir = prepared, inherits = FALSE)) {
+        data <- if (active) apply_chain_df(df_global, local_filter) else df_global
+        data <- apply_chain_df(data, calc_chain)
+        mics_weight(data, wcol)
+        assign(key, data, envir = prepared)
+      }
+      get(key, envir = prepared, inherits = FALSE)
+    }
+
+    purrr::map_dfr(seq_len(nrow(tab_r_eval)), function(r) {
+      row_scope <- scope[scope$row_index == tab_r_eval$row_index[r], ]
+      active <- row_scope$local_active[match(tab_c3$col_index, row_scope$col_index)]
+      active[is.na(active)] <- FALSE
+      purrr::map_dfr(unique(active), function(use_local) {
+        calc_cells(
+          df = data_for(use_local),
+          tab_r = tab_r_eval[r, , drop = FALSE],
+          tab_c3 = tab_c3[active == use_local, , drop = FALSE],
+          tab = tab,
+          weight_var = wcol,
+          weighted = TRUE
+        ) |>
+          dplyr::mutate(filt1 = global_filter,
+                        filt2 = if (use_local) local_filter else NA_character_)
+      }) |>
+        dplyr::arrange(col_index)
+    }) |>
       dplyr::mutate(
-        cond         = i_block,
-        df           = if (is.character(df_b)) df_b else deparse(substitute(df_b)),
-        filt1        = if (is_present(filt_chain)) filt_chain else NA_character_,
-        calc_chain   = if (is_present(calc_chain)) calc_chain else NA_character_,
-        weight_var   = wcol,
-        col_start    = b$col_start[[1]],
+        cond = i_block,
+        df = if (is.character(df_b)) df_b else deparse(substitute(df_b)),
+        calc_chain = calc_chain,
+        weight_var = wcol,
+        col_start = b$col_start[[1]],
         col_end_excl = b$col_end_exl[[1]]
       )
   }
-  
-  # ---------- build blocks ----------
+
+  # Source, weight and calculation inheritance retain their filter-block
+  # windows. Only an actual filter starts a new block; a mutate-only cell
+  # cannot cut off the remaining columns.
   build_blocks <- function(fr) {
     fr %>%
       dplyr::group_by(block) %>%
       dplyr::summarise(
-        df_base    = dplyr::first(df),
-        weight_seq = list(weight),          # capture all weight cells in window
-        filt       = dplyr::first(filter_condition[!is.na(filter_condition) & nzchar(trimws(filter_condition))]),
+        df_base = dplyr::first(df),
+        weight_seq = list(weight),
+        filt = dplyr::first(filter_condition[!is.na(filter_condition) & nzchar(trimws(filter_condition))]),
         calc_chain = {
           calc_clean <- wrap_into_mutate_vec(calculation)
           build_chain(shared_calc, calc_clean)
@@ -194,96 +229,19 @@ tabulate_h <- function(skip_row_conditions = FALSE) {
         .groups = "drop"
       ) %>%
       dplyr::mutate(
-        col_start   = dplyr::if_else(block == min(block), col_start_raw + 1L, col_start_raw),
+        col_start = dplyr::if_else(col_start_raw == 2L, 3L, col_start_raw),
         col_end_exl = dplyr::lead(col_start_raw),
         col_end_exl = dplyr::if_else(is.na(col_end_exl), Inf, col_end_exl)
       )
   }
-  
-  # ---------- cases ----------
-  if (n_filters == 1) {
-    
-    blocks <- build_blocks(filter_row)
-    cell_results_all <- purrr::map_dfr(seq_len(nrow(blocks)),
-                                       ~ .process_block(blocks[.x, , drop = FALSE], .x))
-    
-  } else if (n_filters >= 2 &&
-             (filter_row$col_index[which(filter_row$is_start)[2]] -
-              filter_row$col_index[which(filter_row$is_start)[1]] == 1)) {
-    
-    start_rows  <- which(filter_row$is_start)
-    next_starts <- dplyr::lead(filter_row$col_index)
-    next_starts[is.na(next_starts)] <- Inf
-    
-    cell_results_all <- purrr::map_dfr(seq_along(start_rows), function(i_block) {
-      
-      cond    <- start_rows[i_block]
-      context <<- paste0(sheet_context, ", horizontal block ", i_block,
-        ", starting column ", filter_row$col_index[cond],
-        "; source: ", filter_row$df[[cond]],
-        "; filter: ", filter_row$filter_condition[cond],
-        "; calculation: ", filter_row$calculation[cond])
-      df_base <- filter_row$df[[cond]]
-      df0     <- mics_data_source(df_base, environment())
-      
-      # universal + adjacent filters
-      filt1      <- filter_row$filter_condition[start_rows[1]]
-      filt2      <- if (i_block > 1) filter_row$filter_condition[cond] else NA_character_
-      filt_chain <- build_chain(filt1, filt2)
-      
-      # column window
-      col_start  <- filter_row$col_index[cond]
-      col_end_ex <- next_starts[cond]
-      
-      rows_in_block <- which(filter_row$row_index == filter_row$row_index[cond] &
-                               filter_row$col_index >= col_start &
-                               filter_row$col_index <  col_end_ex)
-      calc_vec   <- wrap_into_mutate_vec(filter_row$calculation[rows_in_block])
-      calc_chain <- build_chain(shared_calc, calc_vec)
-      
-      df <- apply_chain_df(df0, filt_chain)
-      df <- apply_chain_df(df,  calc_chain)
-      
-      # detect weight across all cells in this window
-      wcol <- resolve_block_weight(filter_row$weight[rows_in_block])
-      mics_weight(df, wcol)
-      
-      tab_c3 <- tab_c2 |>
-        dplyr::filter(col_index >= col_start, col_index < col_end_ex) |>
-        dplyr::mutate(col_condition = col_pred)
-      
-      calc_cells(
-        df         = df,
-        tab_r      = tab_r_eval,
-        tab_c3     = tab_c3,
-        tab        = tab,
-        weight_var = wcol,
-        weighted   = TRUE
-      ) |>
-        dplyr::mutate(
-          cond         = i_block,
-          df           = if (is.character(df_base)) df_base else deparse(substitute(df_base)),
-          filt1        = filt1,
-          filt2        = filt2,
-          calc_chain   = calc_chain,
-          weight_var   = wcol,
-          col_start    = col_start,
-          col_end_excl = col_end_ex
-        )
-    })
-    
-  } else if (n_filters >= 2 &&
-             (filter_row$col_index[which(filter_row$is_start)[2]] -
-              filter_row$col_index[which(filter_row$is_start)[1]] > 1)) {
-    
-    blocks <- build_blocks(filter_row)
-    cell_results_all <- purrr::map_dfr(seq_len(nrow(blocks)),
-                                       ~ .process_block(blocks[.x, , drop = FALSE], .x))
-    
-  } else {
+
+  if (n_filters == 0L) {
     stop("No usable filter block was found. Add a filter(...) entry beside the .sav data source in the worksheet condition row.")
   }
-  
+  blocks <- build_blocks(filter_row)
+  cell_results_all <- purrr::map_dfr(seq_len(nrow(blocks)),
+    ~ .process_block(blocks[.x, , drop = FALSE], .x))
+
   # ---------- output ----------
   results <- cell_results_all %>%
     dplyr::mutate(col_end = col_end_excl - 1) %>%

@@ -287,6 +287,28 @@ to a column absent from that block's prepared data. Fix the named input and
 rerun. Use raw long-format results for checks, not pivoted or formatted tables.
 Each helper's help page documents arguments, return values, and requirements.
 
+### Filter scope in a horizontal plan
+
+Column B's condition-row `filter(...)` defines the global population. Every
+additional filter combines with B, whether it begins in C or farther right.
+Each local filter applies from its own column until the next explicit filter
+or the first different effective `stat_type`, evaluated across columns within
+each row independently. The changed-statistic cell uses only B unless it
+starts a new explicit filter. A stopped filter stays off even if its original
+statistic returns. Changes down rows have no effect on filter inheritance.
+
+For example, with B `filter(age >= 18)` and D `filter(sex == 2)`, a row with
+statistics C=`p`, D=`p`, E=`p`, F=`n`, G=`p` uses adults in C, adults with
+sex code 2 in D and E, and all adults in F and G.
+An explicit `filter(TRUE)` replaces a local restriction while retaining B.
+
+Scope uses the effective statistics after worksheet filling. Comparison is
+exact apart from surrounding whitespace, so `n`, `n1`, `n_unw`, and different
+`mean(variable)` expressions stop inheritance. Filters run before block
+calculations; calculation and weight inheritance do not stop with the filter.
+Vertical tabulation retains its separate first-filter behavior. See the
+User's Guide section 4A and `?tabulate_h` for details.
+
 ## Edit surveys and waves (maintainers)
 
 In the development source, edit **`inst/extdata/survey_choices.csv`**. It is a

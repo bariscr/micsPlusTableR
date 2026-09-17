@@ -9,6 +9,7 @@ write_to_excel <- function(dest,
   condition_write <- out_glob$condition_write
   tab_direction <- out_glob$tab_direction
   condition_row_index <- out_glob$condition_row_index
+  total_rows <- top_total_rows(table)
 
   if (isTRUE(formatted) && isTRUE(is_supp)) {
     table$value <- table$value_f
@@ -162,6 +163,13 @@ if (!sheet %in% current_sheets) {
     horizontal = "right", indent = 0, wrap_text = FALSE
   )
 
+  # Include the stub label and every result column, preserving existing fonts
+  # and number formats in both Output and Formatted workbooks.
+  for (r in total_rows) {
+    wb$add_font(sheet = sheet, dims = sprintf("A%d:%s%d", r, int2col(c_max), r),
+                bold = TRUE, update = "bold")
+  }
+
   # ---------------------------------
 
     if (isFALSE(formatted)) {
@@ -254,6 +262,5 @@ wb$add_data(sheet = "IDX", x = idx_table_name$character,
   # save once at the end
   wb_save(wb, file = dest, overwrite = TRUE)
 }
-
 
 

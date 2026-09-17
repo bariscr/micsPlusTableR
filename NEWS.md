@@ -1,5 +1,8 @@
 # micsPlusTableR 0.3.1
 
+- Always bold the leading Total rows, including their labels and values, in
+  the table preview and both Excel output formats.
+
 - Keep valid estimates visible when a new filter separates them from their
   right-hand `n_unw` count. Restore unmatched suppression counts from the next
   count on the same row and data source without replacing existing matches

@@ -2340,6 +2340,12 @@ print(sheet)
       flextable::bg(i = stripe_i, j = num_cols, bg = "#e6e6e6", part = "body") |>
       flextable::hline(part = "body", border = officer::fp_border(color = "#dddddd", width = 0.5))
 
+    preview_cells <- cell_results_rv()
+    total_i <- which(unique(preview_cells$row_index) %in% top_total_rows(preview_cells))
+    if (length(total_i)) {
+      ft <- flextable::bold(ft, i = total_i, bold = TRUE, part = "body")
+    }
+
     cm <- column_map_rv()
     out_glob <- get("out_glob", envir = engine_env, inherits = FALSE)
 

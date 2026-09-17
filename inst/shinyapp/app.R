@@ -2404,10 +2404,24 @@ modalDialog(
       highlight = TRUE,
       bordered = TRUE,
       defaultPageSize = 50,
+      defaultColDef = colDef(
+        headerStyle = list(
+          background = "#f2f4f7",
+          color = "#344054",
+          fontWeight = 600,
+          padding = "12px 14px",
+          borderBottom = "2px solid #d0d5dd",
+          whiteSpace = "normal",
+          lineHeight = "1.4"
+        )
+      ),
       columns = list(
-        status = colDef(style = function(value) list(fontWeight = "bold")),
-        elapsed = colDef(name = "Time elapsed", minWidth = 90),
-        message = colDef(minWidth = 300),
+        sheet = colDef(name = "Sheet", minWidth = 80),
+        table_name = colDef(name = "Table name", minWidth = 240),
+        status = colDef(name = "Status", minWidth = 90,
+                        style = function(value) list(fontWeight = "bold")),
+        elapsed = colDef(name = "Time elapsed", minWidth = 110, align = "right"),
+        message = colDef(name = "Output message", minWidth = 300),
         consistency_issues = colDef(
           name = "Consistency issues",
           minWidth = 180,

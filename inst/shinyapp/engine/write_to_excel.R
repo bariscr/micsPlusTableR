@@ -157,7 +157,7 @@ if (!sheet %in% current_sheets) {
   
   dims_tbl <- sprintf("%s%d:%s%d", int2col(c_min), r_min, int2col(c_max), r_max)
   
-  openxlsx2::wb_add_cell_style(
+  wb <- openxlsx2::wb_add_cell_style(
     wb, sheet = sheet, dims = dims_tbl,
     apply_alignment = TRUE,
     horizontal = "right", indent = 0, wrap_text = FALSE
@@ -262,5 +262,4 @@ wb$add_data(sheet = "IDX", x = idx_table_name$character,
   # save once at the end
   wb_save(wb, file = dest, overwrite = TRUE)
 }
-
 

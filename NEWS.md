@@ -1,5 +1,8 @@
 # micsPlusTableR 0.3.1
 
+- Retain the workbook returned by the alignment update so table values are
+  right-aligned in both Excel output formats, matching the preview.
+
 - Always bold the leading Total rows, including their labels and values, in
   the table preview and both Excel output formats.
 

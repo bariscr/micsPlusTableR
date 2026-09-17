@@ -1,5 +1,11 @@
 # micsPlusTableR 0.3.1
 
+- Keep valid estimates visible when a new filter separates them from their
+  right-hand `n_unw` count. Restore unmatched suppression counts from the next
+  count on the same row and data source without replacing existing matches
+  or changing suppression thresholds. Cover ordinary and supplied extra tables,
+  including an expense mean in F followed by a new filter in G.
+
 - Apply the condition-row filter in column B globally to every horizontal
   block, regardless of the position of later filters. Stop additional column
   filters at the first effective statistic change across each row; B remains

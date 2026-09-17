@@ -600,6 +600,12 @@ Only filter inheritance stops at a statistic change. Existing data-source,
 weight, calculation, and row/column-condition instructions keep their roles.
 A calculation-only instruction does not end the filter's column range.
 
+**Filters do not reach left.** Adding a filter in G does not change F's
+calculated mean. Display suppression still needs an unweighted count: if a
+new filter separates a cell from its count, the engine uses the next `n_unw`
+to its right on the same row and data source when no count is already linked.
+Existing count links and the small-sample thresholds remain in effect.
+
 **Review after upgrading.** Older versions could omit B's filter from later
 blocks when the first additional filter began after C. They could also carry
 additional filters into different statistics. Recalculate affected tables and

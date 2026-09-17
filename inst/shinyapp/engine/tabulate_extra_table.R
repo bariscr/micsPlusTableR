@@ -99,6 +99,7 @@ count_col_ns <- tab |> distinct(col_index, stat_type) |> filter(stat_type == "n"
         dplyr::between(col_index, col_start_1, col_end_1)
       )
     ) |>
+    restore_suppression_basis() |>
     apply_extra_table_suppression_basis(tab)
   
 

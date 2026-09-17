@@ -1554,7 +1554,8 @@ observeEvent(input$tab_file, {
           stringr::str_replace("^Wave\\s*", "")
 
         # Read IDX from the uploaded file -----------------------------------------------
-        df_idx <- readxl::read_excel(tab_path, sheet = "IDX", col_names = FALSE)
+        df_idx <- readxl::read_excel(tab_path, sheet = "IDX", col_names = FALSE,
+                                     .name_repair = "unique_quiet")
         vec <- df_idx |>
           dplyr::select(1) |>
           dplyr::pull() |>
@@ -1646,10 +1647,12 @@ survey_info_msg_rv(
 
       f <- get(cfg$fun, envir = engine_env)
 
-      tryCatch(
+      # Keep check diagnostics available to direct R callers, but avoid
+      # echoing them to the console during either Shiny check workflow.
+      invisible(utils::capture.output(invisible(tryCatch(
         f(x, diff = TOL),
         error = function(e) tryCatch(f(x), error = function(e2) NULL)
-      )
+      ))))
 
       if (exists(cfg$out, envir = engine_env, inherits = FALSE)) {
         df <- get(cfg$out, envir = engine_env)
@@ -2043,10 +2046,6 @@ modalDialog(
               write_footnotes(df = cell_results, sheet = sheet)
               wrote <- c(wrote, "formatted")
             }
-
-print(tname)
-print(sheet)
-
 
             consistency_flag <- tryCatch(
               {

@@ -36,7 +36,8 @@
 #' @importFrom dplyr rename filter
 read_prev_table <- function(skip = 3) {
   
-  readxl::read_excel(path_final_table, sheet = sheet, skip = skip) |> 
+  readxl::read_excel(path_final_table, sheet = sheet, skip = skip,
+                     .name_repair = "unique_quiet") |>
     dplyr::rename(ch = 1) |> 
     dplyr::filter(!is.na(ch)) |> 
     filter_second() |> 

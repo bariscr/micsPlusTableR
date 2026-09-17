@@ -14,7 +14,8 @@ tabulate_mics <- function(skip_row_conditions = FALSE) {
   }
 
 result <-
-  result |> left_join(out_glob$variable_exp) |> 
+  result |> left_join(out_glob$variable_exp,
+                     by = intersect(names(result), names(out_glob$variable_exp))) |>
   mutate(variable_exp_row_header = paste0("(", variable_exp, ") ", row_header))
 
  result 

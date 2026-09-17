@@ -1,5 +1,9 @@
 # micsPlusTableR 0.3.1
 
+- Silence routine Excel name-repair and implicit-join messages and remove
+  batch table-name debug prints. Mute consistency-check console output inside
+  Shiny while retaining its results in the UI and diagnostics for direct R calls.
+
 - Retain the workbook returned by the alignment update so table values are
   right-aligned in both Excel output formats, matching the preview.
 

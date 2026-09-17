@@ -43,10 +43,10 @@ read_tabulation <- function(path_tab_excel, sheet) {
   # tab_org --------------------------------------------------
   # We get the original table, nothing is changed except for column 3 is filled
   tab_org <- 
-    suppressMessages(read_excel(path_tab_excel, 
-                                sheet = sheet,
-                                col_names = FALSE
-    )) 
+    read_excel(path_tab_excel,
+               sheet = sheet,
+               col_names = FALSE,
+               .name_repair = "unique_quiet")
   
   if (ncol(tab_org) < 3L || nrow(tab_org) < 4L) {
     stop("Worksheet '", sheet, "' is too small for a tabulation plan. It needs at least three columns and a data-source condition in B4:B7.", call. = FALSE)
@@ -495,7 +495,7 @@ data_rows <- tab_base |> distinct(row_index)
   
 out_glob$variable_exp <-
   data_rows |> 
-  left_join(variable_exp) |> 
+  left_join(variable_exp, by = "row_index") |>
   fill(row_header) |> 
   filter(!row_index %in% empty_rows) |> 
   rename(variable_exp = row_header)
@@ -515,5 +515,4 @@ out_glob$idx_tab <- idx_tab
   out_glob <<- out_glob
 
 }
-
 

@@ -132,9 +132,10 @@ reviewing them, or producing files.
     the preparation script with the person responsible for that code.
 
 **Different users, shared checks.** Table producers can use the app
-instructions for the tasks they need. Plan authors should also use the
-[worksheet reference](#worksheet-reference) for filters and display
-settings. Reviewers can focus on the plan's definitions, calculated
+instructions for the tasks they need. Anyone who wants to understand
+how a table is created can use [Understand the tabulation
+plan](#worksheet-reference), whether reading an existing plan or editing
+one. Reviewers can focus on the plan's definitions, calculated
 results, consistency checks, and exported tables. Users maintaining
 preparation scripts or running the workflow directly in R can use the
 package reference linked under [Terms and reference
@@ -161,7 +162,8 @@ choose the tools that serve your purpose.
 2.  [**Create or open a survey project**](#survey-project) - choose
     where your work belongs.
 3.  [**Install the package and start the app**](#install-and-start) -
-    install micsPlusTableR in R, then open the app in your web browser.
+    install micsPlusTableR in R, open the app in your web browser, and
+    [use the User's Guide tab](#using-guide).
 4.  [**Gather your survey files**](#survey-files) - obtain or prepare a
     compatible plan, preparation script, and survey data.
 5.  [**Load and prepare your data**](#data-preparation) - load your
@@ -177,12 +179,12 @@ choose the tools that serve your purpose.
     when you need a saved workbook.
 9.  [**Run several tables together**](#multiple-tables) - calculate and
     write selected sheets, then review the run summary.
-10. [**Download a data file**](#table-data) - combine calculated table
-    cells and download them as Excel, CSV, or RDS.
+10. [**Explore a question**](#explore-data) - examine frequencies or
+    cross-tabulations with Data Exploration.
 11. [**Look at prepared data**](#view-data) - inspect selected household
     or household-member variables in Data View.
-12. [**Explore a question**](#explore-data) - examine frequencies or
-    cross-tabulations with Data Exploration.
+12. [**Download a data file**](#table-data) - combine calculated table
+    cells in Long Format Data and download them as Excel, CSV, or RDS.
 
 **Manage your session**
 
@@ -191,8 +193,9 @@ choose the tools that serve your purpose.
 
 **Reference sections**
 
-- [**Worksheet reference for plan authors**](#worksheet-reference) -
-  understand filter scope and choose decimal places.
+- [**Understand the tabulation plan**](#worksheet-reference) - locate
+  datasets, interpret filters and conditions, and read the statistics
+  and display settings that produce each table.
 - [**Other editors and code systems**](#other-environments) - use the
   package with an R environment other than RStudio.
 - [**Terms and reference information**](#guide-terms) - find
@@ -415,9 +418,7 @@ micsPlusTableR::run_app()
 
 **You are ready when:** you can open **Download Files**, **Data
 Preparation**, **Tabulator**, **Consistency Checks**, and **Write to
-Excel** across the top. Click **User's Guide** to read these
-instructions inside the application. Use **Open full guide** there if
-you want a separate browser tab.
+Excel** across the top.
 
 **While working:** keep RStudio (or your chosen R environment) and the
 application open. A busy Console without a `>` prompt is normal while
@@ -437,6 +438,29 @@ does not restore the app's uploaded inputs or unsaved results.
 If the app does not start, read the Console message and check the
 [package setup instructions](#package-setup). Include the complete
 message when requesting technical help.
+
+{{< pagebreak >}}
+
+## Use the User's Guide tab {#using-guide}
+
+**User's Guide** is the first tab in the app's navigation bar. Open it
+at any point to read the instructions while keeping the app open.
+
+- Read the guide inside the tab and use **Find the task you need** to
+  jump to a section.
+- Click **Open full guide** to open the guide in a separate browser tab.
+  This lets you keep the instructions beside the app while you work.
+- Click **Download PDF** to save a copy for offline reading or printing.
+  Find it in your browser's downloads or the download location you
+  chose.
+
+Return to the relevant app tab to continue your work. Opening the guide
+does not reset your inputs or results. The app sections in this guide
+follow the navigation bar: **Download Files**, **Data Preparation**,
+**Tabulator**, **Consistency Checks**, **Write to Excel**, **Multi-Sheet
+Tabulator**, **Data Exploration**, **Data View**, then **Long Format
+Data**. You can use each tool when you need it; this order is not a
+requirement to complete every tab.
 
 {{< pagebreak >}}
 
@@ -734,7 +758,7 @@ the view you need, then click **Run** to refresh the preview.
 
 # 7. Check the table {#check-table}
 
-![](images/clipboard-2782092616.png)
+![](images/clipboard-1198721438.png)
 
 1.  Click **Consistency Checks**. Confirm the **Table name** matches the
     table you just ran.
@@ -746,14 +770,17 @@ the view you need, then click **Run** to refresh the preview.
     denominators to identify the cause.
 
 **Green:** this check ran and found no difference beyond its tolerance.
-**Red:** a difference needs review. **No color or no rows:** the check
-may not apply; it does not mean it passed. Read the result as well as
-the color. The **Difference** column shows zero where the compared
-values agree. **Sum of group values** is compared with the **Reference
-total**; in column percentage checks, **Sum of percentages** is compared
-with 100. **Worksheet row** and **Worksheet column** identify positions
-in the tabulation plan. The screenshot shows the older column labels;
-`diff_value` is now displayed as **Difference**.
+
+**Red:** a difference needs review.
+
+**No color or no rows:** the check may not apply; it does not mean it
+passed. Read the result as well as the color.
+
+The **Difference** column shows zero where the compared values agree.
+**Sum of group values** is compared with the **Reference total**; in
+column percentage checks, **Sum of percentages** is compared with 100.
+**Worksheet row** and **Worksheet column** identify positions in the
+tabulation plan.
 
 **Ready to continue:** the applicable checks pass, or you have explained
 and documented any expected differences. Also check that the table's
@@ -765,13 +792,9 @@ matching totals alone do not establish that.
 # 8. Save the reviewed table to Excel {#save-excel}
 
 Use **Write to Excel** when you want to keep or share tables in workbook
-form. You can inspect tables in **Tabulator** without creating these
-files.
+form.
 
-![Write to Excel: create Both workbooks, write the current table with
-the two write buttons, and find the saved files using Open
-folder.](screenshots/04-write-to-excel.png){fig-alt="Write to Excel screen showing Both, Create Excel Files, two write buttons, and Output and Formatted file paths with Open file and Open folder buttons."
-fig-pos="H" width="100%"}
+![](images/clipboard-451916787.png)
 
 1.  Click **Write to Excel**. Under **Create**, choose **Both** to
     create the Output and Formatted workbooks, or select the single
@@ -786,10 +809,11 @@ fig-pos="H" width="100%"}
     saved file, or **Open file** to view it. Check the expected sheet in
     Excel.
 
-**Output** keeps numeric values for review. **Formatted** contains the
-table's presentation values and applicable notes. Close the workbook in
-Excel before writing another table. If **Open folder** does not work,
-copy the displayed folder path into File Explorer or Finder.
+**Output** keeps numeric values for review along with the unweighted
+denominators where available. **Formatted** contains the table's
+presentation values and applicable notes. Close the workbook in Excel
+before writing another table. If **Open folder** does not work, copy the
+displayed folder path into File Explorer or Finder.
 
 **Next table:** repeat **Tabulator \> Run**, **Consistency Checks \> Run
 Checks**, then the two **Write** buttons. Reuse the same workbooks; do
@@ -799,26 +823,35 @@ not click **Create Excel File(s)** again for every table.
 
 # 9. Run several tables together {#multiple-tables}
 
-![Multi-Sheet Tabulator: choose sheets, choose Both, then run and
-inspect one result row per
-sheet.](screenshots/05-multi-sheet.png){fig-alt="Multi-Sheet Tabulator showing selected table codes, the Both write target, Run and write selected, and results for the selected sheets."
-fig-pos="H" width="100%"}
+![](images/clipboard-719937360.png)
 
 Prepare the data, then use **Multi-Sheet Tabulator** to calculate and
 write selected tables together.
 
-1.  First [create your workbook files](#save-excel) in **Write to
-    Excel**, if you have not already done so for this run.
-2.  Click **Multi-Sheet Tabulator**. Click **Select sheet(s)** and
+1.  Click **Multi-Sheet Tabulator**. Click **Select sheet(s)** and
     choose a table. Click again to add another. Use **Deselect all** to
     clear the selection.
-3.  Under **Write to**, choose **Both** or your agreed destination.
-4.  Click **Run and write selected** once. Keep your R environment and
-    the browser open until it finishes.
-5.  When the completion message appears, click **OK**. Read every row in
+2.  Under **Write to**, choose **Output**, **Formatted**, or **Both**.
+3.  Click **Run and write selected** once. The app automatically creates
+    the required workbook for any output type whose destination has not
+    yet been created or selected. Keep your R environment and the
+    browser open until it finishes.
+4.  When the completion message appears, click **OK**. Read every row in
     **Run-and-write results**, especially **status**, **message**, and
     **Consistency issues**. Use the horizontal scrollbar if a column is
     off the right edge.
+
+**Where the tables are saved:** if you have already created or selected
+workbooks in **Write to Excel**, this run writes to those destinations.
+Otherwise, it creates workbooks from the uploaded tabulation plan in the
+app's **Excel output folder**, normally `micsPlusTableR-output` in your
+survey project. Open **Write to Excel** to see the file paths and use
+**Open file** or **Open folder**. You do not need to click **Create
+Excel File(s)** before a multi-sheet run.
+
+To continue work in an existing workbook, select it with the matching
+**Choose existing...** button in **Write to Excel** before starting the
+run. The app does not automatically find previously saved workbooks.
 
 **Ready to continue:** every requested table has completed and its
 results have been reviewed. This action writes tables as it runs; it
@@ -831,12 +864,60 @@ a few tables; use **Select all** when ready for the full run.
 
 {{< pagebreak >}}
 
-# 10. Download a data file {#table-data}
+# 10. Explore a question {#explore-data}
 
-![Long Format Data: prepare the data with the button on the left, then
-use a download button below
-it.](screenshots/06-long-format.png){fig-alt="Long Format Data screen with Run all tables and prepare on the left and Excel, CSV, and RDS download controls below it, beside the preview on the right."
-fig-pos="H" width="100%"}
+![](images/clipboard-72237778.png)
+
+**Data Exploration** lets you investigate questions through frequencies
+and cross-tabulations without changing the tabulation plan. Use it to
+understand the data, examine relationships, or investigate a result.
+These analyses are separate from the tables defined in the plan.
+
+1.  After **Data Preparation**, click **Data Exploration**.
+2.  Under **Select data set**, choose **hh** for households or **hl**
+    for household members. Under **Select variable(s)**, choose the
+    variables relevant to your question.
+3.  Choose **Unweighted** or **Weighted** for the analysis you intend.
+    If weighted, enter the appropriate survey weight in **Type weight
+    variable**. Check the preparation script or survey documentation if
+    you are unsure which weight to use.
+4.  Choose **Frequency** to count categories of one variable, or **Cross
+    table** to compare two variables. Select the second variable if
+    needed.
+5.  Leave the filter box blank for all prepared records, or enter the
+    condition for the population you want to examine. Use filter
+    function to define the condition. Click **Run Data Explorer** and
+    read the result.
+
+{{< pagebreak >}}
+
+# 11. Look at prepared data {#view-data}
+
+![](images/clipboard-3134114034.png)
+
+**Data View** shows data after preparation. Use it to inspect variable
+values and labels, understand the prepared dataset, or investigate a
+table result. A **variable** is a named item in the data, like age or
+region.
+
+1.  Complete **Data Preparation**, then click **Data View**.
+2.  Under **Select data to view**, choose **hh** for households or
+    **hl** for household members.
+3.  Select the variables you want to inspect.
+4.  Click **Run Data View**. Read the preview and its labels.
+
+**Check:** you are looking at the intended dataset and variables. This
+screen may show individual survey records.
+
+You can return to **Tabulator** by clicking its tab at the top. Viewing
+data here does not save a presentation table to Excel. The picture shows
+the controls before any individual records are displayed.
+
+{{< pagebreak >}}
+
+# 12. Download a data file {#table-data}
+
+![](images/clipboard-1408334035.png)
 
 Use **Long Format Data** when you need calculated table cells together
 in one dataset for analysis, exchange, or further processing. This
@@ -866,69 +947,6 @@ the download.
 
 {{< pagebreak >}}
 
-# 11. Look at prepared data {#view-data}
-
-![Data View: select the household or household members data, select
-variables, then click Run Data
-View.](screenshots/07-data-view.png){fig-alt="Data View screen showing dataset and variable selectors and Run Data View, with the preview area on the right."
-fig-pos="H" width="100%"}
-
-**Data View** shows data after preparation. Use it to inspect variable
-values and labels, understand the prepared dataset, or investigate a
-table result. A **variable** is a named item in the data, like age or
-region.
-
-1.  Complete **Data Preparation**, then click **Data View**.
-2.  Under **Select data to view**, choose **hh** for households or
-    **hl** for household members.
-3.  Select the variables you want to inspect.
-4.  Click **Run Data View**. Read the preview and its labels.
-
-**Check:** you are looking at the intended dataset and variables. This
-screen may show individual survey records. Share only what your survey
-team's data handling rules allow, and avoid including records in a help
-screenshot.
-
-You can return to **Tabulator** by clicking its tab at the top. Viewing
-data here does not save a presentation table to Excel. The picture shows
-the controls before any individual records are displayed.
-
-{{< pagebreak >}}
-
-# 12. Explore a question {#explore-data}
-
-![Data Exploration: choose the dataset, variables, and analysis type
-before clicking Run Data
-Explorer.](screenshots/08-data-exploration.png){fig-alt="Data Exploration screen with dataset, weighting, variable and analysis controls on the left and the analysis preview area on the right."
-fig-pos="H" width="100%"}
-
-**Data Exploration** lets you investigate questions through frequencies
-and cross-tabulations without changing the tabulation plan. Use it to
-understand the data, examine relationships, or investigate a result.
-These analyses are separate from the tables defined in the plan.
-
-1.  After **Data Preparation**, click **Data Exploration**.
-2.  Under **Select data set**, choose **hh** for households or **hl**
-    for household members. Under **Select variable(s)**, choose the
-    variables relevant to your question.
-3.  Choose **Unweighted** or **Weighted** for the analysis you intend.
-    If weighted, enter the appropriate survey weight in **Type weight
-    variable**. Check the preparation script or survey documentation if
-    you are unsure which weight to use.
-4.  Choose **Frequency** to count categories of one variable, or **Cross
-    table** to compare two variables. Select the second variable if
-    needed.
-5.  Leave the filter box blank for all prepared records, or enter the
-    condition for the population you want to examine. Click **Run Data
-    Explorer** and read the result.
-
-**Check:** the selected data, variables, and weighting match the
-question you are exploring. These choices affect the meaning of a
-result. Apply your survey team's review process before reporting a
-result as a final survey finding.
-
-{{< pagebreak >}}
-
 # 13. Finish, return later, or get help {#finish-and-help}
 
 ## Finish your work
@@ -946,11 +964,13 @@ result as a final survey finding.
 
 **When you return:** reopen the same survey project, run
 `micsPlusTableR::run_app()`, and select your inputs again. The app does
-not automatically restore the previous browser session. For a fresh run,
-create new workbook files if you intend to export tables. To continue an
-existing workbook, select it using the **Choose existing...** buttons in
-**Write to Excel**. Writing the same sheet again replaces its previously
-written values.
+not automatically restore the previous browser session. For a fresh
+single-table export, create workbooks in **Write to Excel** first.
+**Multi-Sheet Tabulator** creates them automatically when you run it if
+no destinations have been set. To continue an existing workbook, select
+it using the **Choose existing...** buttons in **Write to Excel** before
+writing. Writing the same sheet again replaces its previously written
+values.
 
 {{< pagebreak >}}
 
@@ -973,8 +993,8 @@ written values.
 
 **When asking for help, include:** country and wave, table code, the
 button you clicked, and the exact error text. A screenshot of the
-message helps; leave individual survey records out of it. Your support
-person can check the installed package version in RStudio.
+message helps; leave individual survey records out of it. Your IT
+support can check the installed package version in RStudio.
 
 {{< pagebreak >}}
 
@@ -1092,26 +1112,72 @@ documentation](https://search.r-project.org/R/refmans/utils/html/install.package
 
 {{< pagebreak >}}
 
-# Worksheet reference for plan authors {#worksheet-reference}
+# Understand the tabulation plan {#worksheet-reference}
 
-Use this reference when creating, adapting, or reviewing a tabulation
-plan. It explains worksheet filters and decimal settings. Users running
-an agreed plan can use the app's tools without changing these
-instructions. After editing a plan, save and upload the updated
-workbook, then rerun the affected tables and checks.
+The tabulation plan (Excel) describes the tables the app will calculate
+and provides their output layout. This reference is for anyone who wants
+to understand how a table is created, as well as people creating or
+adapting plans. You can inspect these instructions without editing them.
+
+## What the tabulation plan contains
+
+The workbook contains survey information and a table index in **IDX**,
+plus worksheets for individual tables. A table worksheet brings together
+these parts:
+
+| Part | Where to look and what it tells you |
+|---|---|
+| Table title and column headings | At the top of the worksheet: what the table and each column describe. |
+| Row labels and groups | In column A: the categories shown in the output. Indentation marks nested groups. |
+| Dataset, filters, and weight | In the instruction row near the top: the source population and weight used in calculations. |
+| Row and column conditions | In column B beside the rows, and in the instruction row above the result columns: which groups and outcomes each cell represents. |
+| Statistics | In the table body, from column C onward: whether a cell calculates a count, percentage, mean, or another supported statistic. |
+| Display and supporting instructions | Decimal settings, unweighted bases, notes, and worksheet formatting help determine how results are displayed and checked. |
+
+The following sections follow the calculation instructions: identify the
+dataset, understand the filters, then read the conditions and statistics.
+The headings describe the results; the instructions determine the values.
+
+## Find the dataset name {#worksheet-dataset}
+
+Look in **column B, rows 4 to 7** for the cell containing a name ending
+in **`.sav`**, such as `hh.sav` or `hl.sav`. The app uses that cell's row
+as the worksheet's **condition row**, where column-level instructions
+are recorded. Its position can vary with the number of heading rows.
+
+The name before `.sav` identifies the prepared dataset used for the
+table: `hh.sav` selects `hh`, and `hl.sav` selects `hl`. These refer to
+data available after **Data Preparation**; the app does not open a new
+file from disk each time it encounters the name. The preparation script
+must provide the matching dataset and variables.
+
+A source cell may contain several lines, for example:
+
+``` text
+hh.sav
+filter(age >= 18)
+weight by w
+```
+
+Here, `hh` is the dataset, the filter restricts the population to adults,
+and `w` is the weight variable. The names are illustrative; read the
+actual names in your plan. In a horizontal table, a later instruction
+block may specify a different dataset. A blank source or weight entry
+inherits the preceding setting, so check earlier instruction cells too.
+
+{{< pagebreak >}}
 
 ## Understand worksheet filters {#worksheet-filters}
 
-This section is for people who prepare or review the tabulation plan. It
-explains which records a `filter(...)` instruction includes when the
-table is calculated. These are worksheet instructions, separate from the
-app's search boxes.
+A `filter(...)` instruction restricts the records available for the
+calculation. Find it in column B or a later column of the condition row
+identified above. These are worksheet instructions, separate from the
+app's search boxes and from the row and column conditions explained
+below.
 
-**Find the filter instructions.** The plan's condition row contains the
-`.sav` data source in column B, on row 4, 5, 6, or 7. Filters for
-columns appear on that same row. The statistic written in the table body
-is called `stat_type`: for example, `p` calculates a percentage, `n` a
-weighted count, and `n_unw` an unweighted count.
+The statistic written in a result cell is called `stat_type`. Examples
+include `p` for a percentage, `n` for a weighted count, `n_unw` for an
+unweighted count, and the mean types `mean` and `mean(variable)`.
 
 **Column B is global.** A filter such as `filter(age >= 18)` in B limits
 the whole table to adults. It remains active when another filter starts,
@@ -1127,8 +1193,9 @@ counts use the same population.
 
 There are two ways an additional filter stops:
 
-- **A non-mean statistic changes to a mean.** For example, when `n` is
-  followed by `mean(age)`, that mean cell and following cells use B
+- **A non-mean statistic changes to a mean.** This applies to both bare
+  `mean` and `mean(variable)`: for example, `n` followed by `mean`, or
+  `p` followed by `mean(HCS8)`. That mean cell and following cells use B
   alone. Returning to `n` does not restart the old filter. This rule is
   checked across columns separately for each row; changes down rows do
   not stop it.
@@ -1136,8 +1203,10 @@ There are two ways an additional filter stops:
   previous additional filter and combines with B. It applies at its own
   starting column, including when that column calculates a mean.
 
-Changes among non-mean statistics, between mean variables, and from a
-mean to a count do **not** stop the filter. A filter starting on a mean
+Changes among non-mean statistics, between consecutive mean types, and
+from a mean to a count do **not** stop the filter. This includes `mean`
+to `mean(age)`, `mean(age)` to `mean`, and `mean(age)` to `mean(income)`.
+Changing only `d=` also preserves the filter. A filter starting on a mean
 continues through later counts; a subsequent change from a non-mean to a
 mean stops it unless another explicit filter starts there.
 
@@ -1166,25 +1235,27 @@ instructions are:
 | D | `p` | `filter(sex == 2)` | Adults with sex code 2 |
 | E | `n` | None | Adults with sex code 2 |
 | F | `n_unw` | None | Adults with sex code 2 |
-| G | `mean(age)` | None | All adults: entered a mean from a non-mean |
+| G | `mean` | None | All adults: entered a mean from a non-mean |
 | H | `n` | None | All adults: the old filter stays off |
-| I | `mean(income)` | `filter(region == 1)` | Adults in region 1 |
+| I | `mean` | `filter(region == 1)` | Adults in region 1 |
 | J | `mean(age)` | None | Adults in region 1 |
 | K | `n_unw` | None | Adults in region 1 |
 
 No cell includes people under 18. D's filter applies to D-F, including
 the percentage and its counts. It stops at G. I starts a new filter,
-which applies to I-K and does not include D's sex restriction. Other row
+which applies to I-K, including the change from `mean` to `mean(age)`,
+and does not include D's sex restriction. Other row
 and column conditions still determine what is measured within these
 populations.
 
 **Which changes count?** The engine uses the effective statistic after
 the worksheet reader fills missing statistic cells and ignores
 surrounding spaces when identifying means. Supported mean forms are
-`mean(variable)`, `mean`, and the legacy `Mean` form. A blank statistic
-cell does not itself mean "stop the filter." Changes such as `p` to `n`,
-`n` to `n_unw`, `mean(age)` to `mean(income)`, and `mean(age)` to `n`
-all preserve it. Only entering a mean from a non-mean stops an inherited
+`mean`, `mean(variable)`, their `mean_unw` variants, and the legacy `Mean`
+form, with or without `d=`. A blank statistic cell does not itself mean
+"stop the filter." Changes such as `p` to `n`, `n` to `n_unw`, `mean` to
+`mean(age)`, `mean(age)` to `mean(income)`, and `mean(age)` to `n` all
+preserve it. Only entering a mean from a non-mean stops an inherited
 additional filter.
 
 **When filters run.** For each required population, the engine loads the
@@ -1215,10 +1286,200 @@ inherited filters.
 
 {{< pagebreak >}}
 
+## Read the row and column conditions {#worksheet-conditions}
+
+**Row conditions** are in column B below the condition row, beside the
+labels in column A. For example, a row labelled "Urban" might use
+`area == 1`. Read the expression and the prepared variable's value
+labels together to confirm what the row includes.
+
+**Column conditions** are in column C onward on the condition row,
+below the column headings. For example, `HCS7 == 1` identifies records
+with that response. A cell containing a filter and a column condition
+can separate them with `- - -`:
+
+``` text
+filter(age >= 18)
+- - -
+HCS7 == 1
+```
+
+The first line restricts the available population to adults. The last
+line defines the outcome for this column. They have different roles:
+moving `HCS7 == 1` into the filter would also restrict the percentage's
+denominator and could change the meaning of the result.
+
+**How they work together.** In a horizontal table, the active filters
+first define the available records. The row condition selects a group
+within those records. For a percentage or bare `mean`, the column
+condition identifies the outcome within that row's population. For a
+count, it identifies the records to count. For `mean(variable)`, it
+selects the records whose named variable is averaged. In a vertical
+table, column conditions define the populations and row conditions
+define the outcomes within them.
+
+For example, with B's `filter(age >= 18)`, a row condition `area == 1`,
+a column condition `HCS7 == 1`, and statistic `p`, a horizontal table
+shows the percentage meeting `HCS7 == 1` among adults with `area == 1`,
+using the specified weight.
+
+{{< pagebreak >}}
+
+## Understand statistic types (`stat_type`) {#worksheet-statistics}
+
+A **statistic type** tells the app what to calculate in a result cell.
+It is written in the worksheet body, from column C onward, below the
+condition row. For example, `n`, `p`, and `mean(HCS8)` request different
+calculations even when their row and column conditions are identical.
+The app calls this instruction `stat_type`.
+
+Each instruction applies to its own row-and-column intersection. The
+worksheet reader fills blank statistic cells from preceding instructions;
+a blank cell does not necessarily mean "skip this cell" or "show zero."
+Read the applicable statistic together with the dataset, filters, weight,
+and row and column conditions.
+
+### Which records does a statistic use?
+
+The dataset and active `filter(...)` instructions first determine which
+records are available. The table's direction then determines the base
+population and the outcome being counted:
+
+| Table direction | Base population for a percentage | Outcome counted in the numerator |
+|---|---|---|
+| **Horizontal** | Available records satisfying the row condition. | Records within that base satisfying the column condition. |
+| **Vertical** | Available records satisfying the column condition. | Records within that base satisfying the row condition. |
+
+Counts use records satisfying **both** conditions. Numeric means and
+medians also use both conditions, then summarize the named variable.
+They do not summarize the already calculated cells of the output table.
+
+A **weighted count** sums the specified weight for qualifying records.
+An **unweighted count** counts the actual qualifying records. A weighted
+percentage is **100 × weighted outcome count / weighted base count**.
+The denominator comes from the applicable population; it is not read
+from a neighbouring `n` cell. A neighbouring count describes that base
+only if its instructions select the same population.
+
+### Counts and percentages
+
+The directions in the final column refer to the calculation modes
+explained under [worksheet filters](#worksheet-filters).
+
+| Write in the cell | What it calculates and applies to | Direction |
+|------------------------|----------------------------------------------------------|----------|
+| `n` | Sum of weights for records satisfying both row and column conditions. Use for a weighted number of households, members, or other units in the selected dataset. | Both |
+| `n_unw` | Number of qualifying records, without survey weights. Also supplies sample-size bases used by supported suppression rules. | Both |
+| `p` | Weighted percentage meeting the outcome condition within the base population defined above. The result is on a 0-100 scale. | Both |
+| `p_unw` | Unweighted percentage meeting the row condition among records selected by the column condition. | Vertical |
+| `mean` | The same weighted indicator-percentage calculation as `p`, on a 0-100 scale. It does not average an unnamed numeric variable. It is treated as a mean for filter inheritance. | Both |
+| `mean_unw` | Unweighted indicator percentage, on a 0-100 scale. The outcome is the column condition in horizontal tables and the row condition in vertical tables. | Both |
+
+For a horizontal `n_unw` column using the special condition `hhmembers`,
+the app sums `HLnum` for qualifying household records. This gives a
+member count rather than a count of household records.
+
+{{< pagebreak >}}
+
+### Numeric means and medians
+
+Here, `variable` is a numeric variable in the prepared dataset, such as
+`HCS8` or `age`. Its name must appear inside the parentheses.
+
+| Write in the cell | What it calculates and applies to | Direction |
+|------------------------|----------------------------------------------------------|----------|
+| `mean(variable)` | Weighted average of the named variable among records satisfying both conditions: sum of value × weight divided by sum of weights for non-missing values. | Both |
+| `mean_unw(variable)` | Ordinary arithmetic average of the named variable among records satisfying both conditions, without survey weights. | Both |
+| `median(variable)` | Unweighted median of the named variable among records satisfying both conditions. It is the middle value after sorting, or the average of the two middle values. | Both |
+| `median_unw(variable)` | Explicit unweighted median; the same calculation as `median(variable)`. | Vertical |
+| `mean(newvar = expression)` | Creates the named variable from the expression, then calculates its weighted mean for the records satisfying both conditions. For example, `mean(expense = HCS8 / 1000)` expresses average expenses in thousands. | Vertical |
+
+Missing values of the summarized variable are excluded from numeric
+means and medians. A numeric code for "unknown" or "not applicable" is
+not automatically missing: exclude such codes through the preparation
+script, filters, or applicable conditions. `median(variable)` remains
+unweighted even when the plan specifies a weight.
+
+### Worked example: the same data, different statistics
+
+Suppose a horizontal table's filters and row condition leave three
+records. Their weights are **1, 2, and 1**. The first two satisfy the
+column condition `HCS7 == 1`; their `HCS8` values are **100 and 200**.
+
+| Statistic | Calculation | Result |
+|---|---|---|
+| `n` | Qualifying weights: 1 + 2 | 3 |
+| `n_unw` | Two qualifying records | 2 |
+| `p` or bare `mean` | 100 × (1 + 2) / (1 + 2 + 1) | 75 |
+| Bare `mean_unw` | 100 × 2 / 3 | About 66.7 |
+| `mean(HCS8)` | (100 × 1 + 200 × 2) / (1 + 2) | About 166.7 |
+| `mean_unw(HCS8)` | (100 + 200) / 2 | 150 |
+| `median(HCS8)` | Middle of 100 and 200 | 150 |
+
+These are illustrative calculations. In a vertical table, the column
+condition selects the base and the row condition identifies the outcome.
+
+**Mean types and filters.** Bare `mean`, `mean(variable)`, and their
+unweighted forms all count as mean types. Entering one from a non-mean
+statistic stops an inherited additional horizontal filter, unless a new
+explicit filter starts there. Consecutive mean columns retain their
+active filter, including changes of variable, form, or `d=`. Column B's
+global filter remains active.
+
+{{< pagebreak >}}
+
+### Totals, special forms, and existing-plan variants
+
+These instructions have specific roles. Use their stated direction;
+adding a decimal argument does not make an unsupported form available
+in another direction.
+
+| Instruction | Meaning and where it applies |
+|------------------------|------------------------------------------------------------------|
+| `100` or `100.0` | Supplies a constant 100, rather than estimating a percentage from records. In a worksheet, its presence selects horizontal mode and can mark a percentage-distribution total. Existing zero-base and suppression rules may alter its displayed value. |
+| `p(100)` | Vertical: supplies 100 on the first calculated row; subsequent rows calculate weighted percentages as `p`. Used for a distribution with a 100-percent total. |
+| `p_unw(100)` | Vertical: supplies 100 on the first calculated row; subsequent rows calculate unweighted percentages as `p_unw`. |
+| `n_unw(100)` | Vertical: supplies 100 on the first calculated row; subsequent rows calculate unweighted counts. It does not turn those counts into percentages. |
+| `n(100)` | The current vertical calculator recognizes this only on the first calculated row and returns 100. Use `n` for later weighted-count rows; repeating `n(100)` there is unsupported. |
+| `p_sum(variable)` | Horizontal: among records satisfying both conditions, calculates **100 × sum(variable) / sum(weight)**. It does not multiply the numerator variable by the weight. Use only with a prepared variable whose definition makes this calculation appropriate. |
+| `n1`, `n_unw1`, `p1` | Calculate like `n`, `n_unw`, and `p`, respectively, in both directions. These are existing-plan variants, not requests for one decimal place. |
+| `n2`, `n_unw2` | Vertical count variants, calculated like `n` and `n_unw`. The suffix is not a decimal setting. |
+| Legacy `Mean` | Capitalized form for an unweighted condition-based percentage. Prefer the explicit `mean_unw` spelling when interpreting or adapting this calculation. Lowercase `mean` uses weights. |
+
+The `(100)` forms refer to the **first calculated row**, not any row
+whose visible label happens to say "Total". Their later-row behavior is
+shown above. They are not supported by the horizontal calculator.
+
+Use the ordinary `n`, `n_unw`, and `p` forms unless an existing plan needs
+its variants. Equal count calculations do not imply identical handling
+elsewhere: automatic direction, count linkage, suppression, and checks
+can depend on the exact statistic name and its worksheet position.
+
+**Missing conditions and denominators.** A record must satisfy a
+condition to count toward its outcome. In weighted `p` and bare `mean`,
+a missing outcome condition does not contribute to the numerator, but
+its available weight remains in the base denominator. Horizontal
+unweighted indicator percentages count missing outcomes as false;
+vertical unweighted indicator percentages omit missing outcome
+indicators from their denominator. If unknown responses should be
+excluded from the base, define that population explicitly in the plan.
+
+**Display precision.** Any supported statistic can include `d=` to
+control displayed decimal places: `n(d=0)`, `p(d=2)`, `mean(d=1)`,
+`mean(HCS8, d=0)`, or `p(100, d=2)`. This does not change the underlying
+calculation. See [Choose decimal places](#statistic-precision) for the
+full display rules.
+
+Use **Header**, **Index**, and **Logic** in Tabulator to relate results
+to their labels, worksheet positions, and conditions. After editing a
+plan, save and upload it again, then rerun the affected tables and checks.
+
+{{< pagebreak >}}
+
 ## Choose decimal places in the worksheet {#statistic-precision}
 
-This section is for people who prepare or review the tabulation plan.
-Add **`d=` inside a statistic's parentheses** to choose how many decimal
+Read `d=` to understand a result's displayed precision. When editing a
+plan, add **`d=` inside a statistic's parentheses** to choose how many decimal
 places are shown. This is available for every supported statistic type.
 If the statistic already has an argument, add a comma before `d=`.
 

@@ -40,11 +40,11 @@ test_that("B alone survives all statistic changes", {
   expect_equal(tabulate_h(s)$value, c(100, 10, 3, 33.4, 30, 100))
 })
 
-test_that("local inheritance stops at a statistic change independently in each row", {
-  s <- filter_scope_session(rbind(c("n", "n", "p", "n", "n_unw", "n"),
+test_that("local inheritance stops only on entering a mean independently in each row", {
+  s <- filter_scope_session(rbind(c("n", "p", "mean(age)", "n", "n_unw", "n"),
                                    rep("n", 6)), local_cols = 3L)
   result <- tabulate_h(s)
-  expect_equal(result$value[result$row_index == 9L], c(7, 7, 100, 10, 3, 10))
+  expect_equal(result$value[result$row_index == 9L], c(7, 100, 33.4, 10, 3, 10))
   expect_equal(result$value[result$row_index == 10L], rep(7, 6))
   expect_equal(result$filt2[result$row_index == 9L],
                c(rep("filter(sex == 2)", 2), rep(NA_character_, 4)))
@@ -55,7 +55,7 @@ test_that("an explicit filter restarts scope and replaces the preceding local fi
   s <- filter_scope_session(c("n", "n", "p", "p", "n", "n"),
                             c(3L, 5L), c("filter(sex == 2)", "filter(sex == 1)"))
   result <- tabulate_h(s)
-  expect_equal(result$value, c(7, 7, 100, 100, 10, 10))
+  expect_equal(result$value, c(7, 7, 100, 100, 3, 3))
   expect_equal(result$filt2[3:4], rep("filter(sex == 1)", 2))
   s$out_glob$tab$stat_type <- "n"
   expect_equal(tabulate_h(s)$value, c(7, 7, 3, 3, 3, 3))
@@ -73,15 +73,51 @@ test_that("percent denominators, row predicates and column predicates retain the
                c(200/7, 200/7, 2, 2, 1, 2))
 })
 
-test_that("exact statistic changes stop inheritance, including count and mean variants", {
+test_that("percentages and their weighted and unweighted bases share the local population", {
+  s <- filter_scope_session(c("p", "n", "n_unw", "median(age)", "n1", "100"),
+                            local_cols = 3L)
+  s$out_glob$tab_c$col_lgc[1] <- "yes == 1"
+  result <- tabulate_h(s)
+  expect_equal(result$value, c(200/7, 7, 2, 31, 7, 100))
+  expect_equal(result$filt2, rep("filter(sex == 2)", 6))
+  expect_equal(result$value[1], 100 * 2 / result$value[2])
+})
+
+test_that("a filter starting on a mean continues through counts until a later mean entry", {
+  s <- filter_scope_session(c("mean(age)", "mean(w)", "n", "p", "mean(age)", "n_unw"),
+                            local_cols = 3L)
+  result <- tabulate_h(s)
+  expect_equal(result$value, c(244/7, 29/7, 7, 100, 33.4, 3))
+  expect_equal(result$filt2, c(rep("filter(sex == 2)", 4), NA, NA))
+})
+
+test_that("an explicit filter on a mean overrides expiration of the preceding filter", {
+  s <- filter_scope_session(c("p", "n", "mean(age)", "mean(w)", "n", "n_unw"),
+                            c(3L, 5L), c("filter(sex == 2)", "filter(sex == 1)"))
+  result <- tabulate_h(s)
+  expect_equal(result$value, c(100, 7, 30, 3, 3, 1))
+  expect_equal(result$filt2, c(rep("filter(sex == 2)", 2), rep("filter(sex == 1)", 4)))
+})
+
+test_that("bare and legacy mean statistics also stop inherited local filters", {
+  for (stat in c("mean", "Mean")) {
+    s <- filter_scope_session(c("n", stat, "n", "n_unw"), local_cols = 3L)
+    s$out_glob$tab_c$col_lgc <- "yes == 1"
+    result <- tabulate_h(s)
+    expect_equal(result$filt2, c("filter(sex == 2)", rep(NA_character_, 3)))
+    expect_equal(result$value[c(1, 3, 4)], c(2, 2, 1))
+  }
+})
+
+test_that("count variants and changes between mean variables preserve inheritance", {
   s <- filter_scope_session(c("n", "n1", "n", "n", "n", "n"), local_cols = 3L)
-  expect_equal(tabulate_h(s)$value, c(7, rep(10, 5)))
+  expect_equal(tabulate_h(s)$value, rep(7, 6))
   s$out_glob$tab$stat_type <- c("mean(age)", "mean(w)", rep("mean(age)", 4))
-  expect_equal(tabulate_h(s)$value, c(244/7, 3.8, rep(33.4, 4)))
+  expect_equal(tabulate_h(s)$value, c(244/7, 29/7, rep(244/7, 4)))
 })
 
 test_that("calculations and weights survive expiration and mutate-only entries", {
-  s <- filter_scope_session(c("mean(derived)", "mean(derived)", rep("n", 4)), local_cols = 3L)
+  s <- filter_scope_session(c("n", "mean(derived)", rep("n", 4)), local_cols = 3L)
   s$out_glob$filter_row$calculation <- c("mutate(derived = age * 2)",
                                         "mutate(derived = derived + 1, w2 = w * 2)")
   s$out_glob$filter_row$weight[2] <- "w2"
@@ -90,7 +126,7 @@ test_that("calculations and weights survive expiration and mutate-only entries",
                   filter_condition = NA_character_, calculation = "mutate(derived = derived + 2)",
                   weight = "w2"))
   result <- tabulate_h(s)
-  expect_equal(result$value, c(rep(244/7 * 2 + 3, 2), rep(20, 4)))
+  expect_equal(result$value, c(14, 33.4 * 2 + 3, rep(20, 4)))
   expect_equal(result$weight_var, rep("w2", 6))
   expect_equal(nrow(result), 6L)
   expect_false("derived" %in% names(s$hh))
@@ -106,15 +142,15 @@ test_that("source switches still apply B before their local filter", {
   expect_error(tabulate_h(s), "horizontal block 2.*missing_variable")
 })
 
-test_that("suppression uses the unweighted count after local scope expires", {
+test_that("percentage counts and suppression retain the secondary filter", {
   s <- filter_scope_session(c("p", "n", "n_unw"), local_cols = 3L)
   s$hh <- data.frame(total = 1, age = rep(c(16, 22), c(5, 60)),
                      sex = c(rep(2, 25), rep(1, 40)), w = 1)
   s$out_glob$is_supp <- TRUE
   result <- tabulate_h(s)
-  expect_equal(result$value, c(100, 60, 60))
-  expect_equal(result$n_unw, rep(60, 3))
-  expect_identical(result$value_f_view[1], "100")
+  expect_equal(result$value, c(100, 20, 20))
+  expect_equal(result$n_unw, rep(20, 3))
+  expect_identical(result$value_f_view[1], "(*)")
 })
 
 test_that("vertical tabulation retains its primary-filter behavior", {
@@ -151,6 +187,18 @@ test_that("Excel reading preserves global filters and resolves blank statistics 
   result <- tabulate_mics_table(s) |>
     dplyr::filter(!is.na(stat_type)) |>
     dplyr::arrange(row_index, col_index)
-  expect_equal(result$value, rep(c(20, 20, 200/7, 2, 20, 1), 2))
+  expect_equal(result$value, rep(c(20, 20, 200/7, 2, 200/7, 1), 2))
   expect_equal(nrow(result), 12L)
+
+  # A blank statistic on the next row inherits the mean before scope is checked.
+  cells[9, 7] <- "mean(age)"
+  cells[4, 7] <- "TRUE"
+  wb$add_data("Example", cells, col_names = FALSE)
+  wb$save(path, overwrite = TRUE)
+  read_mics_tabulation(s, path, "Example")
+  result <- tabulate_mics_table(s) |>
+    dplyr::filter(!is.na(stat_type)) |>
+    dplyr::arrange(row_index, col_index)
+  expect_equal(result$value, rep(c(20, 20, 200/7, 2, 33.4, 1), 2))
+  expect_equal(result$filt2, rep(c(NA, NA, rep("filter(sex == 2)", 2), NA, NA), 2))
 })

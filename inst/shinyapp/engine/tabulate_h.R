@@ -158,15 +158,21 @@ tabulate_h <- function(skip_row_conditions = FALSE) {
       dplyr::mutate(col_condition = col_pred)
     if (!nrow(tab_c3)) return(tibble::tibble())
 
-    # A local filter expires at the first different effective statistic in
-    # each row. It never resumes merely because the old statistic returns.
+    # Only entering a mean from a non-mean expires an inherited local filter.
+    # A filter starting on a mean applies there; p/count and mean/mean changes
+    # preserve scope. Once expired, it stays off until another explicit filter.
     scope <- tab |>
       dplyr::filter(col_index >= b$col_start[[1]], col_index < b$col_end_exl[[1]],
                     !is.na(stat_type)) |>
       dplyr::arrange(row_index, col_index) |>
       dplyr::group_by(row_index) |>
-      dplyr::mutate(local_active = is_present(local_filter) &
-                      dplyr::cumall(trimws(stat_type) == dplyr::first(trimws(stat_type)))) |>
+      dplyr::mutate(local_active = {
+        statistic <- trimws(stat_type)
+        is_mean <- statistic == "mean" | grepl("^mean\\(", statistic) |
+          grepl("^Mean\\b", statistic)
+        enters_mean <- is_mean & !dplyr::lag(is_mean, default = dplyr::first(is_mean))
+        is_present(local_filter) & !dplyr::cumany(enters_mean)
+      }) |>
       dplyr::ungroup()
 
     # Keep the existing filter -> calculation -> cell-statistic order.

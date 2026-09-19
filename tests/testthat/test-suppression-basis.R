@@ -44,7 +44,7 @@ test_that("F retains its valid-expense restriction independently of G", {
   result <- tabulate_h(s)
   f <- result[result$row_index == 9L & result$col_index == 6L, ]
   expect_equal(f$value, 150)
-  expect_equal(f$n_unw, 60) # Existing right-hand count after the statistic reset.
+  expect_equal(f$n_unw, 59) # G's filter now also applies to its right-hand n_unw.
   expect_identical(f$value_f_view, "150")
   expect_equal(result$value[result$row_index == 9L & result$col_index == 7L], 59)
 })

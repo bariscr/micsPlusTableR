@@ -18,8 +18,12 @@
 
 - Apply the condition-row filter in column B globally to every horizontal
   block, regardless of the position of later filters. Stop additional column
-  filters at the first effective statistic change across each row; B remains
+  filters only when a row enters a mean from a non-mean statistic; B remains
   active, and a stopped filter restarts only with an explicit new filter.
+  Preserve local filters across p/n/n_unw transitions so percentages and
+  their bases use the same population. Changes between mean variables and
+  from means to counts also retain the filter. This replaces the earlier
+  rule that stopped inheritance at every statistic change.
   Keep vertical filtering, statistic calculations, and row predicates intact.
   Prevent mutate-only entries from prematurely cutting off horizontal columns.
   Add regression tests and explain the rules in the HTML/PDF User's Guide,

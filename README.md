@@ -239,14 +239,16 @@ reference material are documented separately below.
 The condition-row `filter(...)` in **column B is global**: it applies to every
 calculated population, including later horizontal filter blocks. An additional
 horizontal `filter(...)` starts at its own column and combines with B. It extends
-right within each row until another explicit filter starts or `stat_type`
-changes. The changed-statistic cell uses B alone unless it starts a new filter.
-Returning to the previous statistic does not reactivate an expired filter.
-Changes down rows do not stop filters. For example, a local filter over `p`
-columns stops before the following `n` column; B still applies to both.
+right within each row until another explicit filter starts or a non-mean
+statistic is followed by a mean statistic. That mean cell uses B alone unless
+it starts a new filter. An expired filter stays off until an explicit filter
+starts. Changes down rows do not stop filters. A local filter over `p` continues
+through `n` and `n_unw`, preserving the population used for percentage bases.
 
-The exact effective statistic is compared after the reader fills worksheet
-statistic cells and trims surrounding whitespace: `n`, `n1`, and `n_unw` differ.
+Scope uses effective statistics after worksheet filling and trimming surrounding
+whitespace. Mean forms are `mean(variable)`, `mean`, and the legacy `Mean` form.
+Other statistic changes, including `mean(age)` to `mean(income)` and a mean to
+`n`, do not stop inheritance. A later non-mean-to-mean transition still stops it.
 Blank filter cells do not reset a filter; `filter(TRUE)` starts an unrestricted
 local block while preserving B. Filters are applied before block calculations.
 Vertical tables retain their existing first-filter behavior and do not process
@@ -314,6 +316,8 @@ date, for example `MNG MICSPlus 2025-26 Wave2_LongFormatData_20260907.csv`.
   setup and tasks with beginner instructions and expandable screenshots. Open the app
   and click **User's Guide** to read it; GitHub displays HTML as source.
 - [Printable user guide (PDF)](inst/doc/user-guide.pdf): the same application guide.
+- [Manager and support notes](inst/doc/manager-notes.md): preparation-package
+  requirements and dependency troubleshooting.
 - [Getting started](vignettes/getting-started.Rmd): editable package vignette.
 
 After installation, open the documentation in R:

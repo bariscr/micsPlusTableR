@@ -36,11 +36,13 @@ tabulate_v <- function(session, skip_row_conditions = FALSE) {
 #' @details The condition-row `filter(...)` in Excel column B applies globally.
 #' Each additional horizontal `filter(...)` starts at its own column and
 #' combines with B. For each row independently, it extends right until the
-#' next explicit filter or the first change in the effective `stat_type`.
-#' The changed-statistic cell uses B alone unless it starts a new explicit
-#' filter. A stopped filter does not resume when the earlier statistic returns.
-#' Statistic names are compared exactly after trimming surrounding whitespace;
-#' `n`, `n1`, and `n_unw` are distinct. Worksheet statistic filling happens
+#' next explicit filter or the first transition from a non-mean statistic to
+#' a mean statistic. That mean cell uses B alone unless it starts a new explicit
+#' filter. A stopped filter stays off until another explicit filter starts.
+#' Mean statistics are `mean(variable)`, `mean`, and the legacy `Mean` form.
+#' Changes among other statistics (including `p`, `n`, and `n_unw`), between
+#' mean variables, or from a mean to a non-mean do not stop inheritance.
+#' Worksheet statistic filling and trimming surrounding whitespace happen
 #' before scope is determined. Changes down rows do not stop a filter.
 #' Sources, calculation chains, weights, and column/row predicates retain their
 #' existing roles; filters run before calculations. Vertical tabulation keeps

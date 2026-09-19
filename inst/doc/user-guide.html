@@ -2283,16 +2283,18 @@ html { scroll-padding-top: 6rem; }
 <section id="start-here" class="level1">
 <h1>Start here</h1>
 <p><a href="user-guide.pdf">Download the printable PDF guide</a>.</p>
-<p>This guide helps you turn the files supplied by your survey team into Excel tables. You do not need to write calculations or change computer code. Follow one step at a time. Ask your survey lead for help if a file or a result is different from what you expect.</p>
+<p>This guide helps you turn the files supplied by the MICS team into Excel output tables. You do not need to write calculations or change computer code. Follow one step at a time.</p>
 <p><strong>Your route from setup to finished tables</strong></p>
 <ol type="1">
-<li><strong>Set up your computer</strong> - install R and an editor such as RStudio.</li>
-<li><strong>Create or open a survey project</strong> - choose where your work belongs.</li>
-<li><strong>Install the package and start the app</strong> - copy the commands in section 1.</li>
-<li><strong>Download Files</strong> - download plans and preparation files to your project.</li>
-<li><strong>Data Preparation</strong> - select your survey documents and authorized data, then click Set.</li>
+<li><p><strong>Set up your computer</strong> - install R and an editor such as RStudio.</p></li>
+<li><p><strong>Create or open a survey project</strong> - choose where your work belongs.</p></li>
+<li><p><strong>Install the package and start the app</strong> - follow sections <strong>1D</strong> and <strong>1E</strong>, then work through these tabs inside the app:</p>
+<ol type="a">
+<li><strong>Download Files</strong> - download tabulation plans and preparation files to your project.</li>
+<li><strong>Data Preparation</strong> - select your survey documents and authorized data, then click <strong>Set</strong>.</li>
 <li><strong>Tabulator</strong>, then <strong>Consistency Checks</strong> - calculate and review a table.</li>
 <li><strong>Write to Excel</strong> - save the reviewed table.</li>
+</ol></li>
 </ol>
 <p>The later pages explain running several tables, downloading data, and optional viewing tools. You can leave those until you have completed your first table.</p>
 <p><strong>Words used in this guide</strong></p>
@@ -2307,7 +2309,7 @@ html { scroll-padding-top: 6rem; }
 <li><strong>Sheet:</strong> one page of an Excel workbook, such as <code>1.1a</code>.</li>
 <li><strong>Wave:</strong> one round of the survey. Use the wave your team gave you.</li>
 </ul>
-<p><strong>About the pictures.</strong> The Download Files picture shows the new tab in the 0.3.0 development version, before loading the survey list. Other pictures are actual screenshots from version 0.2.7, using Mongolia Wave 1 as an example. Your file names and results will differ. Use the files for your own survey. Screenshots show a temporary example output folder; your project normally saves to <strong>micsPlusTableR-output</strong>. In the HTML guide, click a picture to enlarge it; press <strong>Esc</strong> to return. In the PDF, use your reader’s zoom control if small labels are hard to read.</p>
+<p><strong>About the pictures.</strong> The Download Files picture shows the new tab in the 0.3.0 development version, before loading the survey list. Other pictures are actual screenshots from version 0.2.7, using Mongolia Wave 1 as an example. Your file names and results will differ. Use the files for your own survey. Screenshots show a temporary example output folder; your project normally saves to <strong>micsPlusTableR-output</strong>. In the HTML guide, click a picture to enlarge it; press <strong>Esc</strong> to return.</p>
 <p><strong>Looking for package functions?</strong> Use the <a href="https://github.com/bariscr/micsPlusTableR/blob/HEAD/output/pdf/micsPlusTableR-manual.pdf">package reference manual</a> and <a href="https://github.com/bariscr/micsPlusTableR#readme">package documentation</a>. Those documents cover programming and technical details.</p>
 <div style="page-break-after: always;"></div>
 </section>
@@ -2356,12 +2358,12 @@ html { scroll-padding-top: 6rem; }
 </tbody>
 </table>
 <p>For setup details, see <a href="https://positron.posit.co/guide-r.html">Positron’s R guide</a>, <a href="https://code.visualstudio.com/docs/languages/r">VS Code’s R guide</a>, <a href="https://prod.cursor.com/help/customization/extensions">Cursor’s extension guide</a>, and <a href="https://irkernel.github.io/installation/">IRkernel for Jupyter</a>. The optional <a href="#other-environments">other environments</a> section explains project folders and browser access for these routes. The remaining click-by-click computer setup instructions use RStudio Desktop.</p>
-<p><strong>What belongs to you:</strong> create or use your own survey project folder and install the <strong>micsPlusTableR</strong> package. Your survey lead supplies the input files. Your project holds your survey work and generated results. The package is installed separately in R’s package library (its storage area for add-ons). You do not need to download the package’s source project to use the app.</p>
+<p><strong>What belongs to you:</strong> create or use your own survey project folder and install the <strong>micsPlusTableR</strong> package. Your project holds your survey work and generated results.</p>
 <div style="page-break-after: always;"></div>
 </section>
 <section id="b.-install-r-then-rstudio-desktop-once" class="level2">
 <h2 class="anchored" data-anchor-id="b.-install-r-then-rstudio-desktop-once">1B. Install R, then RStudio Desktop (once)</h2>
-<p>If both programs already open on your computer, go to <strong>1C</strong>. You need internet access for installation. Use a recent R version supported by your editor; the package requires <strong>R 4.2 or later</strong>. You also need a web browser and an Excel viewer to review the saved workbooks. Keep internet access available for the app’s workbook preview, which uses external browser resources.</p>
+<p>If both programs already open on your computer, go to <strong>1C</strong>. You need internet access for installation. Use a recent R version supported by your editor; the package requires <strong>R 4.2 or later</strong>. You also need a web browser and an Excel viewer to review the saved workbooks. The workbook preview may also need internet when the app opens; see <a href="#workbook-preview-internet">Internet access and the workbook preview</a> for the role of browser caching.</p>
 <section id="install-r-first" class="level3">
 <h3 class="anchored" data-anchor-id="install-r-first">Install R first</h3>
 <ol type="1">
@@ -2385,7 +2387,7 @@ html { scroll-padding-top: 6rem; }
 </section>
 <section id="survey-project" class="level2">
 <h2 class="anchored" data-anchor-id="survey-project">1C. Create or open your survey project</h2>
-<p><strong>Do this before installing the package or starting the application.</strong> Choose one route below. A project keeps each survey’s files and results together. Use a memorable name, such as <strong>Mongolia-Wave1</strong>; substitute your own survey.</p>
+<p><strong>Do this before starting the application.</strong> Choose one route below. A project keeps each survey’s files and results together. Use a memorable name, such as <strong>Mongolia-Wave1</strong>; substitute your own survey.</p>
 <section id="new-work-create-a-new-project-folder" class="level3">
 <h3 class="anchored" data-anchor-id="new-work-create-a-new-project-folder">New work: create a new project folder</h3>
 <ol type="1">
@@ -2411,8 +2413,8 @@ html { scroll-padding-top: 6rem; }
 <li>Find your survey folder, select its <strong>.Rproj</strong> file, and click <strong>Open</strong>. You can also double-click that file in File Explorer or Finder.</li>
 </ol>
 <p>These routes follow the <a href="https://docs.posit.co/ide/user/ide/guide/code/projects.html">RStudio project instructions</a>. To switch surveys later, stop the app and use <strong>File &gt; Open Project</strong> again.</p>
-<p><strong>Check your location:</strong> the project name should appear at the top right of RStudio. In the Console, type <code>getwd()</code> and press <strong>Enter</strong>. The printed path (the folder’s address on your computer) should be your chosen survey folder. If it is wrong, open the correct project before continuing.</p>
-<p><strong>Your files:</strong> keep your supplied survey data, Excel plan, and complete preparation folder inside an <strong>inputs</strong> subfolder if convenient. Copying files into the project does not load them into the app; you will select them with <strong>Browse</strong> in sections 2 and 3. Files may also remain in another accessible folder. Keep the project available while working; extract ZIP folders first.</p>
+<p><strong>Check your location:</strong> the project name should appear at the top right of RStudio.</p>
+<p><strong>Your files:</strong> keep your supplied survey data, Excel plan, and complete preparation folder inside an <strong>inputs</strong> subfolder if convenient. Copying files into the project does not load them into the app; you will select them with <strong>Browse</strong> in sections 2 and 3. Files may also remain in another accessible folder. Keep the project available while working; extract ZIP folders first if you downloaded the inputs as ZIP folders.</p>
 <p>The app normally creates <strong>micsPlusTableR-output</strong> inside your project for Excel results. Browser downloads may go to <strong>Downloads</strong> instead. The <strong>Write to Excel</strong> screen shows the actual saved workbook paths.</p>
 <div style="page-break-after: always;"></div>
 </section>
@@ -2421,11 +2423,11 @@ html { scroll-padding-top: 6rem; }
 <h2 class="anchored" data-anchor-id="package-setup">1D. Install the micsPlusTableR package (once)</h2>
 <ol type="1">
 <li>Keep your survey project open. Click the <strong>Console</strong> beside <code>&gt;</code>. Use the <strong>Console</strong>, rather than the <strong>Terminal</strong> tab or a search box.</li>
-<li>Copy the first line below, paste it, and press <strong>Enter</strong> (<strong>Return</strong> on a Mac). Wait for <code>&gt;</code> to return before running the second line:</li>
+<li><strong>Install <code>remotes</code> only if it is not already available in your R library. Once installed, you do not need to install it again:</strong> skip the first line on later uses. Run the second line to install <strong>micsPlusTableR</strong>. Paste each needed command into the Console and press <strong>Enter</strong> (<strong>Return</strong> on a Mac). Wait for <code>&gt;</code> to return before running the next command:</li>
 </ol>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;remotes&quot;</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;bariscr/micsPlusTableR&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Copy only the command, without the surrounding box or any <code>&gt;</code> prompt. On Windows, use <strong>Ctrl+C</strong> to copy and <strong>Ctrl+V</strong> to paste; on a Mac, use <strong>Command+C</strong> and <strong>Command+V</strong>. <code>remotes</code> is the helper that installs the application package from GitHub. Installation also downloads needed packages and may take several minutes. Leave RStudio open while messages scroll.</p>
+<p>Copy only the command, without the surrounding box or any <code>&gt;</code> prompt. On Windows, use <strong>Ctrl+C</strong> to copy and <strong>Ctrl+V</strong> to paste; on a Mac, use <strong>Command+C</strong> and <strong>Command+V</strong>. <code>remotes</code> is the helper that installs the application package from GitHub. The second command installs <strong>micsPlusTableR</strong> and its required packages, including those used by the supported survey preparation scripts. This may take several minutes. Leave RStudio open while messages scroll.</p>
 <ol start="3" type="1">
 <li>If R asks to create a personal library, accept it. If asked to choose a CRAN download mirror, choose <strong>0-Cloud</strong> if offered. If asked which existing packages to update, choose the numbered <strong>None</strong> option unless your support person has requested updates. Required missing dependencies still install.</li>
 <li>If an error appears, copy the message and ask your support person for help. A returned <code>&gt;</code> alone does not prove installation succeeded. For folder or lock errors, see <a href="#installation-cannot-finish">Installation cannot finish</a>.</li>
@@ -2435,12 +2437,6 @@ html { scroll-padding-top: 6rem; }
 <p><strong>Ready to continue:</strong> a version number appears without an error saying the package is missing. Continue to <strong>1E</strong> to launch the application.</p>
 <p>You normally install once for the R library you use, not once per survey or on every launch. A different R installation or an isolated project library may need its own package installation. To update, finish and save your work, stop the app, and follow your survey lead’s instructions. Run the GitHub installation command again and restart R before using the updated package.</p>
 <div style="page-break-after: always;"></div>
-<section id="prep-script-dependencies" class="level3">
-<h3 class="anchored" data-anchor-id="prep-script-dependencies">Preparation script dependencies</h3>
-<p>The package installation in Section 1D also installs all packages needed by the maintained survey preparation scripts. <strong>No separate installation step is needed before preparing data or when switching between the supported surveys.</strong> These dependencies are documented separately here to explain their purpose.</p>
-<p>Mongolia Waves 1 and 2 use <strong>dplyr</strong> and <strong>haven</strong>, which are also used by the app. Jamaica FIES preparation also uses <strong>ggplot2</strong>, <strong>Hmisc</strong>, <strong>memisc</strong>, <strong>reshape2</strong>, <strong>RM.weights</strong>, <strong>survey</strong>, and <strong>srvyr</strong>; Wave 2 additionally uses <strong>labelled</strong>. All of these are included in the package’s required dependencies.</p>
-<p>The app checks the selected script’s requirements automatically before preparation. If a package is missing or cannot load, the message identifies the package and the script requiring it. Show that message to your support person; it includes a repair command for an incomplete installation or extra packages required by a custom script.</p>
-</section>
 </section>
 <section id="e.-start-the-application-each-time-you-work" class="level2">
 <h2 class="anchored" data-anchor-id="e.-start-the-application-each-time-you-work">1E. Start the application (each time you work)</h2>
@@ -2458,6 +2454,14 @@ html { scroll-padding-top: 6rem; }
 <p><strong>No browser window?</strong> Find the address beginning <code>http://127.0.0.1:</code> in the Console. Copy the complete address into your browser’s address bar and press <strong>Enter</strong>. The number at the end can change each time you start.</p>
 <p><strong>Where the work happens:</strong> with this local setup, the browser connects to R on your computer. Selecting input files loads them into the running app; it does not install them into the package. Opening a project later does not restore the app’s uploaded inputs or unsaved results.</p>
 <p>For help, show your support person the Console message and the <a href="#package-setup">package setup instructions in Section 1D of this guide</a>.</p>
+<div style="page-break-after: always;"></div>
+</section>
+<section id="workbook-preview-internet" class="level2">
+<h2 class="anchored" data-anchor-id="workbook-preview-internet">Internet access and the workbook preview</h2>
+<p><strong>Why the preview uses a browser library.</strong> The workbook preview in <strong>Data Preparation</strong> shows the uploaded Excel tabulation plan inside the app. A browser cannot display an Excel workbook as a table on its own, so the app uses a JavaScript library called <strong>SheetJS</strong> to read it and convert the selected sheet into a displayable table. You do not need to install this library yourself. It is separate from the calculations performed by R and the calculated table preview in <strong>Tabulator</strong>.</p>
+<p><strong>When internet is needed.</strong> When the app opens, the browser loads SheetJS from <strong>cdn.jsdelivr.net</strong> if it cannot reuse a saved copy. In a local RStudio session, the workbook itself is read from the running app on your computer; the preview code does not send it to that external server. Once the library has loaded, changing the preview sheet does not require downloading the library again while that app page stays open.</p>
+<p><strong>What caching means for later use.</strong> The browser may keep a copy of the library in its cache and reuse it on later visits, avoiding another download. However, caching is <strong>not a guarantee of offline access</strong>: the copy can be cleared or expire, and another browser or a private window may not have it. Browser settings can also require a new request. See <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching">how browser caching works</a>.</p>
+<p><strong>Before working offline:</strong> open the app while connected, upload the plan, and check that its workbook preview appears. Keep that app page and R session open. Calculations and Excel output do not depend on SheetJS; with the required packages and input files available locally, they do not need this external download. Installation, <strong>Download Files</strong>, and retrieving cloud-only inputs still need internet. If only the workbook preview fails, you can inspect the plan in Excel and continue tabulating.</p>
 <div style="page-break-after: always;"></div>
 </section>
 </section>
@@ -2628,13 +2632,14 @@ html { scroll-padding-top: 6rem; }
 <p>This section is for people who prepare or review the Excel plan. It explains which records a <code>filter(...)</code> instruction includes when the table is calculated. These are worksheet instructions, separate from the app’s search boxes.</p>
 <p><strong>Find the filter instructions.</strong> The plan’s condition row contains the <code>.sav</code> data source in column B, on row 4, 5, 6, or 7. Filters for columns appear on that same row. The statistic written in the table body is called <code>stat_type</code>: for example, <code>p</code> calculates a percentage, <code>n</code> a weighted count, and <code>n_unw</code> an unweighted count.</p>
 <p><strong>Column B is global.</strong> A filter such as <code>filter(age &gt;= 18)</code> in B limits the whole table to adults. It remains active when another filter starts, when the statistic changes, and when a new table row begins. A later filter cannot bring excluded records back into the table.</p>
-<p><strong>Additional filters apply to horizontal blocks.</strong> In a horizontal table, a <code>filter(...)</code> in C or a later column combines with B. It applies to its own column and extends to the right while the statistic stays the same. Its position relative to B makes no difference: it always combines with B.</p>
+<p><strong>Additional filters apply to horizontal blocks.</strong> In a horizontal table, a <code>filter(...)</code> in C or a later column combines with B. It applies to its own column and extends to the right. Its position relative to B makes no difference: it always combines with B. Changes from <code>p</code> to <code>n</code> or <code>n_unw</code> keep the filter, so percentages and their counts use the same population.</p>
 <p>There are two ways an additional filter stops:</p>
 <ul>
-<li><strong>A different statistic starts.</strong> If a row changes from <code>p</code> to <code>n</code>, the <code>n</code> cell and following cells use B alone. Returning to <code>p</code> does not restart the old filter. This rule is checked across columns separately for each row; a change down rows does not stop the filter.</li>
-<li><strong>Another explicit filter starts.</strong> The new filter replaces the previous additional filter and combines with B. It applies at its own starting column, even if the statistic changes there.</li>
+<li><strong>A non-mean statistic changes to a mean.</strong> For example, when <code>n</code> is followed by <code>mean(age)</code>, that mean cell and following cells use B alone. Returning to <code>n</code> does not restart the old filter. This rule is checked across columns separately for each row; changes down rows do not stop it.</li>
+<li><strong>Another explicit filter starts.</strong> The new filter replaces the previous additional filter and combines with B. It applies at its own starting column, including when that column calculates a mean.</li>
 </ul>
-<p>Blank filter cells do not cancel an active filter. To remove an additional restriction explicitly, write <code>filter(TRUE)</code>; B still applies. To use the same additional restriction after a statistic change, repeat its <code>filter(...)</code> in the condition row above the new statistic.</p>
+<p>Changes among non-mean statistics, between mean variables, and from a mean to a count do <strong>not</strong> stop the filter. A filter starting on a mean continues through later counts; a subsequent change from a non-mean to a mean stops it unless another explicit filter starts there.</p>
+<p>Blank filter cells do not cancel an active filter. To remove an additional restriction explicitly, write <code>filter(TRUE)</code>; B still applies. To keep an additional restriction when entering a mean from a non-mean, repeat its <code>filter(...)</code> above that mean column.</p>
 <p><strong>How to recognize the table direction.</strong> The reader selects horizontal mode when the plan has <code>n_unw</code> immediately before <code>IDX</code>, or a <code>100</code>/<code>100.0</code> statistic. Other plans use vertical mode. In vertical tables, the first filter in B still restricts the common dataset; additional horizontal filter blocks are not processed. Check with the plan author before adding such blocks to a vertical table.</p>
 <div style="page-break-after: always;"></div>
 <section id="filter-example-follow-one-row-from-left-to-right" class="level3">
@@ -2670,42 +2675,54 @@ html { scroll-padding-top: 6rem; }
 </tr>
 <tr class="odd">
 <td>E</td>
-<td><code>p</code></td>
+<td><code>n</code></td>
 <td>None</td>
 <td>Adults with sex code 2</td>
 </tr>
 <tr class="even">
 <td>F</td>
-<td><code>n</code></td>
+<td><code>n_unw</code></td>
 <td>None</td>
-<td>All adults: the statistic changed</td>
+<td>Adults with sex code 2</td>
 </tr>
 <tr class="odd">
 <td>G</td>
-<td><code>p</code></td>
+<td><code>mean(age)</code></td>
 <td>None</td>
-<td>All adults: the old filter stays off</td>
+<td>All adults: entered a mean from a non-mean</td>
 </tr>
 <tr class="even">
 <td>H</td>
-<td><code>p</code></td>
-<td><code>filter(region == 1)</code></td>
-<td>Adults in region 1</td>
+<td><code>n</code></td>
+<td>None</td>
+<td>All adults: the old filter stays off</td>
 </tr>
 <tr class="odd">
 <td>I</td>
+<td><code>mean(income)</code></td>
+<td><code>filter(region == 1)</code></td>
+<td>Adults in region 1</td>
+</tr>
+<tr class="even">
+<td>J</td>
+<td><code>mean(age)</code></td>
+<td>None</td>
+<td>Adults in region 1</td>
+</tr>
+<tr class="odd">
+<td>K</td>
 <td><code>n_unw</code></td>
 <td>None</td>
-<td>All adults: the statistic changed again</td>
+<td>Adults in region 1</td>
 </tr>
 </tbody>
 </table>
-<p>No cell includes people under 18. D’s filter does not apply to F or G, and H’s filter does not also include D’s sex restriction. Other row and column conditions still determine what is measured within the populations shown.</p>
-<p><strong>Which changes count?</strong> The engine compares the effective statistic after the worksheet reader fills missing statistic cells. A blank statistic cell does not itself mean “stop the filter.” The comparison ignores surrounding spaces but otherwise uses the exact text. Thus <code>n</code> to <code>n1</code>, <code>n</code> to <code>n_unw</code>, and <code>mean(age)</code> to <code>mean(income)</code> each stop the additional filter. Repeating the same statistic does not stop it.</p>
+<p>No cell includes people under 18. D’s filter applies to D-F, including the percentage and its counts. It stops at G. I starts a new filter, which applies to I-K and does not include D’s sex restriction. Other row and column conditions still determine what is measured within these populations.</p>
+<p><strong>Which changes count?</strong> The engine uses the effective statistic after the worksheet reader fills missing statistic cells and ignores surrounding spaces when identifying means. Supported mean forms are <code>mean(variable)</code>, <code>mean</code>, and the legacy <code>Mean</code> form. A blank statistic cell does not itself mean “stop the filter.” Changes such as <code>p</code> to <code>n</code>, <code>n</code> to <code>n_unw</code>, <code>mean(age)</code> to <code>mean(income)</code>, and <code>mean(age)</code> to <code>n</code> all preserve it. Only entering a mean from a non-mean stops an inherited additional filter.</p>
 <p><strong>When filters run.</strong> For each required population, the engine loads the selected source, applies B, applies any active additional filter, and then runs the block’s calculations. It calculates cell values from that data. The filters therefore affect both the numerator and denominator of a percentage. A filter variable must already exist before those calculations.</p>
-<p>Only filter inheritance stops at a statistic change. Existing data-source, weight, calculation, and row/column-condition instructions keep their roles. A calculation-only instruction does not end the filter’s column range.</p>
+<p>Only filter inheritance stops on entering a mean from a non-mean. Existing data-source, weight, calculation, and row/column-condition instructions keep their roles. A calculation-only instruction does not end the filter’s column range.</p>
 <p><strong>Filters do not reach left.</strong> Adding a filter in G does not change F’s calculated mean. Display suppression still needs an unweighted count: if a new filter separates a cell from its count, the engine uses the next <code>n_unw</code> to its right on the same row and data source when no count is already linked. Existing count links and the small-sample thresholds remain in effect.</p>
-<p><strong>Review after upgrading.</strong> Older versions could omit B’s filter from later blocks when the first additional filter began after C. They could also carry additional filters into different statistics. Recalculate affected tables and review their counts and denominators using the rules above before saving.</p>
+<p><strong>Review after upgrading.</strong> The earlier rule stopped additional filters at every statistic change, including <code>p</code> to <code>n</code>; this could give percentages and their counts different populations. Recalculate affected tables and review denominators and suppression. B remains global, including in later blocks; only non-mean-to-mean transitions now stop inherited filters.</p>
 <div style="page-break-after: always;"></div>
 </section>
 </section>
@@ -2836,6 +2853,7 @@ html { scroll-padding-top: 6rem; }
 <li>In RStudio, click the red <strong>Stop</strong> button in the Console to stop the app. In another editor, use its R session interrupt/stop control. You may then close the editor. Saving an R workspace is not a substitute for saving the Excel workbooks.</li>
 </ol>
 <p><strong>When you return:</strong> reopen the same survey project, run <code>micsPlusTableR::run_app()</code>, and select your inputs again. The app does not automatically restore the previous browser session. For a fresh run, create new workbook files. To continue an existing workbook, ask your survey lead to help select it using the <strong>Choose existing…</strong> buttons in <strong>Write to Excel</strong>. Writing the same sheet again replaces its previously written values.</p>
+<div style="page-break-after: always;"></div>
 </section>
 <section id="if-something-goes-wrong" class="level2">
 <h2 class="anchored" data-anchor-id="if-something-goes-wrong">If something goes wrong</h2>
@@ -2872,22 +2890,26 @@ html { scroll-padding-top: 6rem; }
 <td>Record the message and send it to your survey lead. Do not edit the preparation code yourself.</td>
 </tr>
 <tr class="odd">
-<td>Empty preview or no table</td>
-<td>Check that <strong>Set</strong> completed, choose a sheet, and click <strong>Run</strong>. If the workbook preview alone is blank, check your connection and report that detail.</td>
+<td>No calculated table in Tabulator</td>
+<td>Check that <strong>Set</strong> completed, choose a sheet, and click <strong>Run</strong>.</td>
 </tr>
 <tr class="even">
+<td>Workbook preview alone is blank or says Preview failed</td>
+<td>Check your connection and whether <strong>cdn.jsdelivr.net</strong> is blocked. A cached library is not guaranteed; see <a href="#workbook-preview-internet">workbook preview and caching</a>. You can inspect the plan in Excel and continue tabulating. Save your results before restarting the app to retry.</td>
+</tr>
+<tr class="odd">
 <td>Red consistency tab</td>
 <td>Record the table code and the displayed differences. Have your survey lead review them before sharing.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Excel file cannot be written</td>
 <td>Close that workbook in Excel, then try its <strong>Write</strong> button again.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Cannot find the saved workbook</td>
 <td>Use <strong>Write to Excel &gt; Open folder</strong> or the path shown there. For a data download, check <strong>Downloads</strong> instead.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Browser disconnected or refreshed</td>
 <td>Save any work still available. Restart the app if needed and select the inputs again; check existing files before rewriting.</td>
 </tr>
@@ -2913,6 +2935,7 @@ object &#39;age&#39; not found</code></pre>
 <li><strong>Comparison row or column counts differ:</strong> align the two tables and check skipped header rows before comparing again.</li>
 </ul>
 <p>After correcting the input, repeat data preparation if the script changed, then calculate and check the table again.</p>
+<div style="page-break-after: always;"></div>
 </section>
 <section id="installation-cannot-finish" class="level2">
 <h2 class="anchored" data-anchor-id="installation-cannot-finish">Installation cannot finish</h2>

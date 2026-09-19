@@ -2373,7 +2373,28 @@ modalDialog(
       df <- rv()
       req(df)
       df2 <- filter_inconsistent(df, tol = TOL)
+      # Display labels only: keep the original fields for check logic and filtering.
+      labels <- c(
+        var_name_row = "Row variable",
+        var_name_col = "Column variable",
+        grp = "Row group",
+        group = "Indented row group",
+        cond = "Filter block",
+        stat_type = "Statistic type",
+        row_index = "Worksheet row",
+        col_index = "Worksheet column",
+        group_total = "Sum of group values",
+        total_value = "Reference total",
+        diff_value = "Difference",
+        block = "Percentage block",
+        sum_block = "Sum of percentages"
+      )
+      displayed <- intersect(names(df2), names(labels))
+      columns <- stats::setNames(lapply(displayed, function(field) {
+        colDef(name = unname(labels[[field]]))
+      }), displayed)
       reactable(df2,
+        columns = columns,
         searchable = TRUE, striped = TRUE,
         height = 650,
         resizable = TRUE,

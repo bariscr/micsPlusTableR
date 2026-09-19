@@ -11,7 +11,8 @@
 #' @param ref Branch, tag, or commit to download. Defaults to `"main"`.
 #'
 #' @details
-#' Survey folders use a three-letter country code and wave, such as `JAM_W1`.
+#' Survey folders use the country, survey period, and wave, such as
+#' `Jamaica (2023-24) Wave 1`. Legacy code-and-wave folders are also supported.
 #' Downloads include root-level Excel plans (`.xls`, `.xlsx`) and `.R` scripts
 #' or `.RData` reference assets inside `prep-files-*` subfolders. Other files,
 #' including SPSS microdata and hidden files, are excluded. Preparation
@@ -60,7 +61,8 @@ list_survey_files <- function(repo = "bariscr/micsPlusTableR-Files", ref = "main
   entries <- Filter(function(x) {
     identical(x$type, "blob") && x$mode %in% c("100644", "100755") &&
       is.character(x$path) && length(x$path) == 1L &&
-      grepl("^[A-Z]{3}_W[0-9]+/", x$path)
+      survey_files_survey_folder(sub("/.*$", "", x$path)) &&
+      grepl("/", x$path, fixed = TRUE)
   }, tree$tree)
   result <- data.frame(survey = character(), path = character(),
                        size = numeric(), url = character())
@@ -107,7 +109,8 @@ list_survey_files <- function(repo = "bariscr/micsPlusTableR-Files", ref = "main
 #' microdata must be obtained separately with the required permission.
 #' @inheritParams list_survey_files
 #' @param surveys Character vector of root survey folder names, such as
-#'   `"JAM_W1"`. `NULL` selects all surveys.
+#'   `"Jamaica (2023-24) Wave 1"`. `NULL` selects all surveys. Legacy codes
+#'   for the initial published surveys (for example, `"JAM_W1"`) remain accepted.
 #' @param files Character vector of exact repository-relative paths from
 #'   [list_survey_files()]. `NULL` selects all files in the selected surveys.
 #' @param dest_dir Destination folder, relative to the current R working
@@ -122,8 +125,9 @@ list_survey_files <- function(repo = "bariscr/micsPlusTableR-Files", ref = "main
 #' @seealso [list_survey_files()]
 #' @examples
 #' \dontrun{
-#' download_survey_files("JAM_W1")
-#' download_survey_files(c("JAM_W1", "MNG_W2"), dest_dir = "survey-inputs")
+#' download_survey_files("Jamaica (2023-24) Wave 1")
+#' download_survey_files(c("Jamaica (2023-24) Wave 1",
+#'                         "Mongolia (2025-26) Wave 2"), dest_dir = "survey-inputs")
 #' download_survey_files() # All surveys
 #' available <- list_survey_files()
 #' download_survey_files(files = available$path[1])
@@ -149,6 +153,13 @@ download_survey_files <- function(surveys = NULL, files = NULL, dest_dir = "inpu
   available <- list_survey_files(repo = repo, ref = ref)
   commit <- attr(available, "commit")
   if (!is.null(surveys)) {
+    # Resolve old codes and readable labels against this exact catalogue.
+    # Keep remote paths unchanged so URLs and commit pinning remain valid.
+    ids <- unique(available$survey)
+    matches <- match(survey_files_labels(surveys), survey_files_labels(ids))
+    exact <- match(surveys, ids)
+    matches[!is.na(exact)] <- exact[!is.na(exact)]
+    surveys[!is.na(matches)] <- ids[matches[!is.na(matches)]]
     missing <- setdiff(surveys, available$survey)
     if (length(missing)) stop("Unknown surveys: ", paste(missing, collapse = ", "),
                               ". Use list_survey_files().", call. = FALSE)
@@ -252,4 +263,24 @@ survey_files_json <- function(url) {
   tryCatch(jsonlite::fromJSON(path, simplifyVector = FALSE), error = function(e) {
     stop("Could not read GitHub's file listing: ", conditionMessage(e), call. = FALSE)
   })
+}
+
+# Accept readable names without restricting discovery to today's country list.
+survey_files_survey_folder <- function(name) {
+  grepl("^[A-Z]{3}_W[0-9]+$", name) ||
+    grepl("^[[:alpha:]][[:alpha:] .'-]+ \\([0-9]{4}(-[0-9]{2,4})?\\) Wave [1-9][0-9]*$", name)
+}
+
+# Compatibility for the initial repository folders and older pinned revisions.
+survey_files_labels <- function(surveys) {
+  legacy <- c(
+    JAM_W1 = "Jamaica (2023-24) Wave 1",
+    JAM_W2 = "Jamaica (2023-24) Wave 2",
+    MNG_W1 = "Mongolia (2025-26) Wave 1",
+    MNG_W2 = "Mongolia (2025-26) Wave 2",
+    TKM_W2 = "Turkmenistan (2025-26) Wave 2"
+  )
+  labels <- unname(legacy[surveys])
+  labels[is.na(labels)] <- surveys[is.na(labels)]
+  labels
 }

@@ -1,6 +1,6 @@
 download_tab_fixture <- function() {
-  x <- data.frame(survey = c("JAM_W1", "JAM_W1", "MNG_W2"),
-                  path = c("JAM_W1/plan.xlsx", "JAM_W1/prep-files-JAM_W1/prep.R", "MNG_W2/plan.xlsx"),
+  x <- data.frame(survey = c("Jamaica (2023-24) Wave 1", "Jamaica (2023-24) Wave 1", "Mongolia (2025-26) Wave 2"),
+                  path = c("Jamaica (2023-24) Wave 1/plan.xlsx", "Jamaica (2023-24) Wave 1/prep-files-Jamaica (2023-24) Wave 1/prep.R", "Mongolia (2025-26) Wave 2/plan.xlsx"),
                   size = c(100, 200, 400), url = "https://example.invalid")
   attr(x, "commit") <- strrep("a", 40)
   x
@@ -28,14 +28,14 @@ test_that("the tab supports one, multiple, and all surveys with chosen destinati
     expect_equal(nrow(catalogue()), 3)
     session$setInputs(download = 2)
     expect_match(notice()$message, "Choose at least one survey")
-    session$setInputs(surveys = "JAM_W1", download = 3)
-    expect_identical(calls[[1]]$surveys, "JAM_W1")
+    session$setInputs(surveys = "Jamaica (2023-24) Wave 1", download = 3)
+    expect_identical(calls[[1]]$surveys, "Jamaica (2023-24) Wave 1")
     expect_identical(calls[[1]]$dest_dir, normalizePath(project, winslash = "/"))
     expect_identical(calls[[1]]$ref, attr(fixture, "commit"))
     expect_false(calls[[1]]$overwrite)
     expect_equal(notice()$kind, "success")
-    session$setInputs(surveys = c("JAM_W1", "MNG_W2"), destination = "selected-files", download = 4)
-    expect_setequal(calls[[2]]$surveys, c("JAM_W1", "MNG_W2"))
+    session$setInputs(surveys = c("Jamaica (2023-24) Wave 1", "Mongolia (2025-26) Wave 2"), destination = "selected-files", download = 4)
+    expect_setequal(calls[[2]]$surveys, c("Jamaica (2023-24) Wave 1", "Mongolia (2025-26) Wave 2"))
     expect_identical(calls[[2]]$dest_dir, file.path(project, "selected-files"))
     session$setInputs(scope = "all", surveys = character(), destination = project,
                      overwrite = TRUE, download = 5)
@@ -106,4 +106,27 @@ test_that("relative download paths stay anchored to the project", {
   expect_identical(resolve_survey_download_dir("inputs", project), file.path(project, "inputs"))
   expect_identical(resolve_survey_download_dir(project, tempdir()), normalizePath(project, winslash = "/"))
   expect_error(resolve_survey_download_dir("  ", project), "Choose a download folder")
+})
+
+test_that("legacy codes are hidden in download choices, previews, and success messages", {
+  fixture <- download_tab_fixture()
+  fixture$survey <- c("JAM_W1", "JAM_W1", "MNG_W2")
+  choices <- NULL
+  local_mocked_bindings(
+    list_survey_files = function(...) fixture,
+    download_survey_files = function(...) fixture
+  )
+  local_mocked_bindings(updateCheckboxGroupInput = function(session, inputId, ...) {
+    choices <<- list(...)$choices
+  }, .package = "shiny")
+  shiny::testServer(download_files_server, args = list(project_dir = tempdir()), {
+    session$setInputs(scope = "all", destination = tempdir(), refresh = 1)
+    expect_equal(names(choices), c("Jamaica (2023-24) Wave 1", "Mongolia (2025-26) Wave 2"))
+    expect_equal(unname(choices), c("JAM_W1", "MNG_W2"))
+    expect_match(output$preview, "Jamaica (2023-24) Wave 1", fixed = TRUE)
+    expect_false(grepl("JAM_W1", output$preview, fixed = TRUE))
+    session$setInputs(download = 1)
+    expect_match(notice()$message, "Jamaica (2023-24) Wave 1", fixed = TRUE)
+    expect_false(grepl("JAM_W1", notice()$message, fixed = TRUE))
+  })
 })

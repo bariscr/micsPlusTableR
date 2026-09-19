@@ -51,72 +51,159 @@ editor:
     wrap: 72
 ---
 
-# Start here
+# About micsPlusTableR {#about-system}
 
 ::: {.content-visible when-format="html"}
 [Download the printable PDF guide](user-guide.pdf).
 :::
 
-This guide helps you turn the files supplied by the MICS team into Excel
-output tables. You do not need to write calculations or change computer
-code. Follow one step at a time.
+micsPlusTableR is an R package for preparing, tabulating, reviewing, and
+exploring MICS Plus survey data. It provides a browser-based application
+and functions that can be used directly in R. R performs the
+calculations; the application provides controls for selecting inputs,
+running analyses, and examining results.
 
-**Your route from setup to finished tables**
+**Purpose.** The system connects the tables you want to produce with the
+data and preparation steps needed to calculate them. A tabulation plan
+(Excel) records the table definitions, while a survey-specific R script
+prepares the data and variables. This makes it possible to apply a
+supplied plan or create and adapt a plan for your own reporting and
+analysis needs, then repeat the calculations when inputs or
+specifications change.
 
-1.  **Set up your computer** - install R and an editor such as RStudio.
+**Inputs.** The application uses four matching inputs for a survey:
 
-2.  **Create or open a survey project** - choose where your work
-    belongs.
+- **Household data**, supplied as an SPSS `.sav` file.
+- **Household-member data**, supplied as a separate SPSS `.sav` file.
+- **A tabulation plan (Excel)**, specifying table layouts, row and
+  column groups, conditions, statistics, and display settings.
+- **A preparation folder**, containing the R script and any supporting
+  files needed to prepare the data used by the plan.
 
-3.  **Install the package and start the app** - follow sections **1D**
-    and **1E**, then work through these tabs inside the app:
+**Features.** You can obtain supplied plans and preparation materials,
+prepare survey data, calculate a selected table, review consistency
+checks, and run several tables together. The application also lets you
+inspect prepared data, explore frequencies and cross-tabulations, and
+combine calculated table cells into a data file for further use.
+Worksheet filters, weights, statistics, and display settings control the
+tables you define.
 
-    a.  **Download Files** - download tabulation plans and preparation
-        files to your project.
-    b.  **Data Preparation** - select your survey documents and
-        authorized data, then click **Set**.
-    c.  **Tabulator**, then **Consistency Checks** - calculate and
-        review a table.
-    d.  **Write to Excel** - save the reviewed table.
+**Results and outputs.** Choose the form that serves your task:
 
-The later pages explain running several tables, downloading data, and
-optional viewing tools. You can leave those until you have completed
-your first table.
+- **Results in the application:** table previews, check results,
+  prepared data views, and exploratory analyses. Looking at a table in
+  Tabulator may be all you need; writing it to Excel is not required.
+- **Excel table workbooks:** save calculated tables in their worksheet
+  layouts for review, reporting, or sharing.
+- **Combined table data:** download calculated cells in Excel, CSV, or
+  RDS format for further analysis or exchange.
+- **R objects:** use the package functions in a scripted workflow.
 
-**Words used in this guide**
-
-- **Click:** press the left mouse button once. On a touchpad, tap once.
-- **Tab:** a section name across the top of the application.
-- **Browse:** open a window to find a file on your computer.
-- **Folder:** a place that holds files. A preparation folder may contain
-  smaller folders.
-- **Project:** a folder for one piece of survey work, with a file that
-  helps RStudio reopen it.
-- **Console:** the panel where you paste R commands and see messages.
-- **Package:** an add-on for R; `micsPlusTableR` contains this
-  application.
-- **Sheet:** one page of an Excel workbook, such as `1.1a`.
-- **Wave:** one round of the survey. Use the wave your team gave you.
-
-**About the pictures.** The Download Files picture shows the new tab in
-the 0.3.0 development version, before loading the survey list. Other
-pictures are actual screenshots from version 0.2.7, using Mongolia Wave
-1 as an example. Your file names and results will differ. Use the files
-for your own survey. Screenshots show a temporary example output folder;
-your project normally saves to **micsPlusTableR-output**. In the HTML
-guide, click a picture to enlarge it; press **Esc** to return.
-
-**Looking for package functions?** Use the [package reference
-manual](https://github.com/bariscr/micsPlusTableR/blob/HEAD/output/pdf/micsPlusTableR-manual.pdf)
-and [package
-documentation](https://github.com/bariscr/micsPlusTableR#readme). Those
-documents cover programming and technical details.
+These are different ways to use the system, not a single sequence that
+must end in an export. Choose the relevant tools after preparing your
+inputs. Save or download results when you need to retain them beyond the
+current app session.
 
 {{< pagebreak >}}
 
-# 1. Set up your project and open the application
+# Ways to use the system {#ways-to-use}
 
-## 1A. Choose where to run R
+Choose the route that matches how you obtain or develop your table
+definitions. Either route can support viewing results in the app,
+reviewing them, or producing files.
+
+**Two main routes**
+
+1.  **Run an existing tabulation plan.** Use the plan and preparation
+    files supplied by the MICS team or your survey team, together with
+    the corresponding data. This route is for users producing tables
+    from an agreed specification. You can run, check, and export the
+    tables without writing calculations or changing the preparation
+    code.
+
+2.  **Create or adapt a tabulation plan.** Design the tabulation plan
+    for the tables you need, then apply it with a compatible preparation
+    script and the corresponding data. This route is for plan authors
+    and analysts who define row and column groups, statistics, filters,
+    weights, and display settings. Use an existing working plan as a
+    starting point where possible, keeping the worksheet structure the
+    app expects. Check that variables used by the plan are available
+    after preparation. If new or changed variables are needed, update
+    the preparation script with the person responsible for that code.
+
+**Different users, shared checks.** Table producers can use the app
+instructions for the tasks they need. Plan authors should also use the
+[worksheet reference](#worksheet-reference) for filters and display
+settings. Reviewers can focus on the plan's definitions, calculated
+results, consistency checks, and exported tables. Users maintaining
+preparation scripts or running the workflow directly in R can use the
+package reference linked under [Terms and reference
+information](#guide-terms). One user may take several of these roles.
+
+After changing a plan or preparation script, load the updated inputs and
+rerun the affected tables and checks. Users can move between table
+production, plan development, and data exploration as their work
+requires.
+
+{{< pagebreak >}}
+
+# Find the task you need {#guide-contents}
+
+The entries below cover the whole guide and link to its sections. The
+numbers help you find instructions; they do not mean every task must be
+completed. Set up the system and prepare the inputs you need, then
+choose the tools that serve your purpose.
+
+**Set up the system and inputs**
+
+1.  [**Set up your computer**](#computer-setup) - install R and an
+    editor such as RStudio.
+2.  [**Create or open a survey project**](#survey-project) - choose
+    where your work belongs.
+3.  [**Install the package and start the app**](#install-and-start) -
+    install micsPlusTableR in R, then open the app in your web browser.
+4.  [**Gather your survey files**](#survey-files) - obtain or prepare a
+    compatible plan, preparation script, and survey data.
+5.  [**Load and prepare your data**](#data-preparation) - load your
+    inputs and prepare the data.
+
+**Calculate, review, explore, and save results**
+
+6.  [**Calculate and look at one table**](#calculate-table) - use
+    Tabulator to calculate a worksheet and inspect its result.
+7.  [**Check the table**](#check-table) - compare related counts and
+    percentages with Consistency Checks.
+8.  [**Save the reviewed table to Excel**](#save-excel) - write a table
+    when you need a saved workbook.
+9.  [**Run several tables together**](#multiple-tables) - calculate and
+    write selected sheets, then review the run summary.
+10. [**Download a data file**](#table-data) - combine calculated table
+    cells and download them as Excel, CSV, or RDS.
+11. [**Look at prepared data**](#view-data) - inspect selected household
+    or household-member variables in Data View.
+12. [**Explore a question**](#explore-data) - examine frequencies or
+    cross-tabulations with Data Exploration.
+
+**Manage your session**
+
+13. [**Finish, return later, or get help**](#finish-and-help) - retain
+    any results you need, close or reopen the app, and troubleshoot.
+
+**Reference sections**
+
+- [**Worksheet reference for plan authors**](#worksheet-reference) -
+  understand filter scope and choose decimal places.
+- [**Other editors and code systems**](#other-environments) - use the
+  package with an R environment other than RStudio.
+- [**Terms and reference information**](#guide-terms) - find
+  definitions, notes about the screenshots, and links to the package
+  reference.
+
+{{< pagebreak >}}
+
+# 1. Set up your computer {#computer-setup}
+
+## Choose where to run R
 
 **If you are new to R, follow the RStudio Desktop steps below.** R does
 the calculations; RStudio gives you a window in which to start them.
@@ -129,7 +216,7 @@ code. The package can run in an R session started from different editors
 and code systems. You only need one of these options:
 
 | Option | What you need to know |
-|----|----|
+|------------------------------------|------------------------------------|
 | **RStudio Desktop** | The route explained here, with an R Console and a project menu. Install R separately. |
 | **Positron** | An alternative with built-in R support. Install R, open your survey folder, and choose an R session. |
 | **Visual Studio Code (VS Code)** | Install R and configure the R extension; run the commands in an R terminal. |
@@ -142,25 +229,22 @@ guide](https://positron.posit.co/guide-r.html), [VS Code's R
 guide](https://code.visualstudio.com/docs/languages/r), [Cursor's
 extension guide](https://prod.cursor.com/help/customization/extensions),
 and [IRkernel for Jupyter](https://irkernel.github.io/installation/).
-The optional [other environments](#other-environments) section explains
-project folders and browser access for these routes. The remaining
+The [other environments](#other-environments) section explains project
+folders and browser access for these routes. The remaining
 click-by-click computer setup instructions use RStudio Desktop.
-
-**What belongs to you:** create or use your own survey project folder
-and install the **micsPlusTableR** package. Your project holds your
-survey work and generated results.
 
 {{< pagebreak >}}
 
-## 1B. Install R, then RStudio Desktop (once)
+## Install R, then RStudio Desktop (once)
 
-If both programs already open on your computer, go to **1C**. You need
-internet access for installation. Use a recent R version supported by
-your editor; the package requires **R 4.2 or later**. You also need a
-web browser and an Excel viewer to review the saved workbooks. The
-workbook preview may also need internet when the app opens; see
-[Internet access and the workbook preview](#workbook-preview-internet)
-for the role of browser caching.
+If both programs already open on your computer, go to [Create or open
+your survey project](#survey-project). You need internet access for
+installation. Use a recent R version supported by your editor; the
+package requires **R 4.2 or later**. You also need a web browser and an
+Excel viewer to review the saved workbooks. The workbook preview may
+also need internet when the app opens; see [Internet access and the
+workbook preview](#workbook-preview-internet) for the role of browser
+caching.
 
 ### Install R first
 
@@ -175,17 +259,17 @@ for the role of browser caching.
     Mac** shows whether your Mac has an Apple chip or an Intel
     processor. Open the downloaded file and follow the installer.
 4.  **Linux:** follow the R download page's instructions for your Linux
-    distribution, with your support person's help if needed.
+    distribution.
 
 ### Install RStudio Desktop next
 
 1.  Go to [Posit's RStudio Desktop download
     page](https://posit.co/download/rstudio-desktop/). Choose the **free
     RStudio Desktop** download for your operating system.
-2.  **Windows:** open the downloaded installer and follow its steps.
+2.  **Windows:** open the downloaded installer and follow its steps.\
     **Mac:** open the downloaded `.dmg` and drag RStudio into
-    **Applications**. **Linux:** use the installer and instructions for
-    your distribution.
+    **Applications**.\
+    **Linux:** use the installer and instructions for your distribution.
 3.  Open **RStudio** from the Windows **Start** menu or Mac
     **Applications**. If it asks you to choose R, select the version you
     just installed.
@@ -198,13 +282,14 @@ your IT support person to complete the installation.
 
 {{< pagebreak >}}
 
-## 1C. Create or open your survey project {#survey-project}
+# 2. Create or open your survey project {#survey-project}
 
-**Do this before starting the application.** Choose one route below. A
-project keeps each survey's files and results together. Use a memorable
-name, such as **Mongolia-Wave1**; substitute your own survey.
+**Do this before starting the application.** Create or open a project
+folder for your survey work. It keeps your files and generated results
+together. Choose the appropriate route below and use a memorable name,
+such as **Mongolia-Wave1**; substitute your own survey.
 
-### New work: create a new project folder
+## New work: create a new project folder
 
 1.  In RStudio, click **File \> New Project**.
 2.  Choose **New Directory**, then **New Project**.
@@ -213,14 +298,14 @@ name, such as **Mongolia-Wave1**; substitute your own survey.
     choose a location you can find again, such as **Documents**.
 5.  Click **Create Project**. RStudio creates and opens the folder.
 
-### You already have a folder, but no .Rproj file
+## You already have a folder, but no .Rproj file
 
 1.  Click **File \> New Project \> Existing Directory**.
 2.  Click **Browse** and choose your existing survey folder.
 3.  Click **Create Project**. RStudio adds a project file to that
     folder; your existing survey files stay in place.
 
-### You already have an RStudio project
+## You already have an RStudio project
 
 1.  Click **File \> Open Project**.
 2.  Find your survey folder, select its **.Rproj** file, and click
@@ -235,12 +320,13 @@ again.
 **Check your location:** the project name should appear at the top right
 of RStudio.
 
-**Your files:** keep your supplied survey data, Excel plan, and complete
-preparation folder inside an **inputs** subfolder if convenient. Copying
-files into the project does not load them into the app; you will select
-them with **Browse** in sections 2 and 3. Files may also remain in
-another accessible folder. Keep the project available while working;
-extract ZIP folders first if you downloaded the inputs as ZIP folders.
+**Your files:** keep your supplied survey data, tabulation plan, and
+complete preparation folder inside an **inputs** subfolder if
+convenient. Copying files into the project does not load them into the
+app; you will select them with **Browse** during [Data
+Preparation](#data-preparation). Files may also remain in another
+accessible folder. Keep the project available while working; extract ZIP
+folders first if you downloaded the inputs as ZIP folders.
 
 The app normally creates **micsPlusTableR-output** inside your project
 for Excel results. Browser downloads may go to **Downloads** instead.
@@ -248,7 +334,9 @@ The **Write to Excel** screen shows the actual saved workbook paths.
 
 {{< pagebreak >}}
 
-## 1D. Install the micsPlusTableR package (once) {#package-setup}
+# 3. Install the package and start the app {#install-and-start}
+
+## Install the micsPlusTableR package (once) {#package-setup}
 
 1.  Keep your survey project open. Click the **Console** beside `>`. Use
     the **Console**, rather than the **Terminal** tab or a search box.
@@ -256,54 +344,62 @@ The **Write to Excel** screen shows the actual saved workbook paths.
     library. Once installed, you do not need to install it again:** skip
     the first line on later uses. Run the second line to install
     **micsPlusTableR**. Paste each needed command into the Console and
-    press **Enter** (**Return** on a Mac). Wait for `>` to return before
-    running the next command:
+    press **Enter**. Wait for `>` to return before running the next
+    command:
 
 ``` r
 install.packages("remotes")
 remotes::install_github("bariscr/micsPlusTableR")
 ```
 
-Copy only the command, without the surrounding box or any `>` prompt. On
-Windows, use **Ctrl+C** to copy and **Ctrl+V** to paste; on a Mac, use
-**Command+C** and **Command+V**. `remotes` is the helper that installs
-the application package from GitHub. The second command installs
-**micsPlusTableR** and its required packages, including those used by
-the supported survey preparation scripts. This may take several minutes.
-Leave RStudio open while messages scroll.
+`remotes` is the helper that installs the application package from
+GitHub. The second command installs **micsPlusTableR** and its required
+packages, including those used by the supported survey preparation
+scripts. This may take several minutes. Leave RStudio open while
+messages scroll.
 
 3.  If R asks to create a personal library, accept it. If asked to
-    choose a CRAN download mirror, choose **0-Cloud** if offered. If
-    asked which existing packages to update, choose the numbered
-    **None** option unless your support person has requested updates.
-    Required missing dependencies still install.
-4.  If an error appears, copy the message and ask your support person
-    for help. A returned `>` alone does not prove installation
-    succeeded. For folder or lock errors, see [Installation cannot
+    choose a CRAN download mirror, choose **0-Cloud** if offered. If a
+    menu lists packages with newer versions, enter the number for your
+    choice and press **Enter**:
+
+    - **All:** update all packages listed in that menu. Choose this when
+      setting up a new working environment or when you want to bring the
+      listed packages up to date and have time to check your work with
+      the updated versions. Installation may take longer.
+    - **None:** keep the versions already installed. Choose this when
+      your current setup works and you want to keep those versions while
+      continuing an analysis. Required packages that are missing will
+      still be installed.
+
+    **All** refers to the packages listed for this installation, not
+    every package available for R. If installation reports that a named
+    package is too old, update that package, or choose **All** to update
+    all listed packages, then retry. You do not need to update
+    everything to resolve a problem with one package. See the
+    [package-update
+    guidance](https://remotes.r-lib.org/reference/install_github.html).
+
+4.  If an error appears, copy the message and ask your IT support for
+    help. For folder or lock errors, see [Installation cannot
     finish](#installation-cannot-finish).
-5.  Click **Session \> Restart R**, then run this check in the Console:
-
-``` r
-packageVersion("micsPlusTableR")
-```
-
-**Ready to continue:** a version number appears without an error saying
-the package is missing. Continue to **1E** to launch the application.
 
 You normally install once for the R library you use, not once per survey
 or on every launch. A different R installation or an isolated project
 library may need its own package installation. To update, finish and
-save your work, stop the app, and follow your survey lead's
-instructions. Run the GitHub installation command again and restart R
-before using the updated package.
+save your work and stop the app. Run the GitHub installation command
+again, choose package updates as described above, and restart R before
+using the updated package.
 
 {{< pagebreak >}}
 
-## 1E. Start the application (each time you work)
+## Start the application (each time you work) {#start-application}
 
-1.  Open your survey's **.Rproj** file. Confirm its name at the top
-    right of RStudio. You do not need to repeat installation for
-    ordinary launches.
+1.  Open your survey project in either of these ways: double-click its
+    **.Rproj** file in File Explorer or Finder, or in RStudio choose
+    **File \> Open Project**, select the **.Rproj** file, and click
+    **Open**. Confirm the project name at the top right of RStudio. You
+    do not need to repeat installation for ordinary launches.
 2.  In the **Console**, paste this line and press **Enter**:
 
 ``` r
@@ -313,10 +409,9 @@ micsPlusTableR::run_app()
 3.  The application opens in a browser on **Data Preparation**. On a
     narrow window, use **Toggle navigation** to see the tabs. If you
     need plans or preparation files, open **Download Files**.
-4.  Follow **section 2** to locate your household data, household
-    members data, Excel tabulation plan, and preparation folder. Then
-    follow **section 3** to select the country and wave, upload the
-    files, and click **Set**.
+4.  [Gather your survey files](#survey-files), then use [Data
+    Preparation](#data-preparation) to select the country and wave,
+    upload the files, and click **Set**.
 
 **You are ready when:** you can open **Download Files**, **Data
 Preparation**, **Tabulator**, **Consistency Checks**, and **Write to
@@ -339,19 +434,20 @@ to R on your computer. Selecting input files loads them into the running
 app; it does not install them into the package. Opening a project later
 does not restore the app's uploaded inputs or unsaved results.
 
-For help, show your support person the Console message and the [package
-setup instructions in Section 1D of this guide](#package-setup).
+If the app does not start, read the Console message and check the
+[package setup instructions](#package-setup). Include the complete
+message when requesting technical help.
 
 {{< pagebreak >}}
 
 ## Internet access and the workbook preview {#workbook-preview-internet}
 
 **Why the preview uses a browser library.** The workbook preview in
-**Data Preparation** shows the uploaded Excel tabulation plan inside the
-app. A browser cannot display an Excel workbook as a table on its own,
-so the app uses a JavaScript library called **SheetJS** to read it and
-convert the selected sheet into a displayable table. You do not need to
-install this library yourself. It is separate from the calculations
+**Data Preparation** shows the uploaded tabulation plan (Excel) inside
+the app. A browser cannot display an Excel workbook as a table on its
+own, so the app uses a JavaScript library called **SheetJS** to read it
+and convert the selected sheet into a displayable table. You do not need
+to install this library yourself. It is separate from the calculations
 performed by R and the calculated table preview in **Tabulator**.
 
 **When internet is needed.** When the app opens, the browser loads
@@ -380,35 +476,46 @@ continue tabulating.
 
 {{< pagebreak >}}
 
-# 2. Gather your survey files
+# 4. Gather your survey files {#survey-files}
 
-You need two sets of files for the **same country, period, and wave**:
+You need two sets of files for the **same survey (country, period, and
+wave)**:
 
 - **Household and household-member data (`.sav`):** obtain them from the
   [MICS surveys page](https://mics.unicef.org/surveys) with the required
   permission. These data are never distributed through this files
   repository or the package's download functions.
-- **Tabulation plans and preparation files:** download them from
+- **Tabulation plans and preparation files:** use a compatible set you
+  have created or adapted, or download supplied materials from
   [micsPlusTableR-Files](https://github.com/bariscr/micsPlusTableR-Files)
   using the app or one of the alternatives below. These downloads
-  require no GitHub account once the repository is public. Before
-  publication, ask your survey lead for them.
+  require no GitHub account once the repository is public.
+
+If your inputs are already available, go to [Check your input
+set](#check-inputs). Otherwise, use one of the download routes below for
+supplied plans and preparation files.
 
 ## Download with the app
+
+Surveys are named by country, survey period, and wave, for example
+**Jamaica (2023-24) Wave 1**. The download choices and survey folders
+use the same names. Each survey contains its tabulation plan and a
+`prep-files-` folder with the matching survey name. Keep the preparation
+folder and its contents together.
 
 1.  Open **Download Files** and click **Load / refresh surveys**.
     Internet access and a public files repository are needed to load the
     list.
 2.  To download **one** folder, keep **Selected surveys** and tick that
-    survey, such as `JAM_W1`. To download **several**, tick each survey
-    you want. For **every** published survey folder, select **All
-    surveys**.
+    survey, such as `Jamaica (2023-24) Wave 1`. To download **several**,
+    tick each survey you want. For **every** published survey folder,
+    select **All surveys**.
 3.  Review **Selected survey folders** for the file count and total
     size.
 4.  Check **Download folder**. It starts at the current project you
-    opened before launching the app. For example, selecting `JAM_W1`
-    saves its materials in a `JAM_W1` subfolder directly inside that
-    project.
+    opened before launching the app. For example, selecting
+    `Jamaica (2023-24) Wave 1` saves its materials in a
+    `Jamaica (2023-24) Wave 1` subfolder directly inside that project.
 5.  To choose another destination, click **Browse folders...**, select a
     folder, and click **Select**, or type a path. You may create a
     folder in the picker. A relative path such as `inputs` means a
@@ -420,10 +527,6 @@ You need two sets of files for the **same country, period, and wave**:
 7.  Click **Download files** and wait for the success message, which
     shows where the files were saved. The preparation subfolders are
     preserved.
-8.  Open **Data Preparation**. Select the downloaded plan and complete
-    preparation folder, along with the household and member data you
-    obtained separately from the [MICS surveys
-    page](https://mics.unicef.org/surveys) with permission.
 
 Files are saved directly by R to the chosen location. They do not go
 through your browser's **Downloads** folder. In a remotely hosted R
@@ -434,10 +537,7 @@ tools to retrieve files.
 
 ## Download Files screen
 
-![Download Files: survey selection and destination controls are on the
-left; instructions and download status are on the
-right.](screenshots/00-download-files.png){fig-alt="Download Files screen before loading the survey list, with Selected surveys and All surveys options, a project-based download folder, Browse folders, Use current project, Replace existing files, and Download files controls."
-fig-pos="H" width="85%"}
+![](images/clipboard-2639980333.png)
 
 This picture shows the screen before **Load / refresh surveys** is
 clicked. Your own project path appears in **Download folder**. After
@@ -453,9 +553,9 @@ more surveys**.
 2.  Find the ZIP in **Downloads**. On Windows, right-click it and choose
     **Extract All**; on a Mac, double-click it.
 3.  Open the extracted `micsPlusTableR-Files-main` folder. Copy the
-    survey folder you need, such as `JAM_W1`, into your survey project's
-    **inputs** folder. Keep its preparation folder and all subfolders
-    together.
+    survey folder you need, such as `Jamaica (2023-24) Wave 1`, into
+    your survey project's **inputs** folder. Keep its preparation folder
+    and all subfolders together.
 
 ## Alternative: download from the R Console
 
@@ -472,10 +572,13 @@ Choose **one** of these alternatives:
 
 ``` r
 # One survey
-micsPlusTableR::download_survey_files("JAM_W1")
+micsPlusTableR::download_survey_files("Jamaica (2023-24) Wave 1")
 
 # Several surveys
-micsPlusTableR::download_survey_files(c("JAM_W1", "MNG_W2"))
+micsPlusTableR::download_survey_files(c(
+  "Jamaica (2023-24) Wave 1",
+  "Mongolia (2025-26) Wave 2"
+))
 
 # All published surveys
 micsPlusTableR::download_survey_files()
@@ -502,37 +605,48 @@ GitHub limits requests, retry later or use the ZIP link.
 
 {{< pagebreak >}}
 
-## Check your input set
+## Check your input set {#check-inputs}
 
 Keep these **four items for the same country, period, and wave**
 together in your survey project's **inputs** folder, or another folder
 you can find again. The household and member files come from the MICS
-Plus website with permission; the Excel plan and preparation folder come
-from `micsPlusTableR-Files`. Once you have both, run
-`micsPlusTableR::run_app()`.
+Plus website with permission. Use a tabulation plan and preparation
+folder supplied by your team or downloaded from `micsPlusTableR-Files`,
+or your own compatible versions. Once all four items are ready, continue
+to [Data Preparation](#data-preparation) in the app.
 
 | Item to obtain | How to recognize it | Where it goes in the app |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | Household data | Name often ends in `hh.sav` | **Select household file** |
 | Household members data | Name often ends in `hl.sav` | **Select household members file** |
 | Tabulation plan | Excel file ending in `.xlsx` | **Select tabulation file** |
-| Preparation folder | Folder containing the team's preparation file | **Select preparation folder** |
+| Preparation folder | Folder containing the preparation script and its supporting files | **Select preparation folder** |
 
 Your team may supply longer names. Do not rename the files just to match
-the pictures. You do not need to open the `.sav` files or the
-preparation code.
+the pictures. When running an existing plan, you do not need to open the
+`.sav` files or edit the preparation code. When creating or adapting a
+plan, check its variable names and definitions against the prepared data
+and script before running it.
 
-## How to choose a file
+{{< pagebreak >}}
+
+# 5. Load and prepare your data {#data-preparation}
+
+Open **Data Preparation** in the app. Use the controls below to select
+your files and preparation folder, then follow **Run Data Preparation**
+to check the survey choices and click **Set**.
+
+## How to choose a file {#choose-file}
 
 1.  Click **Browse...** beside the relevant item in the application.
-2.  In the window that opens, find the folder your team gave you. If it
-    was downloaded, first look in **Downloads**.
+2.  In the window that opens, find the folder containing your inputs. If
+    it was downloaded, first look in **Downloads**.
 3.  Double-click a folder to open it. Click the required file once to
     select it.
 4.  Click **Open**. Wait until its name appears in the application and
     the upload finishes. Repeat for the other files.
 
-## How to choose the preparation folder
+## How to choose the preparation folder {#choose-preparation-folder}
 
 1.  If the team supplied a ZIP file, extract it first: on Windows,
     right-click it and choose **Extract All**; on a Mac, double-click
@@ -544,27 +658,29 @@ preparation code.
 4.  If the browser asks to upload the folder's files, check its name and
     confirm.
 
-**Check before continuing:** use the complete preparation folder
-supplied by your team. Keep any folders inside it, such as
-**FIES-inputs**, in place. If you cannot tell which files belong
-together, ask your survey lead.
+**Check before continuing:** use the complete preparation folder for the
+selected survey. Keep any folders inside it, such as **FIES-inputs**, in
+place. Check the preparation script's file references if you are unsure
+which supporting files belong with it.
 
 {{< pagebreak >}}
 
-# 3. Choose the files and click Set
+## Run Data Preparation
 
-![Data Preparation: survey choices and four Browse controls are on the
-left; the survey match message and Excel plan are on the
-right.](screenshots/01-data-preparation.png){fig-alt="Data Preparation screen with Mongolia 2025-26 Wave 1 selected, four inputs loaded, Set at lower left, and a successful survey consistency message at upper right."
+![Data Preparation: Mongolia Wave 2 inputs are selected on the left; the
+survey consistency result and IDX sheet of the tabulation plan appear on
+the
+right.](screenshots/01-data-preparation.png){fig-alt="Data Preparation screen with Mongolia 2025-26 Wave 2 selected, four inputs loaded, the Set button below the preparation folder, a successful survey consistency message, and the IDX sheet displayed in the tabulation plan preview."
 fig-pos="H" width="100%"}
 
 1.  Click **Data Preparation**. Under **Select country and period**,
     click the small arrow and choose your survey. Choose the matching
     **wave** below it.
-2.  Use the four **Browse...** controls as described on the previous
-    page.
-3.  Read **Main prep** below the folder control. Check that it names
-    your team's preparation file. **FIES helpers: none** is normal for
+2.  Use the four **Browse...** controls to [choose the
+    files](#choose-file) and [select the preparation
+    folder](#choose-preparation-folder).
+3.  Read **Main prep** below the folder control. Check that it names the
+    intended preparation file. **FIES helpers: none** is normal for
     surveys without FIES.
 4.  Click **Set** once. If it is below the visible area, scroll down
     inside the left panel. Wait for preparation to finish.
@@ -574,21 +690,19 @@ fig-pos="H" width="100%"}
 
 **Ready to continue:** the survey details agree and there is no
 preparation error. A matching survey message alone does not resolve a
-separate error. If a mismatch or error appears, check your choices or
-ask your survey lead.
+separate error. If a mismatch or error appears, compare the selected
+country and wave with the tabulation plan's IDX sheet, and inspect the
+reported preparation error before continuing.
 
 {{< pagebreak >}}
 
-# 4. Calculate and look at one table
+# 6. Calculate and look at one table {#calculate-table}
 
-![Tabulator: select a sheet on the left and click Run; the calculated
-table appears on the
-right.](screenshots/02-tabulator.png){fig-alt="Tabulator screen with sheet 1.1a, Formatted and Header selected, Run at left, and a calculated response-rate table at right."
-fig-pos="H" width="100%"}
+![](images/clipboard-2735885160.png)
 
 1.  Click **Tabulator** at the top.
 2.  Under **Select a sheet**, click the arrow. Choose the table code
-    requested by your survey lead. The picture uses **1.1a**.
+    that you require. The picture uses **1.1**.
 3.  Leave **Format type** on **Formatted** and **Pivot type** on
     **Header** for an easy-to-read preview.
 4.  Click **Run** once and wait for the table to appear.
@@ -597,188 +711,30 @@ fig-pos="H" width="100%"}
     columns.
 
 **Ready to continue:** the correct table name and calculated values
-appear. The next step is **Consistency Checks**. A preview has not yet
-saved your calculated table to an Excel file.
+appear. Use **Consistency Checks** to review the applicable comparisons.
+If viewing the result meets your need, you do not have to export it. Use
+**Write to Excel** when you want to keep a table workbook; the preview
+itself does not save one.
 
-If your reviewer asks for plain numbers, choose **Unformatted**. Choose
-**Suppressed** to inspect the small-sample display rules. Keep
-**Header** selected unless your reviewer asks for another view.
+If you require plain numbers, choose **Unformatted**. Choose
+**Suppressed** to inspect the small-sample display rules.
 
-{{< pagebreak >}}
+**Choose the labels with Pivot type:**
 
-## 4A. Understand worksheet filters {#worksheet-filters}
+| Option | What it shows and when to use it |
+|------------------------------------|------------------------------------|
+| **Header** | Descriptive row and column labels from the tabulation plan. Use this to read and interpret the table. |
+| **Index** | The worksheet's row and column numbers. Use this to locate a result in the tabulation plan; for example, row 9 and column 6 identify cell F9. |
+| **Logic** | The row and column conditions used for the table. Use this to inspect the expressions behind the groups being compared. |
 
-This section is for people who prepare or review the Excel plan. It
-explains which records a `filter(...)` instruction includes when the
-table is calculated. These are worksheet instructions, separate from the
-app's search boxes.
-
-**Find the filter instructions.** The plan's condition row contains the
-`.sav` data source in column B, on row 4, 5, 6, or 7. Filters for
-columns appear on that same row. The statistic written in the table body
-is called `stat_type`: for example, `p` calculates a percentage, `n` a
-weighted count, and `n_unw` an unweighted count.
-
-**Column B is global.** A filter such as `filter(age >= 18)` in B limits
-the whole table to adults. It remains active when another filter starts,
-when the statistic changes, and when a new table row begins. A later
-filter cannot bring excluded records back into the table.
-
-**Additional filters apply to horizontal blocks.** In a horizontal
-table, a `filter(...)` in C or a later column combines with B. It
-applies to its own column and extends to the right. Its position relative
-to B makes no difference: it always combines with B. Changes from `p`
-to `n` or `n_unw` keep the filter, so percentages and their counts use
-the same population.
-
-There are two ways an additional filter stops:
-
-- **A non-mean statistic changes to a mean.** For example, when `n` is
-  followed by `mean(age)`, that mean cell and following cells use B alone.
-  Returning to `n` does not restart the old filter. This rule is checked
-  across columns separately for each row; changes down rows do not stop it.
-- **Another explicit filter starts.** The new filter replaces the
-  previous additional filter and combines with B. It applies at its own
-  starting column, including when that column calculates a mean.
-
-Changes among non-mean statistics, between mean variables, and from a
-mean to a count do **not** stop the filter. A filter starting on a mean
-continues through later counts; a subsequent change from a non-mean to a
-mean stops it unless another explicit filter starts there.
-
-Blank filter cells do not cancel an active filter. To remove an
-additional restriction explicitly, write `filter(TRUE)`; B still
-applies. To keep an additional restriction when entering a mean from a
-non-mean, repeat its `filter(...)` above that mean column.
-
-**How to recognize the table direction.** The reader selects horizontal
-mode when the plan has `n_unw` immediately before `IDX`, or a
-`100`/`100.0` statistic. Other plans use vertical mode. In vertical
-tables, the first filter in B still restricts the common dataset;
-additional horizontal filter blocks are not processed. Check with the
-plan author before adding such blocks to a vertical table.
+Pivot type changes the preview labels, not the calculated values. Choose
+the view you need, then click **Run** to refresh the preview.
 
 {{< pagebreak >}}
 
-### Filter example: follow one row from left to right
+# 7. Check the table {#check-table}
 
-Suppose B contains `filter(age >= 18)`. In one horizontal table row, the
-instructions are:
-
-| Column | Statistic | Additional filter starts here | Records available to this cell |
-|----|----|----|----|
-| C | `p` | None | All adults |
-| D | `p` | `filter(sex == 2)` | Adults with sex code 2 |
-| E | `n` | None | Adults with sex code 2 |
-| F | `n_unw` | None | Adults with sex code 2 |
-| G | `mean(age)` | None | All adults: entered a mean from a non-mean |
-| H | `n` | None | All adults: the old filter stays off |
-| I | `mean(income)` | `filter(region == 1)` | Adults in region 1 |
-| J | `mean(age)` | None | Adults in region 1 |
-| K | `n_unw` | None | Adults in region 1 |
-
-No cell includes people under 18. D's filter applies to D-F, including
-the percentage and its counts. It stops at G. I starts a new filter,
-which applies to I-K and does not include D's sex restriction. Other row
-and column conditions still determine what is measured within these
-populations.
-
-**Which changes count?** The engine uses the effective statistic after
-the worksheet reader fills missing statistic cells and ignores surrounding
-spaces when identifying means. Supported mean forms are `mean(variable)`,
-`mean`, and the legacy `Mean` form. A blank statistic cell does not itself
-mean "stop the filter." Changes such as `p` to `n`, `n` to `n_unw`,
-`mean(age)` to `mean(income)`, and `mean(age)` to `n` all preserve it.
-Only entering a mean from a non-mean stops an inherited additional filter.
-
-**When filters run.** For each required population, the engine loads the
-selected source, applies B, applies any active additional filter, and
-then runs the block's calculations. It calculates cell values from that
-data. The filters therefore affect both the numerator and denominator of
-a percentage. A filter variable must already exist before those
-calculations.
-
-Only filter inheritance stops on entering a mean from a non-mean. Existing
-data-source, weight, calculation, and row/column-condition instructions
-keep their roles. A calculation-only instruction does not end the
-filter's column range.
-
-**Filters do not reach left.** Adding a filter in G does not change F's
-calculated mean. Display suppression still needs an unweighted count: if
-a new filter separates a cell from its count, the engine uses the next
-`n_unw` to its right on the same row and data source when no count is
-already linked. Existing count links and the small-sample thresholds
-remain in effect.
-
-**Review after upgrading.** The earlier rule stopped additional filters
-at every statistic change, including `p` to `n`; this could give percentages
-and their counts different populations. Recalculate affected tables and
-review denominators and suppression. B remains global, including in later
-blocks; only non-mean-to-mean transitions now stop inherited filters.
-
-{{< pagebreak >}}
-
-## 4B. Choose decimal places in the worksheet {#statistic-precision}
-
-This section is for people who prepare or review the Excel plan. Add
-**`d=` inside a statistic's parentheses** to choose how many decimal
-places are shown. This is available for every supported statistic type.
-If the statistic already has an argument, add a comma before `d=`.
-
-| What you want | What to write in the statistic cell | Example display |
-|---|---|---|
-| Whole-number average expenses in table 6.2a | `mean(HCS8, d=0)` | `442,572` |
-| Average expenses with two decimals | `mean(HCS8, d=2)` | `442,571.91` |
-| Mean indicator with one decimal | `mean(d=1)` | `73.3` |
-| Percentage with two decimals | `p(d=2)` | `73.30` |
-| Count with one decimal | `n(d=1)` | `881.0` |
-| Unweighted count with no decimals | `n_unw(d=0)` | `622` |
-| Median with two decimals | `median(age, d=2)` | `35.00` |
-| Total/distribution statistic with two decimals | `p(100, d=2)` | `100.00` |
-
-These numbers illustrate the display, not survey results. The same rule
-works with other supported statistics, including `mean_unw`, legacy
-`Mean`, and `p_sum`. A constant can be written as `100(d=2)`. Keep the
-statistic appropriate to the table's direction and intended calculation.
-
-**If you leave out `d`, nothing changes:** the app keeps its established
-formatting for that statistic and output mode. Means default to one decimal
-place. For example, `mean(HCS8)` still displays `442,571.9`.
-
-**Use a whole number of decimal places.** `d=0` removes the decimal point;
-`d=1`, `d=2`, and `d=3` show one, two, and three decimal places, including
-trailing zeros. Spaces are allowed, so `mean(HCS8,   d=0)` is valid. Give
-`d` only once, as a non-negative whole number, without quotation marks or
-a calculation. For example, `d=-1`, `d=1.5`, and `d="2"` are invalid.
-
-**Where it applies.** The Formatted and Suppressed Tabulator views use the
-requested decimals for visible numbers. The Unformatted view retains the
-full numeric estimate. Both Excel output workbooks use the requested
-number format, including workbooks written by Multi-sheet Tabulator and
-values supplied by preparation scripts. Thousands separators remain in
-the Formatted preview and Excel. Long Format Data records the setting in
-`DECIMALS` and display values; `OBS_VALUE` retains full precision.
-
-**What stays the same.** Display rounding does not change the calculated
-number, weights, filters, denominators, or consistency checks. Excel keeps
-numeric estimates at full precision when you specify `d`. Parenthesized
-estimates follow the requested precision, such as `(442,572)` for `d=0`;
-`(*)` and `-` remain suppression markers.
-
-Changing only `d` never starts or stops a filter. A column using
-`n_unw(d=2)` still acts as an unweighted count for direction and suppression.
-Where the reader fills a blank statistic cell, it carries the decimal
-setting with that statistic. Save the plan and reload it in the app, then
-rerun the affected tables to apply your edits.
-
-{{< pagebreak >}}
-
-# 5. Check the table
-
-![Consistency Checks: click Run Checks and examine the smaller check
-tabs and their result
-tables.](screenshots/03-consistency-checks.png){fig-alt="Consistency Checks screen with Run Checks on the left and a Row Group N result showing matching totals and zero differences on the right."
-fig-pos="H" width="100%"}
+![](images/clipboard-2782092616.png)
 
 1.  Click **Consistency Checks**. Confirm the **Table name** matches the
     table you just ran.
@@ -786,30 +742,40 @@ fig-pos="H" width="100%"}
 3.  Click each of the smaller check tabs, such as **Row Group (N)**.
     They compare counts or percentages in different parts of the table.
 4.  If a tab is red, tick **Show only inconsistent cells** to find the
-    differences. Record the table code and ask your survey lead to
-    review them.
+    differences. Inspect the affected groups, their filters, and their
+    denominators to identify the cause.
 
 **Green:** this check ran and found no difference beyond its tolerance.
 **Red:** a difference needs review. **No color or no rows:** the check
 may not apply; it does not mean it passed. Read the result as well as
-the color. The example's **diff_value** column shows zero where the
-compared totals agree.
+the color. The **Difference** column shows zero where the compared
+values agree. **Sum of group values** is compared with the **Reference
+total**; in column percentage checks, **Sum of percentages** is compared
+with 100. **Worksheet row** and **Worksheet column** identify positions
+in the tabulation plan. The screenshot shows the older column labels;
+`diff_value` is now displayed as **Difference**.
 
-**Ready to continue:** the applicable checks pass, or the survey lead
-has reviewed and accepted any exceptions. Passing checks do not replace
-the survey lead's review of the table and its meaning.
+**Ready to continue:** the applicable checks pass, or you have explained
+and documented any expected differences. Also check that the table's
+population, labels, statistics, and interpretation match its purpose;
+matching totals alone do not establish that.
 
 {{< pagebreak >}}
 
-# 6. Save the reviewed table to Excel
+# 8. Save the reviewed table to Excel {#save-excel}
+
+Use **Write to Excel** when you want to keep or share tables in workbook
+form. You can inspect tables in **Tabulator** without creating these
+files.
 
 ![Write to Excel: create Both workbooks, write the current table with
 the two write buttons, and find the saved files using Open
 folder.](screenshots/04-write-to-excel.png){fig-alt="Write to Excel screen showing Both, Create Excel Files, two write buttons, and Output and Formatted file paths with Open file and Open folder buttons."
 fig-pos="H" width="100%"}
 
-1.  Click **Write to Excel**. Under **Create**, choose **Both** unless
-    your survey lead requests one type only.
+1.  Click **Write to Excel**. Under **Create**, choose **Both** to
+    create the Output and Formatted workbooks, or select the single
+    workbook type you need.
 2.  Click **Create Excel File(s)** **once for this run**. Two file paths
     appear on the right. This creates workbook copies; it does not fill
     every table.
@@ -831,17 +797,18 @@ not click **Create Excel File(s)** again for every table.
 
 {{< pagebreak >}}
 
-# 7. Run several tables together (optional)
+# 9. Run several tables together {#multiple-tables}
 
 ![Multi-Sheet Tabulator: choose sheets, choose Both, then run and
 inspect one result row per
 sheet.](screenshots/05-multi-sheet.png){fig-alt="Multi-Sheet Tabulator showing selected table codes, the Both write target, Run and write selected, and results for the selected sheets."
 fig-pos="H" width="100%"}
 
-Use this after you can run and review one table successfully.
+Prepare the data, then use **Multi-Sheet Tabulator** to calculate and
+write selected tables together.
 
-1.  First create your workbook files in **Write to Excel** (step 6), if
-    you have not already done so for this run.
+1.  First [create your workbook files](#save-excel) in **Write to
+    Excel**, if you have not already done so for this run.
 2.  Click **Multi-Sheet Tabulator**. Click **Select sheet(s)** and
     choose a table. Click again to add another. Use **Deselect all** to
     clear the selection.
@@ -859,20 +826,22 @@ does not wait for your review of each table. A completed write is not
 approval of a flagged result.
 
 If a table fails or has consistency issues, note its code and message.
-Review it with your survey lead before sharing. Start with a few tables;
-use **Select all** when ready for the full run.
+Investigate the error or difference before using the result. Start with
+a few tables; use **Select all** when ready for the full run.
 
 {{< pagebreak >}}
 
-# 8. Download a data file (optional)
+# 10. Download a data file {#table-data}
 
 ![Long Format Data: prepare the data with the button on the left, then
 use a download button below
 it.](screenshots/06-long-format.png){fig-alt="Long Format Data screen with Run all tables and prepare on the left and Excel, CSV, and RDS download controls below it, beside the preview on the right."
 fig-pos="H" width="100%"}
 
-Use this only if your survey lead asks for the tables as a combined data
-file. For ordinary presentation tables, use **Write to Excel** instead.
+Use **Long Format Data** when you need calculated table cells together
+in one dataset for analysis, exchange, or further processing. This
+produces a combined data layout; **Write to Excel** saves tables in
+their worksheet layouts. Choose the output that serves your purpose.
 
 1.  Complete **Data Preparation** first.
 2.  Click **Long Format Data**.
@@ -891,27 +860,28 @@ plain text table; **RDS (.rds)** is for someone working in R.
 
 The download contains all prepared rows, including rows hidden by
 preview filters or pages. Check the country, period, and wave in the
-filename before sending it. If preparation reports a failed table, ask
-your survey lead to resolve the error and rerun before relying on a
-download.
+filename before sending it. If a table fails, inspect its error message,
+correct the relevant input or instruction, and rerun before relying on
+the download.
 
 {{< pagebreak >}}
 
-# 9. Look at prepared data (optional)
+# 11. Look at prepared data {#view-data}
 
 ![Data View: select the household or household members data, select
 variables, then click Run Data
 View.](screenshots/07-data-view.png){fig-alt="Data View screen showing dataset and variable selectors and Run Data View, with the preview area on the right."
 fig-pos="H" width="100%"}
 
-This tool shows the data after preparation. Use it when your survey lead
-asks you to check a particular item. A **variable** is a named item in
-the data, like age or region.
+**Data View** shows data after preparation. Use it to inspect variable
+values and labels, understand the prepared dataset, or investigate a
+table result. A **variable** is a named item in the data, like age or
+region.
 
 1.  Complete **Data Preparation**, then click **Data View**.
 2.  Under **Select data to view**, choose **hh** for households or
-    **hl** for household members, as directed by your reviewer.
-3.  Select the variable names your reviewer gives you.
+    **hl** for household members.
+3.  Select the variables you want to inspect.
 4.  Click **Run Data View**. Read the preview and its labels.
 
 **Check:** you are looking at the intended dataset and variables. This
@@ -925,44 +895,50 @@ the controls before any individual records are displayed.
 
 {{< pagebreak >}}
 
-# 10. Explore a question (optional)
+# 12. Explore a question {#explore-data}
 
 ![Data Exploration: choose the dataset, variables, and analysis type
 before clicking Run Data
 Explorer.](screenshots/08-data-exploration.png){fig-alt="Data Exploration screen with dataset, weighting, variable and analysis controls on the left and the analysis preview area on the right."
 fig-pos="H" width="100%"}
 
-Use this for a question your survey lead wants to investigate. It does
-not replace the approved tabulation plan.
+**Data Exploration** lets you investigate questions through frequencies
+and cross-tabulations without changing the tabulation plan. Use it to
+understand the data, examine relationships, or investigate a result.
+These analyses are separate from the tables defined in the plan.
 
 1.  After **Data Preparation**, click **Data Exploration**.
 2.  Under **Select data set**, choose **hh** for households or **hl**
     for household members. Under **Select variable(s)**, choose the
-    names your reviewer gives you.
-3.  Choose **Unweighted** or **Weighted**, as your reviewer specifies.
-    If weighted, enter their exact variable name in **Type weight
-    variable**. Do not guess it.
+    variables relevant to your question.
+3.  Choose **Unweighted** or **Weighted** for the analysis you intend.
+    If weighted, enter the appropriate survey weight in **Type weight
+    variable**. Check the preparation script or survey documentation if
+    you are unsure which weight to use.
 4.  Choose **Frequency** to count categories of one variable, or **Cross
     table** to compare two variables. Select the second variable if
-    requested.
-5.  Leave any filter box blank unless your reviewer supplies the exact
-    text to use. Click **Run Data Explorer** and read the result.
+    needed.
+5.  Leave the filter box blank for all prepared records, or enter the
+    condition for the population you want to examine. Click **Run Data
+    Explorer** and read the result.
 
 **Check:** the selected data, variables, and weighting match the
-question you were asked to explore. These choices can change the meaning
-of a result. Ask your reviewer before treating it as a final survey
-finding.
+question you are exploring. These choices affect the meaning of a
+result. Apply your survey team's review process before reporting a
+result as a final survey finding.
 
 {{< pagebreak >}}
 
-# 11. Finish, return later, or get help
+# 13. Finish, return later, or get help {#finish-and-help}
 
 ## Finish your work
 
-1.  Write every reviewed table you want to keep to Excel (step 6).
-2.  Find the saved workbook. Open it and check the country, wave, and
-    expected sheets. Keep your review notes with it.
-3.  Close the workbook, then close the application's browser tab.
+1.  If you need to retain results, [write tables to Excel](#save-excel)
+    or [download combined table data](#table-data). If viewing results
+    was sufficient, no export is needed.
+2.  If you saved files, open them and check the country, wave, and
+    expected contents. Keep any review notes with them.
+3.  Close any open workbooks, then close the application's browser tab.
 4.  In RStudio, click the red **Stop** button in the Console to stop the
     app. In another editor, use its R session interrupt/stop control.
     You may then close the editor. Saving an R workspace is not a
@@ -971,26 +947,26 @@ finding.
 **When you return:** reopen the same survey project, run
 `micsPlusTableR::run_app()`, and select your inputs again. The app does
 not automatically restore the previous browser session. For a fresh run,
-create new workbook files. To continue an existing workbook, ask your
-survey lead to help select it using the **Choose existing...** buttons
-in **Write to Excel**. Writing the same sheet again replaces its
-previously written values.
+create new workbook files if you intend to export tables. To continue an
+existing workbook, select it using the **Choose existing...** buttons in
+**Write to Excel**. Writing the same sheet again replaces its previously
+written values.
 
 {{< pagebreak >}}
 
 ## If something goes wrong
 
 | What you see | What to do next |
-|----|----|
-| Installation reports `setwd(startdir)` or a `00LOCK` folder | Follow [Installation cannot finish](#installation-cannot-finish) with your support person. |
+|------------------------------------|------------------------------------|
+| Installation reports `setwd(startdir)` or a `00LOCK` folder | Follow [Installation cannot finish](#installation-cannot-finish). |
 | Download list unavailable | Check internet access and that the files repository is public, then click **Load / refresh surveys**. |
 | Download says files already exist | Choose another download folder, or deliberately enable **Replace existing files**. |
 | Missing file or wrong filename | Return to **Data Preparation**, select the correct file, and click **Set** again. Rerun and recheck the table. |
-| Country or wave mismatch | Compare your dropdown choices with the files supplied by your team. Ask for a matched set if unsure. |
-| Preparation error or missing variable | Record the message and send it to your survey lead. Do not edit the preparation code yourself. |
+| Country or wave mismatch | Compare the dropdown choices with the IDX sheet and the country, period, and wave of your input files. Select a matching set. |
+| Preparation error or missing variable | Check the named variable, selected data source, and preparation step. If the script needs a change you cannot make, provide its maintainer with the complete error message. |
 | No calculated table in Tabulator | Check that **Set** completed, choose a sheet, and click **Run**. |
 | Workbook preview alone is blank or says Preview failed | Check your connection and whether **cdn.jsdelivr.net** is blocked. A cached library is not guaranteed; see [workbook preview and caching](#workbook-preview-internet). You can inspect the plan in Excel and continue tabulating. Save your results before restarting the app to retry. |
-| Red consistency tab | Record the table code and the displayed differences. Have your survey lead review them before sharing. |
+| Red consistency tab | Inspect the displayed differences and the related groups, filters, and denominators. Correct errors or document expected differences before using the result. |
 | Excel file cannot be written | Close that workbook in Excel, then try its **Write** button again. |
 | Cannot find the saved workbook | Use **Write to Excel \> Open folder** or the path shown there. For a data download, check **Downloads** instead. |
 | Browser disconnected or refreshed | Save any work still available. Restart the app if needed and select the inputs again; check existing files before rewriting. |
@@ -1015,23 +991,24 @@ object 'age' not found
 ```
 
 Here, `age` is missing from the prepared data used for that block. The
-row and column refer to positions in the Excel plan. A block is a group
-of columns that share a filter. An index alone (such as “In index: 1”)
-does not explain the cause; keep the complete message, including the
+row and column refer to positions in the tabulation plan. A block is a
+group of columns that share a filter. An index alone (such as “In index:
+1”) does not explain the cause; keep the complete message, including the
 expression and the final cause.
 
 - **Prepared data source unavailable:** confirm that data preparation
   finished and that the plan names the correct household or
   household-member file.
-- **Weight column not found or not numeric:** ask the survey lead to
-  check the plan's “weight by” entry and the variable created by the
-  preparation script.
-- **Unknown variable or invalid expression:** send the named condition
-  and its Excel position to the survey lead to check spelling and R
-  expression syntax.
+- **Weight column not found or not numeric:** check the plan's “weight
+  by” entry against the prepared data. Confirm that the named variable
+  exists and contains numeric weights.
+- **Unknown variable or invalid expression:** use the reported cell
+  position to check the condition's variable names and R syntax against
+  the prepared data.
 - **Unsupported statistic:** the statistic cell contains a code that
-  this direction of tabulation does not support. Ask the survey lead to
-  correct it.
+  this direction of tabulation does not support. Use a statistic
+  supported by that direction and appropriate to the intended
+  calculation.
 - **No data-source condition in B4:B7:** check that the selected
   worksheet is a table plan and contains its source/filter instructions
   in the expected cells.
@@ -1051,8 +1028,7 @@ changed, then calculate and check the table again.
 **Recognize the messages:**
 `Error in setwd(startdir) : cannot change working directory`, or
 `failed to lock directory` followed by a folder such as
-`00LOCK-micsPlusTableR`. Ask your support person to help with these
-steps.
+`00LOCK-micsPlusTableR`. Follow the recovery steps below.
 
 **What happened:** the first message means R's installer could not
 return to its starting folder. If that also prevents recovery, an
@@ -1068,12 +1044,12 @@ unavailable or prove a fault in the application.
 2.  Open your survey's **.Rproj** file from its normal, existing project
     folder. Keep that folder available throughout installation. Do not
     install from inside R's installed `micsPlusTableR` folder.
-3.  **Only if a lock error remains:** have your support person check the
-    library path printed in the error and confirm no installer is
-    running. Move only the reported stale lock folder to a separate
-    backup location outside the library. It may contain the previous
-    package needed for recovery. Do not delete the library or remove
-    locks belonging to active installations.
+3.  **Only if a lock error remains:** check the library path printed in
+    the error and confirm no installer is running. Move only the
+    reported stale lock folder to a separate backup location outside the
+    library. It may contain the previous package needed for recovery. Do
+    not delete the library or remove locks belonging to active
+    installations.
 4.  Retry the original command in the Console:
 
 ``` r
@@ -1116,7 +1092,186 @@ documentation](https://search.r-project.org/R/refmans/utils/html/install.package
 
 {{< pagebreak >}}
 
-# Other editors and code systems (optional) {#other-environments}
+# Worksheet reference for plan authors {#worksheet-reference}
+
+Use this reference when creating, adapting, or reviewing a tabulation
+plan. It explains worksheet filters and decimal settings. Users running
+an agreed plan can use the app's tools without changing these
+instructions. After editing a plan, save and upload the updated
+workbook, then rerun the affected tables and checks.
+
+## Understand worksheet filters {#worksheet-filters}
+
+This section is for people who prepare or review the tabulation plan. It
+explains which records a `filter(...)` instruction includes when the
+table is calculated. These are worksheet instructions, separate from the
+app's search boxes.
+
+**Find the filter instructions.** The plan's condition row contains the
+`.sav` data source in column B, on row 4, 5, 6, or 7. Filters for
+columns appear on that same row. The statistic written in the table body
+is called `stat_type`: for example, `p` calculates a percentage, `n` a
+weighted count, and `n_unw` an unweighted count.
+
+**Column B is global.** A filter such as `filter(age >= 18)` in B limits
+the whole table to adults. It remains active when another filter starts,
+when the statistic changes, and when a new table row begins. A later
+filter cannot bring excluded records back into the table.
+
+**Additional filters apply to horizontal blocks.** In a horizontal
+table, a `filter(...)` in C or a later column combines with B. It
+applies to its own column and extends to the right. Its position
+relative to B makes no difference: it always combines with B. Changes
+from `p` to `n` or `n_unw` keep the filter, so percentages and their
+counts use the same population.
+
+There are two ways an additional filter stops:
+
+- **A non-mean statistic changes to a mean.** For example, when `n` is
+  followed by `mean(age)`, that mean cell and following cells use B
+  alone. Returning to `n` does not restart the old filter. This rule is
+  checked across columns separately for each row; changes down rows do
+  not stop it.
+- **Another explicit filter starts.** The new filter replaces the
+  previous additional filter and combines with B. It applies at its own
+  starting column, including when that column calculates a mean.
+
+Changes among non-mean statistics, between mean variables, and from a
+mean to a count do **not** stop the filter. A filter starting on a mean
+continues through later counts; a subsequent change from a non-mean to a
+mean stops it unless another explicit filter starts there.
+
+Blank filter cells do not cancel an active filter. To remove an
+additional restriction explicitly, write `filter(TRUE)`; B still
+applies. To keep an additional restriction when entering a mean from a
+non-mean, repeat its `filter(...)` above that mean column.
+
+**How to recognize the table direction.** The reader selects horizontal
+mode when the plan has `n_unw` immediately before `IDX`, or a
+`100`/`100.0` statistic. Other plans use vertical mode. In vertical
+tables, the first filter in B still restricts the common dataset;
+additional horizontal filter blocks are not processed. Check with the
+plan author before adding such blocks to a vertical table.
+
+{{< pagebreak >}}
+
+### Filter example: follow one row from left to right
+
+Suppose B contains `filter(age >= 18)`. In one horizontal table row, the
+instructions are:
+
+| Column | Statistic | Additional filter starts here | Records available to this cell |
+|------------------|------------------|------------------|------------------|
+| C | `p` | None | All adults |
+| D | `p` | `filter(sex == 2)` | Adults with sex code 2 |
+| E | `n` | None | Adults with sex code 2 |
+| F | `n_unw` | None | Adults with sex code 2 |
+| G | `mean(age)` | None | All adults: entered a mean from a non-mean |
+| H | `n` | None | All adults: the old filter stays off |
+| I | `mean(income)` | `filter(region == 1)` | Adults in region 1 |
+| J | `mean(age)` | None | Adults in region 1 |
+| K | `n_unw` | None | Adults in region 1 |
+
+No cell includes people under 18. D's filter applies to D-F, including
+the percentage and its counts. It stops at G. I starts a new filter,
+which applies to I-K and does not include D's sex restriction. Other row
+and column conditions still determine what is measured within these
+populations.
+
+**Which changes count?** The engine uses the effective statistic after
+the worksheet reader fills missing statistic cells and ignores
+surrounding spaces when identifying means. Supported mean forms are
+`mean(variable)`, `mean`, and the legacy `Mean` form. A blank statistic
+cell does not itself mean "stop the filter." Changes such as `p` to `n`,
+`n` to `n_unw`, `mean(age)` to `mean(income)`, and `mean(age)` to `n`
+all preserve it. Only entering a mean from a non-mean stops an inherited
+additional filter.
+
+**When filters run.** For each required population, the engine loads the
+selected source, applies B, applies any active additional filter, and
+then runs the block's calculations. It calculates cell values from that
+data. The filters therefore affect both the numerator and denominator of
+a percentage. A filter variable must already exist before those
+calculations.
+
+Only filter inheritance stops on entering a mean from a non-mean.
+Existing data-source, weight, calculation, and row/column-condition
+instructions keep their roles. A calculation-only instruction does not
+end the filter's column range.
+
+**Filters do not reach left.** Adding a filter in G does not change F's
+calculated mean. Display suppression still needs an unweighted count: if
+a new filter separates a cell from its count, the engine uses the next
+`n_unw` to its right on the same row and data source when no count is
+already linked. Existing count links and the small-sample thresholds
+remain in effect.
+
+**Review after upgrading.** The earlier rule stopped additional filters
+at every statistic change, including `p` to `n`; this could give
+percentages and their counts different populations. Recalculate affected
+tables and review denominators and suppression. B remains global,
+including in later blocks; only non-mean-to-mean transitions now stop
+inherited filters.
+
+{{< pagebreak >}}
+
+## Choose decimal places in the worksheet {#statistic-precision}
+
+This section is for people who prepare or review the tabulation plan.
+Add **`d=` inside a statistic's parentheses** to choose how many decimal
+places are shown. This is available for every supported statistic type.
+If the statistic already has an argument, add a comma before `d=`.
+
+| What you want | What to write in the statistic cell | Example display |
+|------------------------|------------------------|------------------------|
+| Whole-number average expenses in table 6.2a | `mean(HCS8, d=0)` | `442,572` |
+| Average expenses with two decimals | `mean(HCS8, d=2)` | `442,571.91` |
+| Mean indicator with one decimal | `mean(d=1)` | `73.3` |
+| Percentage with two decimals | `p(d=2)` | `73.30` |
+| Count with one decimal | `n(d=1)` | `881.0` |
+| Unweighted count with no decimals | `n_unw(d=0)` | `622` |
+| Median with two decimals | `median(age, d=2)` | `35.00` |
+| Total/distribution statistic with two decimals | `p(100, d=2)` | `100.00` |
+
+These numbers illustrate the display, not survey results. The same rule
+works with other supported statistics, including `mean_unw`, legacy
+`Mean`, and `p_sum`. A constant can be written as `100(d=2)`. Keep the
+statistic appropriate to the table's direction and intended calculation.
+
+**If you leave out `d`, nothing changes:** the app keeps its established
+formatting for that statistic and output mode. Means default to one
+decimal place. For example, `mean(HCS8)` still displays `442,571.9`.
+
+**Use a whole number of decimal places.** `d=0` removes the decimal
+point; `d=1`, `d=2`, and `d=3` show one, two, and three decimal places,
+including trailing zeros. Spaces are allowed, so `mean(HCS8,   d=0)` is
+valid. Give `d` only once, as a non-negative whole number, without
+quotation marks or a calculation. For example, `d=-1`, `d=1.5`, and
+`d="2"` are invalid.
+
+**Where it applies.** The Formatted and Suppressed Tabulator views use
+the requested decimals for visible numbers. The Unformatted view retains
+the full numeric estimate. Both Excel output workbooks use the requested
+number format, including workbooks written by Multi-sheet Tabulator and
+values supplied by preparation scripts. Thousands separators remain in
+the Formatted preview and Excel. Long Format Data records the setting in
+`DECIMALS` and display values; `OBS_VALUE` retains full precision.
+
+**What stays the same.** Display rounding does not change the calculated
+number, weights, filters, denominators, or consistency checks. Excel
+keeps numeric estimates at full precision when you specify `d`.
+Parenthesized estimates follow the requested precision, such as
+`(442,572)` for `d=0`; `(*)` and `-` remain suppression markers.
+
+Changing only `d` never starts or stops a filter. A column using
+`n_unw(d=2)` still acts as an unweighted count for direction and
+suppression. Where the reader fills a blank statistic cell, it carries
+the decimal setting with that statistic. Save the plan and reload it in
+the app, then rerun the affected tables to apply your edits.
+
+{{< pagebreak >}}
+
+# Other editors and code systems {#other-environments}
 
 The RStudio route is sufficient for the whole workflow. If you already
 use another environment, the same package installation and launch
@@ -1137,14 +1292,14 @@ versions of the app.
     launching. Opening an editor folder does not always change an
     existing R session's working directory. Start a fresh R session in
     your survey folder if needed.
-4.  **Install the package** using the two commands in **1D**, in that R
-    session. Then check `here::here()` after installation: it shows the
-    project root used for the default Excel output. If it selects a
-    parent folder, supply your intended output directory explicitly when
-    launching.
-5.  **Launch in a browser** with the command below, then follow sections
-    2-6 for uploads, preparation, table calculation, review, and Excel
-    output:
+4.  **Install the package** using the [installation
+    commands](#package-setup) in that R session. Then check
+    `here::here()` after installation: it shows the project root used
+    for the default Excel output. If it selects a parent folder, supply
+    your intended output directory explicitly when launching.
+5.  **Launch in a browser** with the command below, then [gather your
+    inputs](#survey-files) and choose the [app tasks](#guide-contents)
+    you need:
 
 ``` r
 micsPlusTableR::run_app(launch.browser = TRUE)
@@ -1172,3 +1327,41 @@ the administrator (often a proxy or port forwarding). Their output paths
 are on the server. The local `127.0.0.1` browser instructions assume R
 runs on your own computer; ask your support person for the hosted
 application's address and file-retrieval steps.
+
+{{< pagebreak >}}
+
+# Terms and reference information {#guide-terms}
+
+**Words used in this guide**
+
+- **Click:** press the left mouse button once. On a touchpad, tap once.
+- **Tab:** a section name across the top of the application.
+- **Browse:** open a window to find a file on your computer.
+- **Folder:** a place that holds files. A preparation folder may contain
+  smaller folders.
+- **Project:** a folder for one piece of survey work, with a file that
+  helps RStudio reopen it.
+- **Console:** the panel where you paste R commands and see messages.
+- **Package:** an add-on for R; `micsPlusTableR` contains this
+  application.
+- **Tabulation plan:** an Excel workbook that specifies the tables to
+  calculate, including their groups, conditions, and statistics.
+- **Preparation script:** R code that prepares survey data and variables
+  for the tabulation plan.
+- **Sheet:** one page of an Excel workbook, such as `1.1a`.
+- **Wave:** one round of the survey. Use the wave your team gave you.
+
+**About the pictures.** The Data Preparation picture shows Mongolia
+2025-26 Wave 2. The Download Files picture shows the new tab in the
+0.3.0 development version, before loading the survey list. The remaining
+pictures are screenshots from version 0.2.7, using Mongolia Wave 1 as an
+example. Your file names and results will differ. Use the files for your
+own survey. Screenshots show example output folders; your project
+normally saves to **micsPlusTableR-output**. In the HTML guide, click a
+picture to enlarge it; press **Esc** to return.
+
+**Looking for package functions?** Use the [package reference
+manual](https://github.com/bariscr/micsPlusTableR/blob/HEAD/output/pdf/micsPlusTableR-manual.pdf)
+and [package
+documentation](https://github.com/bariscr/micsPlusTableR#readme). Those
+documents cover programming and technical details.

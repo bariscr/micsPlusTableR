@@ -199,3 +199,46 @@ test_that("only published materials are listed and downloadable in the new folde
   expect_error(download_survey_files(files = paths[4]), "Files not found")
   expect_error(download_survey_files("input-files-JAM_W1"), "Unknown surveys")
 })
+
+test_that("readable survey folders are discovered and downloaded with encoded URLs", {
+  paths <- c(
+    "Jamaica (2023-24) Wave 1/Tabulation plan.xlsx",
+    "Jamaica (2023-24) Wave 1/prep-files-Jamaica (2023-24) Wave 1/FIES-inputs/helper.R",
+    "Mongolia (2025-26) Wave 2/Tabulation plan.xlsx",
+    "New Country (2027) Wave 3/Tabulation plan.xlsx",
+    "Jamaica (2023-24) Wave 1/households.sav",
+    "docs/guide.xlsx"
+  )
+  local_mocked_bindings(
+    survey_files_json = function(url) {
+      if (grepl("/commits/", url)) return(list(sha = strrep("c", 40)))
+      list(truncated = FALSE, tree = lapply(paths, function(path) {
+        list(path = path, type = "blob", mode = "100644", size = 3)
+      }))
+    },
+    survey_files_fetch = function(url, destfile, ...) writeBin(charToRaw("new"), destfile)
+  )
+  available <- list_survey_files()
+  expect_setequal(available$path, paths[1:4])
+  expect_match(available$url[1], "Jamaica%20%282023-24%29%20Wave%201/", fixed = TRUE)
+  for (selection in c("Jamaica (2023-24) Wave 1", "JAM_W1")) {
+    downloaded <- download_survey_files(selection, dest_dir = tempfile(), quiet = TRUE)
+    expect_setequal(downloaded$path, paths[1:2])
+    expect_true(all(file.exists(downloaded$local_path)))
+    expect_true(all(grepl("/Jamaica (2023-24) Wave 1/", downloaded$local_path, fixed = TRUE)))
+  }
+})
+
+test_that("readable labels select old pinned survey folders without changing remote paths", {
+  fixture <- survey_file_fixture()
+  local_mocked_bindings(
+    list_survey_files = function(...) fixture,
+    survey_files_fetch = function(url, destfile, ...) writeBin(charToRaw("new"), destfile)
+  )
+  downloaded <- download_survey_files("Jamaica (2023-24) Wave 1", dest_dir = tempfile(), quiet = TRUE)
+  expect_equal(downloaded$path, fixture$path[1:2])
+  expect_equal(survey_files_labels(c("JAM_W1", "JAM_W2", "MNG_W1", "MNG_W2", "TKM_W2")),
+               c("Jamaica (2023-24) Wave 1", "Jamaica (2023-24) Wave 2",
+                 "Mongolia (2025-26) Wave 1", "Mongolia (2025-26) Wave 2",
+                 "Turkmenistan (2025-26) Wave 2"))
+})

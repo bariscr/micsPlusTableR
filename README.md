@@ -167,7 +167,7 @@ The app opens on **Data Preparation**. To download files, open **Download Files*
 more folders, or choose **All surveys**. The preview shows the selected file
 count and size. **Download folder** defaults to the current project captured
 when `run_app()` starts. Each survey is saved in its own subfolder, such as
-`<project>/JAM_W1/`.
+`<project>/Jamaica (2023-24) Wave 1/`.
 
 Use **Browse folders...** or type another path; relative paths are resolved
 against the current project. **Use current project** restores the default.
@@ -188,10 +188,13 @@ available <- micsPlusTableR::list_survey_files()
 unique(available$survey)
 
 # Plans and complete preparation folder for one survey
-micsPlusTableR::download_survey_files("JAM_W1")
+micsPlusTableR::download_survey_files("Jamaica (2023-24) Wave 1")
 
 # Several surveys
-micsPlusTableR::download_survey_files(c("JAM_W1", "MNG_W2"))
+micsPlusTableR::download_survey_files(c(
+  "Jamaica (2023-24) Wave 1",
+  "Mongolia (2025-26) Wave 2"
+))
 
 # All published surveys
 micsPlusTableR::download_survey_files()
@@ -204,7 +207,7 @@ micsPlusTableR::download_survey_files(
 ```
 
 These are alternative examples. Downloads go under `inputs` in the current
-working directory (`getwd()`), keeping folders such as `JAM_W1`
+working directory (`getwd()`), keeping folders such as `Jamaica (2023-24) Wave 1`
 and all preparation subfolders. To replace an existing selection deliberately,
 pass `overwrite = TRUE`; otherwise an existing file stops the download.
 Select a whole survey folder to include all its preparation helpers. These
@@ -288,7 +291,7 @@ Other statistic changes, including `mean(age)` to `mean(income)` and a mean to
 Blank filter cells do not reset a filter; `filter(TRUE)` starts an unrestricted
 local block while preserving B. Filters are applied before block calculations.
 Vertical tables retain their existing first-filter behavior and do not process
-additional horizontal filter blocks. The User's Guide section **4A. Understand
+additional horizontal filter blocks. The User's Guide reference **Understand
 worksheet filters** includes a column-by-column example and direction details.
 
 ### Scripted workflow

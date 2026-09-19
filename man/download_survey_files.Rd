@@ -16,7 +16,8 @@ download_survey_files(
 }
 \arguments{
 \item{surveys}{Character vector of root survey folder names, such as
-\code{"JAM_W1"}. \code{NULL} selects all surveys.}
+\code{"Jamaica (2023-24) Wave 1"}. \code{NULL} selects all surveys. Legacy codes
+for the initial published surveys (for example, \code{"JAM_W1"}) remain accepted.}
 
 \item{files}{Character vector of exact repository-relative paths from
 \code{\link[=list_survey_files]{list_survey_files()}}. \code{NULL} selects all files in the selected surveys.}
@@ -43,7 +44,8 @@ from the public survey files repository. Household and household-member
 microdata must be obtained separately with the required permission.
 }
 \details{
-Survey folders use a three-letter country code and wave, such as \code{JAM_W1}.
+Survey folders use the country, survey period, and wave, such as
+\verb{Jamaica (2023-24) Wave 1}. Legacy code-and-wave folders are also supported.
 Downloads include root-level Excel plans (\code{.xls}, \code{.xlsx}) and \code{.R} scripts
 or \code{.RData} reference assets inside \verb{prep-files-*} subfolders. Other files,
 including SPSS microdata and hidden files, are excluded. Preparation
@@ -64,8 +66,9 @@ later. The browser ZIP link in the user's guide is an alternative.
 }
 \examples{
 \dontrun{
-download_survey_files("JAM_W1")
-download_survey_files(c("JAM_W1", "MNG_W2"), dest_dir = "survey-inputs")
+download_survey_files("Jamaica (2023-24) Wave 1")
+download_survey_files(c("Jamaica (2023-24) Wave 1",
+                        "Mongolia (2025-26) Wave 2"), dest_dir = "survey-inputs")
 download_survey_files() # All surveys
 available <- list_survey_files()
 download_survey_files(files = available$path[1])

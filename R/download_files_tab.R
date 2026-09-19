@@ -43,7 +43,7 @@ download_files_ui <- function(id, project_dir) {
       ),
       bslib::card(
         bslib::card_header("After downloading"),
-        shiny::tags$p("Open Data Preparation and select the downloaded Excel plan and complete preparation folder, together with your separately obtained household and household-member data."),
+        shiny::tags$p("Open Data Preparation and select the downloaded tabulation plan (Excel) and complete preparation folder, together with your separately obtained household and household-member data."),
         shiny::tags$a("Alternative: download all plans and preparation files as a ZIP",
                       href = "https://github.com/bariscr/micsPlusTableR-Files/archive/refs/heads/main.zip",
                       target = "_blank", rel = "noopener")
@@ -79,8 +79,11 @@ download_files_server <- function(id, project_dir) {
         if (!nrow(available)) stop("No plans or preparation files are published yet.", call. = FALSE)
         catalogue(available)
         choices <- unique(available$survey)
-        shiny::updateCheckboxGroupInput(session, "surveys", choices = choices,
-                                         selected = intersect(input$surveys, choices))
+        shiny::updateCheckboxGroupInput(
+          session, "surveys",
+          choices = stats::setNames(choices, survey_files_labels(choices)),
+          selected = intersect(input$surveys, choices)
+        )
         notice(list(kind = "info", message = paste("Loaded", length(choices), "survey folders. Choose your selection and download folder.")))
       }, error = function(e) {
         catalogue(NULL)
@@ -107,7 +110,7 @@ download_files_server <- function(id, project_dir) {
       if (is.null(selected) || !nrow(selected)) return(NULL)
       ids <- unique(selected$survey)
       data.frame(
-        Survey = ids,
+        Survey = survey_files_labels(ids),
         Files = vapply(ids, function(id) sum(selected$survey == id), integer(1)),
         `Size (MB)` = vapply(ids, function(id) sum(selected$size[selected$survey == id]) / 1024^2, numeric(1)),
         check.names = FALSE
@@ -136,7 +139,7 @@ download_files_server <- function(id, project_dir) {
         })
         notice(list(kind = "success", message = paste0(
           "Downloaded ", nrow(downloaded), " files for ",
-          paste(unique(downloaded$survey), collapse = ", "), " to ", destination,
+          paste(survey_files_labels(unique(downloaded$survey)), collapse = ", "), " to ", destination,
           ". Open Data Preparation to select your files."
         )))
       }, error = function(e) {

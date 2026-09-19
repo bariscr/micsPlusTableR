@@ -1,5 +1,12 @@
 # micsPlusTableR 0.3.1
 
+- Add optional `d=` display precision to every worksheet statistic, for example
+  `mean(HCS8, d=0)`, `mean(d=1)`, `p(d=2)`, `n(d=1)`, and `p(100, d=2)`.
+  Keep existing defaults when omitted. Apply overrides to Tabulator displays,
+  both Excel workbooks, and long-format DECIMALS/display values while preserving
+  full numeric estimates and suppression markers. Keep display metadata separate
+  from statistic identity so direction, count bases, checks, and filters are unchanged.
+
 - Format mean expressions such as `mean(HCS8)` with thousands separators and
   exactly one decimal place in the formatted preview, matching Excel's number
   format. Apply the same display rule to vertical and supplied extra tables,

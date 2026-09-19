@@ -32,3 +32,8 @@ The destination path, invisibly.
 \description{
 Write cell results to a tabulation workbook
 }
+\details{
+Optional worksheet \verb{d=} arguments set Excel decimal places in both
+output formats. Numeric values retain their precision; suppression markers
+and parentheses retain their meaning. See \link{statistic-precision}.
+}

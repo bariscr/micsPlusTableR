@@ -718,6 +718,61 @@ blocks; only non-mean-to-mean transitions now stop inherited filters.
 
 {{< pagebreak >}}
 
+## 4B. Choose decimal places in the worksheet {#statistic-precision}
+
+This section is for people who prepare or review the Excel plan. Add
+**`d=` inside a statistic's parentheses** to choose how many decimal
+places are shown. This is available for every supported statistic type.
+If the statistic already has an argument, add a comma before `d=`.
+
+| What you want | What to write in the statistic cell | Example display |
+|---|---|---|
+| Whole-number average expenses in table 6.2a | `mean(HCS8, d=0)` | `442,572` |
+| Average expenses with two decimals | `mean(HCS8, d=2)` | `442,571.91` |
+| Mean indicator with one decimal | `mean(d=1)` | `73.3` |
+| Percentage with two decimals | `p(d=2)` | `73.30` |
+| Count with one decimal | `n(d=1)` | `881.0` |
+| Unweighted count with no decimals | `n_unw(d=0)` | `622` |
+| Median with two decimals | `median(age, d=2)` | `35.00` |
+| Total/distribution statistic with two decimals | `p(100, d=2)` | `100.00` |
+
+These numbers illustrate the display, not survey results. The same rule
+works with other supported statistics, including `mean_unw`, legacy
+`Mean`, and `p_sum`. A constant can be written as `100(d=2)`. Keep the
+statistic appropriate to the table's direction and intended calculation.
+
+**If you leave out `d`, nothing changes:** the app keeps its established
+formatting for that statistic and output mode. Means default to one decimal
+place. For example, `mean(HCS8)` still displays `442,571.9`.
+
+**Use a whole number of decimal places.** `d=0` removes the decimal point;
+`d=1`, `d=2`, and `d=3` show one, two, and three decimal places, including
+trailing zeros. Spaces are allowed, so `mean(HCS8,   d=0)` is valid. Give
+`d` only once, as a non-negative whole number, without quotation marks or
+a calculation. For example, `d=-1`, `d=1.5`, and `d="2"` are invalid.
+
+**Where it applies.** The Formatted and Suppressed Tabulator views use the
+requested decimals for visible numbers. The Unformatted view retains the
+full numeric estimate. Both Excel output workbooks use the requested
+number format, including workbooks written by Multi-sheet Tabulator and
+values supplied by preparation scripts. Thousands separators remain in
+the Formatted preview and Excel. Long Format Data records the setting in
+`DECIMALS` and display values; `OBS_VALUE` retains full precision.
+
+**What stays the same.** Display rounding does not change the calculated
+number, weights, filters, denominators, or consistency checks. Excel keeps
+numeric estimates at full precision when you specify `d`. Parenthesized
+estimates follow the requested precision, such as `(442,572)` for `d=0`;
+`(*)` and `-` remain suppression markers.
+
+Changing only `d` never starts or stops a filter. A column using
+`n_unw(d=2)` still acts as an unweighted count for direction and suppression.
+Where the reader fills a blank statistic cell, it carries the decimal
+setting with that statistic. Save the plan and reload it in the app, then
+rerun the affected tables to apply your edits.
+
+{{< pagebreak >}}
+
 # 5. Check the table
 
 ![Consistency Checks: click Run Checks and examine the smaller check

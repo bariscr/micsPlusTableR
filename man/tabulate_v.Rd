@@ -23,6 +23,11 @@ Results are also saved in \code{session$cell_results}.
 Use \code{\link[=tabulate_mics_table]{tabulate_mics_table()}} for automatic direction selection and additional
 variable-explanation labels.
 }
+\details{
+Every supported statistic accepts an optional \verb{d=} display argument;
+for example, \code{mean(x, d=0)}, \code{mean(d=1)}, or \code{p(d=2)}. Omitting it preserves
+existing formatting. See \link{statistic-precision} for rules and examples.
+}
 \seealso{
 \code{\link[=tabulate_h]{tabulate_h()}}, \code{\link[=tabulate_mics_table]{tabulate_mics_table()}}
 }

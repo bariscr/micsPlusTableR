@@ -36,7 +36,7 @@ tabulate_extra_table <- function(table = table_new) {
   cell_results <- tabulate_mics(skip_row_conditions = TRUE)
 
   # Then do the extra table logic
-  tab <- out_glob$tab
+  tab <- mics_normalize_statistics(out_glob$tab)
   tab_c <- out_glob$tab_c
   tab_r <- out_glob$tab_r
   filter_row <- out_glob$filter_row
@@ -150,7 +150,7 @@ out <-
     out %>%
     mutate(var_name_col = purrr::map_chr(col_logic, extract_var)) 
 
-return(out)
+return(mics_apply_display_digits(out))
 
 }
 

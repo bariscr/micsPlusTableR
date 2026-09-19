@@ -114,6 +114,7 @@ read_tabulation <- function(path_tab_excel, sheet) {
     mutate(col_index = as.numeric(col_index)) |> 
     filter(!is.na(stat_type)) # Drop cells where there is no stat_type
   
+  tab_base <- mics_normalize_statistics(tab_base)
   out_glob$tab_base <- tab_base
   # -------------------------------------------------------------
   
@@ -306,13 +307,18 @@ read_tabulation <- function(path_tab_excel, sheet) {
     tab |> 
     left_join(group_info, by = c("row_index" = "row"))
 
+  tab <- mics_normalize_statistics(tab)
   out_glob$tab <- tab
   
   # Where is IDX - find its column
   idx_col <- a_cells |> filter(character == "IDX") |> pull(col)
   out_glob$idx_col <- idx_col
 
-  is_n_unw <- a_cells |> filter(col == idx_col - 1, character == "n_unw") |> nrow()
+  is_n_unw <- a_cells |>
+    filter(col == idx_col - 1) |>
+    mutate(stat_type = character) |>
+    mics_normalize_statistics() |>
+    filter(stat_type == "n_unw") |> nrow()
   out_glob$is_n_unw <- is_n_unw
 
   is_100 <- sum(c("100", "100.0") %in% tab$stat_type)

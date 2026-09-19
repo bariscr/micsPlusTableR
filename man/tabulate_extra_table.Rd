@@ -21,4 +21,6 @@ Map a supplied extra table to the current plan
 \details{
 Row logic is retained as metadata, not evaluated against survey
 data. Values are mapped by position and the engine applies suppression.
+The plan's optional \verb{d=} argument controls display precision for supplied
+values too; see \link{statistic-precision}.
 }

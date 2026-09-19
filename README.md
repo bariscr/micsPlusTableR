@@ -234,6 +234,42 @@ reference material are documented separately below.
 
 ## Use the tabulation engine without Shiny
 
+### Decimal places in worksheet statistics
+
+Add an optional `d=` argument to any supported statistic to choose its displayed
+number of decimal places. For example:
+
+| Worksheet statistic | Display rule |
+|---|---|
+| `mean(HCS8, d=0)` | Whole-number mean: `442,572` instead of `442,571.9`. |
+| `mean(d=1)` | Mean indicator with one decimal place. |
+| `p(d=2)` | Percentage with two decimals, such as `73.30`. |
+| `n(d=1)` | Count with one decimal, such as `881.0`. |
+| `n_unw(d=0)` | Unweighted count with no decimals. |
+| `median(age, d=2)` | Median with two decimals. |
+| `p(100, d=2)` | Existing total/distribution statistic with two decimals. |
+
+The argument also works with `mean_unw`, legacy `Mean`, `p_sum`, and other
+supported statistics; `100(d=2)` formats a constant. Use the statistic supported
+by your table direction. `d` must be a literal non-negative whole number,
+supplied once; spaces around arguments are allowed. It specifies decimal places,
+not significant figures. **Without `d`, all existing display defaults remain in
+effect**, including one decimal for means.
+
+Overrides apply to the Formatted and Suppressed Tabulator views, supplied extra
+tables, and both Excel workbooks (single-sheet and multi-sheet). Unformatted
+Tabulator values retain their full precision. Excel stores numeric estimates
+and applies the requested number format. Parenthesized estimates use the same
+decimals; `(*)` and `-` remain unchanged.
+
+`d` does not change calculations, weights, filters, denominators, suppression
+thresholds, or consistency checks. A change from `mean(x,d=0)` to `mean(x,d=2)`
+is still a mean-to-mean transition. `n_unw(d=2)` is still recognized as the
+unweighted count for direction and suppression. Blank statistic cells inherit
+precision with the statistic through the existing worksheet-filling rules.
+Long-format output records the override in `DECIMALS` and its display values,
+while `OBS_VALUE` retains full precision.
+
 ### Worksheet filters
 
 The condition-row `filter(...)` in **column B is global**: it applies to every

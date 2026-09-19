@@ -483,6 +483,9 @@ check_mics_table <- function(session, table = NULL, tolerance = 1e-6) {
 #' @param table Cell results; defaults to the latest result.
 #' @param formatted Whether to write formatted display values.
 #' @param drop_n_unw Whether to omit unweighted-count columns when formatting.
+#' @details Optional worksheet `d=` arguments set Excel decimal places in both
+#' output formats. Numeric values retain their precision; suppression markers
+#' and parentheses retain their meaning. See [statistic-precision].
 #' @return The destination path, invisibly.
 #' @export
 write_mics_table <- function(session,

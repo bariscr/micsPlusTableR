@@ -77,6 +77,39 @@ test_that("Excel mean cells keep numeric values with grouped one-decimal formats
   expect_equal(f$character[3:4], c("(*)", "-"))
 })
 
+test_that("explicit precision controls Excel and preview without changing suppression", {
+  s <- expense_filter_session(TRUE)
+  s$hh$HCS8 <- 442571.905044384
+  s$out_glob$condition_row_index <- 4L
+  s$out_glob$tab$stat_type[s$out_glob$tab$col_index == 6L] <- "mean(HCS8,d=0)"
+  s$out_glob$tab$stat_type[s$out_glob$tab$col_index == 7L] <- "n(d=2)"
+  s$out_glob$tab$stat_type[s$out_glob$tab$col_index == 8L] <- "n_unw(d=3)"
+  result <- tabulate_h(s)
+  f <- result[result$col_index == 6L, ]
+  expect_equal(f$value_f_view, c("442,572", "(442,572)", "(*)", "-"))
+  expect_equal(f$n_unw, c(60, 30, 20, 0))
+  expect_equal(result$value_f_view[result$col_index == 7L], c("60.00", "30.00", "20.00", "0.00"))
+  for (formatted in c(FALSE, TRUE)) {
+    path <- tempfile(fileext = ".xlsx")
+    on.exit(unlink(path), add = TRUE)
+    openxlsx2::wb_workbook()$add_worksheet("Example")$save(path)
+    write_mics_table(s, path, table = result, formatted = formatted)
+    cells <- tidyxl::xlsx_cells(path, sheets = "Example")
+    formats <- tidyxl::xlsx_formats(path)$local$numFmt
+    f <- cells[cells$col == 6L & cells$row %in% 9:12, ]
+    g <- cells[cells$address == "G9", ]
+    h <- cells[cells$address == "H9", ]
+    expect_equal(f$numeric[1:2], rep(442571.905044384, 2))
+    expect_equal(formats[g$local_format_id], "#,##0.00;(#,##0.00)")
+    expect_equal(formats[h$local_format_id], "#,##0.000;(#,##0.000)")
+    expect_equal(formats[f$local_format_id[1]], "#,##0")
+    if (formatted) {
+      expect_equal(formats[f$local_format_id[2]], "(#,##0)")
+      expect_equal(f$character[3:4], c("(*)", "-"))
+    }
+  }
+})
+
 test_that("the formatted Excel export retains the mean and small-sample markers", {
   s <- expense_filter_session(TRUE)
   s$out_glob$condition_row_index <- 4L

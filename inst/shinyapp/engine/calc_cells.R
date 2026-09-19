@@ -8,6 +8,7 @@ calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
   mics_require_columns(tab_r, c("row_index", "row_lgc"), "tab_r")
   mics_require_columns(tab_c3, c("col_index", "col_condition", "col_var_name"), "tab_c3")
   mics_require_columns(tab, c("row_index", "col_index", "stat_type"), "tab")
+  tab <- mics_normalize_statistics(tab)
   if (!(identical(weighted, TRUE) || identical(weighted, FALSE) || identical(weighted, "both"))) {
     stop("'weighted' must be TRUE, FALSE, or 'both'.", call. = FALSE)
   }
@@ -50,6 +51,9 @@ calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
       stat_type <- if (length(stat_type)) stat_type[[1]] else NA_character_
       
       context <- paste0(context, "; statistic: ", stat_type)
+      original_stat_type <- stat_type
+      mean_spec <- mics_mean_spec(stat_type)
+      stat_type <- mean_spec$calculation
       value <- NA_real_
       
       if (!is.na(stat_type)) {
@@ -122,7 +126,7 @@ calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
           
           
           # ---------- "Mean " (binary % * 100) ----------
-        } else if (grepl("^Mean\\b", stat_type)) {
+        } else if (grepl("^Mean\\b", stat_type) || stat_type == "mean_unw") {
           col_condition <- tab_c3$col_condition[c]
           col_var_name  <- tab_c3$col_var_name[c]
           
@@ -140,14 +144,15 @@ calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
             dplyr::pull(value)
           
           # ---------- mean(x) ----------
-        } else if (grepl("^mean\\(", stat_type)) {
+        } else if (grepl("^mean(_unw)?\\(", stat_type)) {
           col_condition <- tab_c3$col_condition[c]
-          mean_var <- sub(".*\\(([^)]*)\\).*", "\\1", stat_type)
+          mean_var <- if (is.symbol(mean_spec$argument)) as.character(mean_spec$argument) else
+            sub(".*\\(([^)]*)\\).*", "\\1", stat_type)
           
           tmp <- filtered_data %>%
             dplyr::filter( !!parse_expr(col_condition) )
           
-          if (weight_mode %in% c("unweighted","both")) {
+          if (weight_mode %in% c("unweighted","both") || startsWith(stat_type, "mean_unw(")) {
             value <- tmp %>%
               dplyr::summarise(value = mean(.data[[mean_var]], na.rm = TRUE)) %>%
               dplyr::pull(value)
@@ -233,7 +238,9 @@ calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
           } else {
             tab_c3$col_condition[c]
           },
-          stat_type = stat_type,
+          stat_type = original_stat_type,
+          display_digits = tab$display_digits[match(paste(tab_r$row_index[r], tab_c3$col_index[c]),
+            paste(tab$row_index, tab$col_index))],
           value     = value
         )
       )
@@ -244,4 +251,3 @@ calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
 
   }, error = function(e) mics_abort_context(e, context))
 }
-

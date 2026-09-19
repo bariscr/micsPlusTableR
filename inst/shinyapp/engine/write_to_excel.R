@@ -5,11 +5,13 @@ write_to_excel <- function(dest,
                            formatted = FALSE, 
                            zoom_level = 140) {
   
+  table <- mics_normalize_statistics(table)
   is_supp <- out_glob$is_supp
   condition_write <- out_glob$condition_write
   tab_direction <- out_glob$tab_direction
   condition_row_index <- out_glob$condition_row_index
   total_rows <- top_total_rows(table)
+  raw_value <- table$value
 
   if (isTRUE(formatted) && isTRUE(is_supp)) {
     table$value <- table$value_f
@@ -27,6 +29,7 @@ write_to_excel <- function(dest,
   if (!"col_header" %in% names(table)) table$col_header <- ""
   if (!"row_header" %in% names(table)) table$row_header <- ""
   if (!"stat_type"  %in% names(table)) table$stat_type  <- NA_character_
+  if (!"display_digits" %in% names(table)) table$display_digits <- NA_integer_
   
 wb <- wb_load(dest)
 current_sheets <- openxlsx2::wb_get_sheet_names(wb)
@@ -48,7 +51,7 @@ if (!sheet %in% current_sheets) {
   }
   is_naish     <- function(x) { s <- tolower(trimws(as.character(x))); is.na(x) | s %in% c("na","nan","n/a","n.a.","#n/a") }
   
-  # choose fmt by decimals (0 vs 1) and adornment kind
+  # Preserve existing defaults; any statistic may override decimals with d.
   pick_fmt_by_dec <- function(decimals = 1L, kind = c("base","star","paren")) {
     kind <- match.arg(kind)
     if (decimals == 0L) {
@@ -58,10 +61,11 @@ if (!sheet %in% current_sheets) {
              paren = "(#,##0)"
       )
     } else {
+      number <- paste0("0.", strrep("0", decimals))
       switch(kind,
-             base  = "#,##0.0;(#,##0.0)",
-             star  = "0.0\"*\";(0.0\"*\")",
-             paren = "(#,##0.0)"
+             base  = paste0("#,##", number, ";(#,##", number, ")"),
+             star  = paste0(number, "\"*\";(", number, "\"*\")"),
+             paren = paste0("(#,##", number, ")")
       )
     }
   }
@@ -97,12 +101,16 @@ if (!sheet %in% current_sheets) {
     
     # decide decimal places from stat_type: n or n_unw => 0; else => 1
     decimals <- if (!is.na(st) && st %in% c("n","n_unw", "n2", "n_unw2")) 0L else 1L
+    if (!is.na(table$display_digits[i])) decimals <- table$display_digits[i]
     
     # parse adornments and numeric
     sval  <- trimws(as.character(val))
     star  <- grepl("\\*$", sval)
     paren <- grepl("^\\s*\\(.*\\)\\s*$", sval)
     num   <- suppressWarnings(as.numeric(gsub("[^0-9.\\-]", "", sval)))
+    # An explicit display override must not round the stored estimate.
+    if (!is.na(table$display_digits[i]) && !is.na(num) && is.numeric(raw_value) &&
+        !is.na(raw_value[i]) && !(identical(st, "100") && num == 0)) num <- raw_value[i]
     
     fmt_kind <- if (star) "star" else if (paren) "paren" else "base"
     fmt <- pick_fmt_by_dec(decimals, kind = fmt_kind)
@@ -262,4 +270,3 @@ wb$add_data(sheet = "IDX", x = idx_table_name$character,
   # save once at the end
   wb_save(wb, file = dest, overwrite = TRUE)
 }
-

@@ -178,6 +178,8 @@ mics_format_value <- function(value, stat_type, digits) {
   vapply(seq_along(value), function(i) {
     if (is.na(value[[i]])) return("")
     if (stat_type[[i]] %in% c("Count", "Valid N")) {
+      if (digits[[i]] > 0L) return(formatC(value[[i]], format = "f",
+        digits = digits[[i]], big.mark = " ", decimal.mark = "."))
       return(format(
         round(value[[i]]), big.mark = " ", scientific = FALSE, trim = TRUE
       ))
@@ -247,6 +249,7 @@ mics_legacy_cells_to_standard <- function(cells, table_id, table_context = NULL)
     stop("Long-format row and column indices cannot be missing.", call. = FALSE)
   }
 
+  cells <- mics_normalize_statistics(cells)
   source_stat_type <- as.character(cells$stat_type)
   stat_type <- mics_public_statistic(source_stat_type)
   statistic <- mics_internal_statistic(source_stat_type, stat_type)
@@ -315,8 +318,9 @@ mics_legacy_cells_to_standard <- function(cells, table_id, table_context = NULL)
     unweighted_n = unweighted_n,
     denominator_n = unweighted_n,
     suppressible = suppressible,
-    digits = ifelse(stat_type %in% c("Count", "Valid N", "Reference date"),
-                    0L, ifelse(stat_type == "Standard deviation", 2L, 1L)),
+    digits = ifelse(!is.na(cells$display_digits), cells$display_digits,
+                    ifelse(stat_type %in% c("Count", "Valid N", "Reference date"),
+                           0L, ifelse(stat_type == "Standard deviation", 2L, 1L))),
     stat_type = stat_type,
     unit_measure = NA_character_,
     row = as.integer(row_index),

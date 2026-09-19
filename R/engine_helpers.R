@@ -14,6 +14,9 @@ run_direction_tabulation <- function(session, direction, skip_row_conditions) {
 #' Results are also saved in `session$cell_results`.
 #' Use [tabulate_mics_table()] for automatic direction selection and additional
 #' variable-explanation labels.
+#' @details Every supported statistic accepts an optional `d=` display argument;
+#' for example, `mean(x, d=0)`, `mean(d=1)`, or `p(d=2)`. Omitting it preserves
+#' existing formatting. See [statistic-precision] for rules and examples.
 #' @param session A session created by [mics_session()] with prepared data and
 #'   a plan loaded by [read_mics_tabulation()].
 #' @param skip_row_conditions Logical; replace row predicates with TRUE during
@@ -47,6 +50,7 @@ tabulate_v <- function(session, skip_row_conditions = FALSE) {
 #' Sources, calculation chains, weights, and column/row predicates retain their
 #' existing roles; filters run before calculations. Vertical tabulation keeps
 #' its separate primary-filter behavior; see [tabulate_v()].
+#' Display precision `d=` is independent of filter scope; see [statistic-precision].
 #' @inherit tabulate_v return
 #' @seealso [tabulate_v()], [tabulate_mics_table()]
 #' @export
@@ -61,6 +65,8 @@ tabulate_h <- function(session, skip_row_conditions = FALSE) {
 #' @return Long-format results, also saved in `session$cell_results`.
 #' @details Row logic is retained as metadata, not evaluated against survey
 #'   data. Values are mapped by position and the engine applies suppression.
+#'   The plan's optional `d=` argument controls display precision for supplied
+#'   values too; see [statistic-precision].
 #' @export
 tabulate_extra_table <- function(session, table) {
   validate_mics_session(session)
@@ -85,6 +91,8 @@ tabulate_extra_table <- function(session, table) {
 #'   median(variable), p_sum(variable), and 100. Median and `Mean `-prefixed
 #'   indicators are unweighted. p_sum always uses the supplied weight column.
 #'   Missing statistic cells return NA. An empty denominator can produce NaN.
+#'   Optional `d=` arguments are returned as `display_digits` metadata and never
+#'   round the calculated value; see [statistic-precision].
 #' @examples
 #' calc_cells(data.frame(total = c(1, 1)),
 #'   data.frame(row_index = 9L, row_lgc = "TRUE"),

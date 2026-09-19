@@ -32,6 +32,8 @@ Supports n/n1, n_unw/n_unw1, p/p1/mean, mean(variable),
 median(variable), p_sum(variable), and 100. Median and \code{Mean }-prefixed
 indicators are unweighted. p_sum always uses the supplied weight column.
 Missing statistic cells return NA. An empty denominator can produce NaN.
+Optional \verb{d=} arguments are returned as \code{display_digits} metadata and never
+round the calculated value; see \link{statistic-precision}.
 }
 \examples{
 calc_cells(data.frame(total = c(1, 1)),

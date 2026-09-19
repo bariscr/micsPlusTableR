@@ -201,4 +201,26 @@ test_that("Excel reading preserves global filters and resolves blank statistics 
     dplyr::arrange(row_index, col_index)
   expect_equal(result$value, rep(c(20, 20, 200/7, 2, 33.4, 1), 2))
   expect_equal(result$filt2, rep(c(NA, NA, rep("filter(sex == 2)", 2), NA, NA), 2))
+
+  cells[9, 3:8] <- c("p(d=2)", "p(d=0)", "p(d=3)", "n(d=1)", "mean(age,d=0)", "n_unw(d=2)")
+  wb$add_data("Example", cells, col_names = FALSE)
+  wb$save(path, overwrite = TRUE)
+  plan <- read_mics_tabulation(s, path, "Example")
+  expect_identical(plan$tab_direction, "h")
+  expect_true(plan$is_supp)
+  updated <- tabulate_mics_table(s) |>
+    dplyr::filter(!is.na(stat_type)) |>
+    dplyr::arrange(row_index, col_index)
+  expect_equal(updated$value, result$value)
+  expect_equal(updated$filt2, result$filt2)
+  expect_equal(updated$n_unw, result$n_unw)
+  expect_identical(updated$display_digits, rep(c(2L, 0L, 3L, 1L, 0L, 2L), 2))
+})
+
+test_that("changing display digits does not start or end a filter", {
+  s <- filter_scope_session(c("p(d=2)", "n(d=1)", "mean(age,d=0)",
+                              "mean(age,d=3)", "n(d=2)", "n_unw(d=1)"), local_cols = 3L)
+  result <- tabulate_h(s)
+  expect_equal(result$value, c(100, 7, 33.4, 33.4, 10, 3))
+  expect_equal(result$filt2, c(rep("filter(sex == 2)", 2), rep(NA_character_, 4)))
 })

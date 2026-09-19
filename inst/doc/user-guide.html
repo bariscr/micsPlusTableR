@@ -2726,6 +2726,73 @@ html { scroll-padding-top: 6rem; }
 <div style="page-break-after: always;"></div>
 </section>
 </section>
+<section id="statistic-precision" class="level2">
+<h2 class="anchored" data-anchor-id="statistic-precision">4B. Choose decimal places in the worksheet</h2>
+<p>This section is for people who prepare or review the Excel plan. Add <strong><code>d=</code> inside a statistic’s parentheses</strong> to choose how many decimal places are shown. This is available for every supported statistic type. If the statistic already has an argument, add a comma before <code>d=</code>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>What you want</th>
+<th>What to write in the statistic cell</th>
+<th>Example display</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Whole-number average expenses in table 6.2a</td>
+<td><code>mean(HCS8, d=0)</code></td>
+<td><code>442,572</code></td>
+</tr>
+<tr class="even">
+<td>Average expenses with two decimals</td>
+<td><code>mean(HCS8, d=2)</code></td>
+<td><code>442,571.91</code></td>
+</tr>
+<tr class="odd">
+<td>Mean indicator with one decimal</td>
+<td><code>mean(d=1)</code></td>
+<td><code>73.3</code></td>
+</tr>
+<tr class="even">
+<td>Percentage with two decimals</td>
+<td><code>p(d=2)</code></td>
+<td><code>73.30</code></td>
+</tr>
+<tr class="odd">
+<td>Count with one decimal</td>
+<td><code>n(d=1)</code></td>
+<td><code>881.0</code></td>
+</tr>
+<tr class="even">
+<td>Unweighted count with no decimals</td>
+<td><code>n_unw(d=0)</code></td>
+<td><code>622</code></td>
+</tr>
+<tr class="odd">
+<td>Median with two decimals</td>
+<td><code>median(age, d=2)</code></td>
+<td><code>35.00</code></td>
+</tr>
+<tr class="even">
+<td>Total/distribution statistic with two decimals</td>
+<td><code>p(100, d=2)</code></td>
+<td><code>100.00</code></td>
+</tr>
+</tbody>
+</table>
+<p>These numbers illustrate the display, not survey results. The same rule works with other supported statistics, including <code>mean_unw</code>, legacy <code>Mean</code>, and <code>p_sum</code>. A constant can be written as <code>100(d=2)</code>. Keep the statistic appropriate to the table’s direction and intended calculation.</p>
+<p><strong>If you leave out <code>d</code>, nothing changes:</strong> the app keeps its established formatting for that statistic and output mode. Means default to one decimal place. For example, <code>mean(HCS8)</code> still displays <code>442,571.9</code>.</p>
+<p><strong>Use a whole number of decimal places.</strong> <code>d=0</code> removes the decimal point; <code>d=1</code>, <code>d=2</code>, and <code>d=3</code> show one, two, and three decimal places, including trailing zeros. Spaces are allowed, so <code>mean(HCS8,   d=0)</code> is valid. Give <code>d</code> only once, as a non-negative whole number, without quotation marks or a calculation. For example, <code>d=-1</code>, <code>d=1.5</code>, and <code>d=&quot;2&quot;</code> are invalid.</p>
+<p><strong>Where it applies.</strong> The Formatted and Suppressed Tabulator views use the requested decimals for visible numbers. The Unformatted view retains the full numeric estimate. Both Excel output workbooks use the requested number format, including workbooks written by Multi-sheet Tabulator and values supplied by preparation scripts. Thousands separators remain in the Formatted preview and Excel. Long Format Data records the setting in <code>DECIMALS</code> and display values; <code>OBS_VALUE</code> retains full precision.</p>
+<p><strong>What stays the same.</strong> Display rounding does not change the calculated number, weights, filters, denominators, or consistency checks. Excel keeps numeric estimates at full precision when you specify <code>d</code>. Parenthesized estimates follow the requested precision, such as <code>(442,572)</code> for <code>d=0</code>; <code>(*)</code> and <code>-</code> remain suppression markers.</p>
+<p>Changing only <code>d</code> never starts or stops a filter. A column using <code>n_unw(d=2)</code> still acts as an unweighted count for direction and suppression. Where the reader fills a blank statistic cell, it carries the decimal setting with that statistic. Save the plan and reload it in the app, then rerun the affected tables to apply your edits.</p>
+<div style="page-break-after: always;"></div>
+</section>
 </section>
 <section id="check-the-table" class="level1">
 <h1>5. Check the table</h1>

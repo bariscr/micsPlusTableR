@@ -38,6 +38,7 @@ before scope is determined. Changes down rows do not stop a filter.
 Sources, calculation chains, weights, and column/row predicates retain their
 existing roles; filters run before calculations. Vertical tabulation keeps
 its separate primary-filter behavior; see \code{\link[=tabulate_v]{tabulate_v()}}.
+Display precision \verb{d=} is independent of filter scope; see \link{statistic-precision}.
 }
 \seealso{
 \code{\link[=tabulate_v]{tabulate_v()}}, \code{\link[=tabulate_mics_table]{tabulate_mics_table()}}

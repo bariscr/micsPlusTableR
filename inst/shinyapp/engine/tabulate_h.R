@@ -6,7 +6,7 @@ tabulate_h <- function(skip_row_conditions = FALSE) {
   mics_require_plan(environment(sys.function()), "h")
 
   
-  tab <- out_glob$tab
+  tab <- mics_normalize_statistics(out_glob$tab)
   tab_c <- out_glob$tab_c
   tab_c2 <- out_glob$tab_c2
   tab_r <- out_glob$tab_r
@@ -168,8 +168,7 @@ tabulate_h <- function(skip_row_conditions = FALSE) {
       dplyr::group_by(row_index) |>
       dplyr::mutate(local_active = {
         statistic <- trimws(stat_type)
-        is_mean <- statistic == "mean" | grepl("^mean\\(", statistic) |
-          grepl("^Mean\\b", statistic)
+        is_mean <- mics_is_mean(statistic)
         enters_mean <- is_mean & !dplyr::lag(is_mean, default = dplyr::first(is_mean))
         is_present(local_filter) & !dplyr::cumany(enters_mean)
       }) |>
@@ -361,7 +360,7 @@ if (out_glob$is_supp) {
     out %>%
     mutate(var_name_col = purrr::map_chr(col_logic, extract_var)) 
 
-return(out)
+return(mics_apply_display_digits(out))
   
 
 

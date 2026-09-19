@@ -5,7 +5,7 @@ tabulate_v <- function(skip_row_conditions = FALSE) {
   mics_require_plan(environment(sys.function()), "v")
 
   
-  tab <- out_glob$tab
+  tab <- mics_normalize_statistics(out_glob$tab)
   tab_c <- out_glob$tab_c
   tab_c2 <- out_glob$tab_c2
   tab_r <- out_glob$tab_r
@@ -149,7 +149,10 @@ tabulate_v <- function(skip_row_conditions = FALSE) {
       context <- paste0(base_context, "; Excel row ", tab_r$row_index[r],
         ", column ", tab_c2$col_index[c], "; statistic '", st,
         "'; row condition: ", row_condition, "; column condition: ", col_condition)
-      if (st %in% c("n", "n1", "n2", "p", "p1", "p(100)") ||
+      original_stat_type <- st
+      mean_spec <- mics_mean_spec(st)
+      st <- mean_spec$calculation
+      if (st %in% c("n", "n1", "n2", "p", "p1", "p(100)", "mean") ||
           grepl("^mean\\s*\\(", st)) mics_weight(df_c, weight_var)
       
       # ---- UNWEIGHTED ----
@@ -172,14 +175,14 @@ tabulate_v <- function(skip_row_conditions = FALSE) {
           dplyr::pull(value)
        
         
-      } else if (st %in% c("p_unw", "p_unw(100)") || startsWith(st, "Mean ")) {
+      } else if (st %in% c("p_unw", "p_unw(100)", "Mean") || startsWith(st, "Mean ")) {
         value <- make_ind(df_c, row_condition, row_var_name) %>%
           dplyr::summarise(value = mean(.data[[row_var_name]], na.rm = TRUE) * 100) %>%
           dplyr::pull(value)
         
       } else if (grepl("^\\s*mean[_ ]?unw\\s*\\(", st, ignore.case = TRUE)) {
         # e.g. mean_unw(CAnum)
-        mean_var <- extract_paren_arg(st, "^\\s*mean[_ ]?unw\\s*\\(\\s*([^\\)]+)\\s*\\)")
+        mean_var <- as.character(mean_spec$argument)
         df_row <- if (identical(row_condition, "TRUE")) df_c else
           dplyr::filter(df_c, !!rlang::parse_expr(row_condition))
         value <- df_row %>%
@@ -192,7 +195,7 @@ tabulate_v <- function(skip_row_conditions = FALSE) {
           dplyr::summarise(value = sum(.data[[row_var_name]] * .data[[weight_var]], na.rm = TRUE)) %>%
           dplyr::pull(value)
         
-      } else if (st %in% c("p", "p1", "p(100)")) {
+      } else if (st %in% c("p", "p1", "p(100)", "mean")) {
         value <- make_ind(df_c, row_condition, row_var_name) %>%
           dplyr::summarise(
             value = (sum(.data[[row_var_name]] * .data[[weight_var]], na.rm = TRUE) /
@@ -202,15 +205,12 @@ tabulate_v <- function(skip_row_conditions = FALSE) {
         # mean(newvar = <expression>)  (weighted)
       } else if (
         grepl("^\\s*mean\\s*\\(", st, ignore.case = TRUE) &&
-        grepl("=", extract_paren_arg(st, "^\\s*mean\\s*\\(\\s*([^\\)]+)\\s*\\)"), fixed = TRUE)
+        nzchar(mean_spec$argument_name)
       ) {
-        arg <- extract_paren_arg(st, "^\\s*mean\\s*\\(\\s*([^\\)]+)\\s*\\)")
-        parts    <- sub("^([^=]+)=\\s*(.*)$", "\\1;;\\2", arg)
-        new_name <- trimws(sub(";;.*$", "", parts))
-        rhs      <- sub("^.*;;", "", parts)
+        new_name <- mean_spec$argument_name
         
         df_c2 <- df_c %>%
-          dplyr::mutate(!!rlang::sym(new_name) := !!rlang::parse_expr(rhs))
+          dplyr::mutate(!!rlang::sym(new_name) := !!mean_spec$argument)
         
         df_row <- if (identical(row_condition, "TRUE")) df_c2 else
           dplyr::filter(df_c2, !!rlang::parse_expr(row_condition))
@@ -229,7 +229,7 @@ tabulate_v <- function(skip_row_conditions = FALSE) {
         
         # mean(var)  (weighted)
       } else if (grepl("^\\s*mean\\s*\\(", st, ignore.case = TRUE)) {
-        mean_var <- extract_paren_arg(st, "^\\s*mean\\s*\\(\\s*([^\\)]+)\\s*\\)")
+        mean_var <- as.character(mean_spec$argument)
         df_row <- if (identical(row_condition, "TRUE")) df_c else
           dplyr::filter(df_c, !!rlang::parse_expr(row_condition))
         value <- df_row %>%
@@ -268,7 +268,9 @@ tabulate_v <- function(skip_row_conditions = FALSE) {
         col_index = tab_c2$col_index[c],
         row_logic = row_condition_table$row_condition[r],  # cleaned logic (or "TRUE")
         col_logic = tab_c2$col_logic[c],
-        stat_type = st,
+        stat_type = original_stat_type,
+        display_digits = tab$display_digits[match(paste(tab_r$row_index[r], tab_c2$col_index[c]),
+          paste(tab$row_index, tab$col_index))],
         value     = value
       ))
     }
@@ -302,7 +304,7 @@ out <-
     out %>%
     mutate(var_name_col = purrr::map_chr(col_logic, extract_var)) 
 
-return(out)
+return(mics_apply_display_digits(out))
 
 
   }, error = function(e) mics_abort_context(e, context))

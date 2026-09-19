@@ -32,7 +32,7 @@ test_that("adding a filter in G preserves F's mean and suppression basis", {
   expect_equal(f_after$n_unw, c(60, 30, 20, 0))
   expect_equal(f_after[c("value", "n_unw", "value_f", "value_f_view")],
                f_before[c("value", "n_unw", "value_f", "value_f_view")])
-  expect_equal(f_after$value_f_view, c("150", "(150)", "(*)", "-"))
+  expect_equal(f_after$value_f_view, c("150.0", "(150.0)", "(*)", "-"))
   expect_equal(after$value[after$col_index == 7L], c(60, 30, 20, 0))
   expect_equal(nrow(after), nrow(before))
 })
@@ -45,8 +45,36 @@ test_that("F retains its valid-expense restriction independently of G", {
   f <- result[result$row_index == 9L & result$col_index == 6L, ]
   expect_equal(f$value, 150)
   expect_equal(f$n_unw, 59) # G's filter now also applies to its right-hand n_unw.
-  expect_identical(f$value_f_view, "150")
+  expect_identical(f$value_f_view, "150.0")
   expect_equal(result$value[result$row_index == 9L & result$col_index == 7L], 59)
+})
+
+test_that("large mean displays retain suppression while raw estimates stay precise", {
+  s <- expense_filter_session(TRUE)
+  s$hh$HCS8 <- 442571.905044384
+  result <- tabulate_h(s)
+  f <- result[result$col_index == 6L, ]
+  expect_equal(f$value, c(rep(442571.905044384, 3), NaN))
+  expect_equal(f$value_f_view, c("442,571.9", "(442,571.9)", "(*)", "-"))
+  expect_equal(f$n_unw, c(60, 30, 20, 0))
+  expect_equal(f$value_f, c("442571.905044384", "(442571.9)", "(*)", "-"))
+})
+
+test_that("Excel mean cells keep numeric values with grouped one-decimal formats", {
+  s <- expense_filter_session(TRUE)
+  s$hh$HCS8 <- 442571.905044384
+  s$out_glob$condition_row_index <- 4L
+  result <- tabulate_h(s)
+  path <- tempfile(fileext = ".xlsx")
+  on.exit(unlink(path), add = TRUE)
+  openxlsx2::wb_workbook()$add_worksheet("Example")$save(path)
+  write_mics_table(s, path, table = result, formatted = TRUE)
+  cells <- tidyxl::xlsx_cells(path, sheets = "Example")
+  f <- cells[cells$col == 6L & cells$row %in% 9:12, ]
+  formats <- tidyxl::xlsx_formats(path)$local$numFmt
+  expect_equal(f$numeric[1:2], c(442571.905044384, 442571.9))
+  expect_equal(formats[f$local_format_id[1:2]], c("#,##0.0;(#,##0.0)", "(#,##0.0)"))
+  expect_equal(f$character[3:4], c("(*)", "-"))
 })
 
 test_that("the formatted Excel export retains the mean and small-sample markers", {
@@ -71,7 +99,7 @@ test_that("supplied extra-table values use the same repaired display basis", {
   result <- tabulate_extra_table(s, supplied)
   f <- result[result$col_index == 6L, ]
   expect_equal(f$n_unw, c(60, 30, 20, 0))
-  expect_equal(f$value_f_view, c("150", "(150)", "(*)", "-"))
+  expect_equal(f$value_f_view, c("150.0", "(150.0)", "(*)", "-"))
   expect_equal(nrow(result), 24L)
 })
 

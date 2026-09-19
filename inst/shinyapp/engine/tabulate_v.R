@@ -290,7 +290,8 @@ out <-
       stat_type %in% c("p", "p1", "p_unw", "p(100)", "p_unw(100)", "mean", "mean_unw") ~ as.character(round(value, 1)),
       startsWith(stat_type, "mean") ~ as.character(round(value, 1)),
       TRUE ~ as.character(value)
-    ))
+    ),
+    value_f_view = format_mean_display(value, stat_type, value_f_view))
 
 # Add the variable names to the output
   out <-

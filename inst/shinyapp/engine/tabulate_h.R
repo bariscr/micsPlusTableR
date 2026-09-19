@@ -314,7 +314,8 @@ count_col_ns <- tab |> distinct(col_index, stat_type) |> filter(stat_type == "n"
         stat_type %in% c("n", "n1", "n_unw", "n2", "n_unw2", "hhmembers") ~ as.character(format(round(value, 0), big.mark = ",")),
         stat_type %in% c("p", "n1", "p_unw", "p(100)", "p_unw(100)", "mean", "mean_unw") ~ as.character(round(value, 1)),
         TRUE ~ as.character(value)
-      )
+      ),
+      value_f_org = format_mean_display(value, stat_type, value_f_org)
     ) 
 
 

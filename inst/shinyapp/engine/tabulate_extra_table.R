@@ -113,7 +113,8 @@ out <-
         stat_type %in% c("n", "n_unw", "n2", "n_unw2", "hhmembers") ~ as.character(format(round(value, 0), big.mark = ",")),
         stat_type %in% c("p", "p_unw", "p(100)", "p_unw(100)", "mean", "mean_unw") ~ as.character(round(value, 1)),
         TRUE ~ as.character(value)
-      )
+      ),
+      value_f_org = format_mean_display(value, stat_type, value_f_org)
     ) |> 
 
     dplyr::mutate(

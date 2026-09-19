@@ -1,5 +1,10 @@
 # micsPlusTableR 0.3.1
 
+- Format mean expressions such as `mean(HCS8)` with thousands separators and
+  exactly one decimal place in the formatted preview, matching Excel's number
+  format. Apply the same display rule to vertical and supplied extra tables,
+  preserving numeric estimates, filters, and suppression thresholds/markers.
+
 - Silence routine Excel name-repair and implicit-join messages and remove
   batch table-name debug prints. Mute consistency-check console output inside
   Shiny while retaining its results in the UI and diagnostics for direct R calls.

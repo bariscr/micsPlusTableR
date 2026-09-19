@@ -2289,7 +2289,8 @@ html { scroll-padding-top: 6rem; }
 <section id="about-system" class="level1">
 <h1>About micsPlusTableR</h1>
 <p><a href="user-guide.pdf">Download the printable PDF guide</a>.</p>
-<p>micsPlusTableR is an R package for preparing, tabulating, reviewing, and exploring MICS Plus survey data. It provides a browser-based application and functions that can be used directly in R. R performs the calculations; the application provides controls for selecting inputs, running analyses, and examining results.</p>
+<p>micsPlusTableR is the R package behind the <strong>MICS Plus Tabulation</strong> application. It was created primarily to support this browser-based app for preparing, tabulating, reviewing, and exploring survey data. R performs the calculations; the app provides controls for selecting inputs, running analyses, and examining results.</p>
+<p>Most other package functions perform background tasks for the app or expose its calculation engine. They are documented for understanding the system, testing, and working directly in R. You do not need to call them individually when using the app.</p>
 <p><strong>Purpose.</strong> The system connects the tables you want to produce with the data and preparation steps needed to calculate them. A tabulation plan (Excel) records the table definitions, while a survey-specific R script prepares the data and variables. This makes it possible to apply a supplied plan or create and adapt a plan for your own reporting and analysis needs, then repeat the calculations when inputs or specifications change.</p>
 <p><strong>Inputs.</strong> The application uses four matching inputs for a survey:</p>
 <ul>

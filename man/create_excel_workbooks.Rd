@@ -26,3 +26,11 @@ create_excel_workbooks(
 Copies the tabulation plan to standard output names without overwriting an
 existing file. A numeric suffix is added after a filename collision.
 }
+
+\details{
+Creates copies of the tabulation plan; it does not calculate or populate table
+results. In the app, Write to Excel calls it on request, and Multi-Sheet
+Tabulator calls it automatically for unset required destinations. In R
+workflows, call it before \code{\link{write_mics_table}} unless using an existing
+workbook. Unrequested entries in the returned list are \code{NULL}.
+}

@@ -16,7 +16,8 @@ run_direction_tabulation <- function(session, direction, skip_row_conditions) {
 #' variable-explanation labels.
 #' @details Every supported statistic accepts an optional `d=` display argument;
 #' for example, `mean(x, d=0)`, `mean(d=1)`, or `p(d=2)`. Omitting it preserves
-#' existing formatting. See [statistic-precision] for rules and examples.
+#' existing formatting. See [statistic-types] for each calculation, population,
+#' weighting rule, and direction limit, and [statistic-precision] for display rules.
 #' @param session A session created by [mics_session()] with prepared data and
 #'   a plan loaded by [read_mics_tabulation()].
 #' @param skip_row_conditions Logical; replace row predicates with TRUE during
@@ -42,7 +43,9 @@ tabulate_v <- function(session, skip_row_conditions = FALSE) {
 #' next explicit filter or the first transition from a non-mean statistic to
 #' a mean statistic. That mean cell uses B alone unless it starts a new explicit
 #' filter. A stopped filter stays off until another explicit filter starts.
-#' Mean statistics are `mean(variable)`, `mean`, and the legacy `Mean` form.
+#' Mean statistics include bare `mean`, `mean(variable)`, their `mean_unw`
+#' variants, and the legacy `Mean` form. Switching between bare and variable
+#' means preserves an active filter, as does changing only `d=`.
 #' Changes among other statistics (including `p`, `n`, and `n_unw`), between
 #' mean variables, or from a mean to a non-mean do not stop inheritance.
 #' Worksheet statistic filling and trimming surrounding whitespace happen
@@ -50,7 +53,8 @@ tabulate_v <- function(session, skip_row_conditions = FALSE) {
 #' Sources, calculation chains, weights, and column/row predicates retain their
 #' existing roles; filters run before calculations. Vertical tabulation keeps
 #' its separate primary-filter behavior; see [tabulate_v()].
-#' Display precision `d=` is independent of filter scope; see [statistic-precision].
+#' See [statistic-types] for calculation rules. Display precision `d=` is
+#' independent of filter scope; see [statistic-precision].
 #' @inherit tabulate_v return
 #' @seealso [tabulate_v()], [tabulate_mics_table()]
 #' @export
@@ -83,13 +87,22 @@ tabulate_extra_table <- function(session, table) {
 #' @param tab_c3 Column specification with `col_index`, `col_condition`, and
 #'   `col_var_name`; optional `col_logic` preserves display labels.
 #' @param tab Cell specification with `row_index`, `col_index`, and `stat_type`.
-#' @param weight_var Weight-column name. May be NA for unweighted calculations.
+#' @param weight_var Weight-column name. Unweighted calculations may use NA.
+#'   The `p_sum` statistic always needs a weight column.
 #' @param weighted FALSE for unweighted results, TRUE for weighted results,
 #'   or `"both"` (legacy mode, returns the unweighted result only).
 #' @return A tibble with row/column indices, logic, statistic, and numeric value.
-#' @details Supports n/n1, n_unw/n_unw1, p/p1/mean, mean(variable),
-#'   median(variable), p_sum(variable), and 100. Median and `Mean `-prefixed
-#'   indicators are unweighted. p_sum always uses the supplied weight column.
+#' @details This background helper is available for explicit cell tests and
+#'   code-only work; app users normally use Tabulator. Supported statistics
+#'   include counts, indicator percentages, numeric means, medians, and
+#'   constant totals. See [statistic-types] for the complete horizontal forms
+#'   and their populations.
+#'
+#'   Bare `mean` is an indicator percentage; `mean(variable)` averages the named
+#'   variable. Median and `mean_unw` forms are unweighted, as are legacy
+#'   capitalized `Mean` indicators. The `p_sum` statistic divides the variable
+#'   sum by the weight sum within both conditions, then multiplies by 100.
+#'
 #'   Missing statistic cells return NA. An empty denominator can produce NaN.
 #'   Optional `d=` arguments are returned as `display_digits` metadata and never
 #'   round the calculated value; see [statistic-precision].

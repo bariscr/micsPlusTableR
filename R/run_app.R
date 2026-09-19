@@ -1,9 +1,26 @@
 #' Run the micsPlusTableR Shiny application
 #'
-#' Starts the packaged Shiny application. Output workbooks are written to
-#' `output_dir` unless the user selects another destination in the app.
-#' The Download Files tab saves survey plans and preparation files to the
-#' current project by default; its destination can be changed in the tab.
+#' The main user entry point to micsPlusTableR. Opens the browser-based MICS Plus
+#' Tabulation app for preparing inputs, calculating and checking tables,
+#' exploring data, and saving results. Other package functions mainly expose
+#' its supporting engine for documentation, tests, and code-only workflows.
+#'
+#' @details The app opens on Data Preparation. User's Guide provides embedded
+#' instructions, Open full guide, and Download PDF. Download Files saves plans
+#' and preparation materials to the current project by default.
+#'
+#' Results can be inspected without exporting. Single-table Excel writing needs
+#' a created or selected workbook. Multi-Sheet Tabulator automatically creates
+#' required workbooks for unset destinations and reuses destinations already set
+#' in Write to Excel. The default output folder is below the survey project;
+#' `output_dir` selects another location. Existing destinations and uploaded
+#' inputs must be selected again after restarting the app.
+#'
+#' Restart the R session after installing or updating the package before
+#' launching, so previously loaded functions are not retained in memory.
+#' The external SheetJS browser library is needed for the workbook preview;
+#' local calculations and Excel output do not depend on that download.
+#' @seealso [micsPlusTableR-package], [offline-workflow]
 #'
 #' @param host Host interface passed to [shiny::runApp()].
 #' @param port Port passed to [shiny::runApp()]. Use `NULL` to select a free port.

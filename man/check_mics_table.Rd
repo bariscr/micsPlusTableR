@@ -17,5 +17,9 @@ check_mics_table(session, table = NULL, tolerance = 1e-06)
 A list containing a summary data frame and detailed check tables.
 }
 \description{
-Run all applicable consistency checks
+Runs the six group-count and percentage checks used by the application.
+Direct R calls retain engine diagnostics; the app suppresses console output
+while showing check results in its interface. Non-applicable checks are not
+passing validations. Details retain internal column names such as
+\code{diff_value}; the app displays readable labels such as Difference.
 }

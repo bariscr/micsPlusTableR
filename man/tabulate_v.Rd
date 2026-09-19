@@ -26,7 +26,8 @@ variable-explanation labels.
 \details{
 Every supported statistic accepts an optional \verb{d=} display argument;
 for example, \code{mean(x, d=0)}, \code{mean(d=1)}, or \code{p(d=2)}. Omitting it preserves
-existing formatting. See \link{statistic-precision} for rules and examples.
+existing formatting. See \link{statistic-types} for each calculation, population,
+weighting rule, and direction limit, and \link{statistic-precision} for display rules.
 }
 \seealso{
 \code{\link[=tabulate_h]{tabulate_h()}}, \code{\link[=tabulate_mics_table]{tabulate_mics_table()}}

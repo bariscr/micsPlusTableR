@@ -30,7 +30,9 @@ combines with B. For each row independently, it extends right until the
 next explicit filter or the first transition from a non-mean statistic to
 a mean statistic. That mean cell uses B alone unless it starts a new explicit
 filter. A stopped filter stays off until another explicit filter starts.
-Mean statistics are \code{mean(variable)}, \code{mean}, and the legacy \code{Mean} form.
+Mean statistics include bare \code{mean}, \code{mean(variable)}, their \code{mean_unw}
+variants, and the legacy \code{Mean} form. Switching between bare and variable
+means preserves an active filter, as does changing only \verb{d=}.
 Changes among other statistics (including \code{p}, \code{n}, and \code{n_unw}), between
 mean variables, or from a mean to a non-mean do not stop inheritance.
 Worksheet statistic filling and trimming surrounding whitespace happen
@@ -38,7 +40,8 @@ before scope is determined. Changes down rows do not stop a filter.
 Sources, calculation chains, weights, and column/row predicates retain their
 existing roles; filters run before calculations. Vertical tabulation keeps
 its separate primary-filter behavior; see \code{\link[=tabulate_v]{tabulate_v()}}.
-Display precision \verb{d=} is independent of filter scope; see \link{statistic-precision}.
+See \link{statistic-types} for calculation rules. Display precision \verb{d=} is
+independent of filter scope; see \link{statistic-precision}.
 }
 \seealso{
 \code{\link[=tabulate_v]{tabulate_v()}}, \code{\link[=tabulate_mics_table]{tabulate_mics_table()}}

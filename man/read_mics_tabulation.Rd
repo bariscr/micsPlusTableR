@@ -17,5 +17,10 @@ read_mics_tabulation(session, path_tab_excel, sheet)
 The parsed tabulation-plan context.
 }
 \description{
-Read one sheet from a MICS Plus tabulation plan
+Reads the source name in B4:B7, filters, weights, conditions, cell statistics,
+headers, and layout metadata into the session. Blank statistic cells are
+filled by the worksheet reader. Direction is horizontal when an \code{n_unw}
+instruction immediately precedes IDX or a \code{100}/\code{100.0} statistic is present;
+otherwise it is vertical. Optional \verb{d=} does not change that decision.
+See \link{statistic-types}, \link{statistic-precision}, and \code{\link[=tabulate_h]{tabulate_h()}}.
 }

@@ -29,7 +29,8 @@ Stop and restart the app after saving changes.
 The CSV requires no conversion to an R data object.
 
 R installs \file{inst/extdata} files into the package's \file{extdata} directory.
-For installed packages, reinstall the updated source and restart the app.
+For installed packages, reinstall the updated source and restart the R session
+before launching the app.
 Direct edits to an installed copy are replaced by reinstallation or upgrades.
 The selected code, full period, and wave also contribute to output filenames
 and long-format metadata.

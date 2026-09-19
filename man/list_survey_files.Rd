@@ -26,7 +26,7 @@ these plans and preparation files.
 \details{
 Survey folders use the country, survey period, and wave, such as
 \verb{Jamaica (2023-24) Wave 1}. Legacy code-and-wave folders are also supported.
-Downloads include root-level Excel plans (\code{.xls}, \code{.xlsx}) and \code{.R} scripts
+Downloads include root-level tabulation plans (\code{.xls}, \code{.xlsx}) and \code{.R} scripts
 or \code{.RData} reference assets inside \verb{prep-files-*} subfolders. Other files,
 including SPSS microdata and hidden files, are excluded. Preparation
 subfolders are preserved. A single Git commit is resolved before listing or downloading,

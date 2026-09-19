@@ -16,9 +16,12 @@ pivot_mics_table(
 
 \item{table}{Cell results; defaults to the session's latest result.}
 
-\item{formatted}{\code{FALSE}, \code{TRUE}, or \code{"view"} as supported by the engine.}
+\item{formatted}{\code{FALSE} uses raw numeric \code{value}; \code{TRUE} uses the engine's
+\code{value_f} display strings; \code{"view"} uses preview strings in \code{value_f_view}.}
 
-\item{type}{One of \code{"index"}, \code{"header"}, or \code{"logic"}.}
+\item{type}{\code{"index"} uses worksheet row/column positions, \code{"header"} uses
+descriptive labels, and \code{"logic"} uses row/column conditions. The choice
+changes labels, not calculated values.}
 }
 \value{
 A wide review table.

@@ -14,7 +14,11 @@ session_engine_function <- function(session, name) {
   value
 }
 
-#' Create a non-Shiny MICS Plus tabulation session
+#' Create an isolated MICS Plus tabulation session
+#'
+#' Holds prepared data, a loaded plan, engine functions, and results. The app
+#' creates its own session automatically. Use this function directly for
+#' code-only workflows, diagnosis, or tests; see [offline-workflow].
 #'
 #' @param hh Optional prepared household data frame.
 #' @param hl Optional prepared household-member data frame.
@@ -332,6 +336,13 @@ resolve_preparation_source <- function(file, prep_dir, fies_inputs_dir = NULL) {
 
 #' Read one sheet from a MICS Plus tabulation plan
 #'
+#' Reads the source name in B4:B7, filters, weights, conditions, cell statistics,
+#' headers, and layout metadata into the session. Blank statistic cells are
+#' filled by the worksheet reader. Direction is horizontal when an `n_unw`
+#' instruction immediately precedes IDX or a `100`/`100.0` statistic is present;
+#' otherwise it is vertical. Optional `d=` does not change that decision.
+#' See [statistic-types], [statistic-precision], and [tabulate_h()].
+#'
 #' @param session A session created by [mics_session()].
 #' @param path_tab_excel Path to the Excel tabulation plan.
 #' @param sheet Sheet name or index.
@@ -373,6 +384,12 @@ mics_table_name <- function(session) {
 }
 
 #' Tabulate a MICS Plus table outside the application
+#'
+#' Exposes the app's calculation engine for code-only workflows and tests.
+#' Selects the loaded plan's direction automatically or maps an available
+#' supplied extra table, saves results in the session, and attaches variable
+#' explanations. Use numeric long-format results for checks before pivoting.
+#' See [statistic-types] for calculations and [offline-workflow] for an example.
 #'
 #' @param session A prepared tabulation session.
 #' @param path_tab_excel Optional tabulation-plan path. Supply with `sheet` to
@@ -417,8 +434,11 @@ tabulate_mics_table <- function(session, path_tab_excel = NULL, sheet = NULL) {
 #'
 #' @param session A tabulation session.
 #' @param table Cell results; defaults to the session's latest result.
-#' @param formatted `FALSE`, `TRUE`, or `"view"` as supported by the engine.
-#' @param type One of `"index"`, `"header"`, or `"logic"`.
+#' @param formatted `FALSE` uses raw numeric `value`; `TRUE` uses the engine's
+#'   `value_f` display strings; `"view"` uses preview strings in `value_f_view`.
+#' @param type `"index"` uses worksheet row/column positions, `"header"` uses
+#'   descriptive labels, and `"logic"` uses row/column conditions. The choice
+#'   changes labels, not calculated values.
 #' @return A wide review table.
 #' @export
 pivot_mics_table <- function(session,
@@ -443,6 +463,12 @@ pivot_mics_table <- function(session,
 }
 
 #' Run all applicable consistency checks
+#'
+#' Runs the six group-count and percentage checks used by the application.
+#' Direct R calls retain engine diagnostics; the app suppresses console output
+#' while showing check results in its interface. Non-applicable checks are not
+#' passing validations. Details retain internal column names such as
+#' `diff_value`; the app displays readable labels such as Difference.
 #'
 #' @param session A tabulation session.
 #' @param table Cell results; defaults to the session's latest result.
@@ -478,12 +504,16 @@ check_mics_table <- function(session, table = NULL, tolerance = 1e-6) {
 #' Write cell results to a tabulation workbook
 #'
 #' @param session A tabulation session with a loaded plan.
-#' @param destination Existing destination workbook.
+#' @param destination Existing destination workbook. Create it with
+#'   [create_excel_workbooks()] or supply a previously created workbook.
 #' @param sheet Sheet name or index; defaults to the current sheet.
 #' @param table Cell results; defaults to the latest result.
 #' @param formatted Whether to write formatted display values.
 #' @param drop_n_unw Whether to omit unweighted-count columns when formatting.
-#' @details Optional worksheet `d=` arguments set Excel decimal places in both
+#' @details Writes to an existing workbook; this function does not create one.
+#' Automatic creation for unset destinations is part of the app's Multi-Sheet
+#' Tabulator workflow. Rewriting a sheet replaces its previously written values.
+#' Optional worksheet `d=` arguments set Excel decimal places in both
 #' output formats. Numeric values retain their precision; suppression markers
 #' and parentheses retain their meaning. See [statistic-precision].
 #' @return The destination path, invisibly.

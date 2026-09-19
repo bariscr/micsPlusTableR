@@ -18,5 +18,9 @@ read a new table before tabulating.}
 A long-format data frame containing one row per calculated cell.
 }
 \description{
-Tabulate a MICS Plus table outside the application
+Exposes the app's calculation engine for code-only workflows and tests.
+Selects the loaded plan's direction automatically or maps an available
+supplied extra table, saves results in the session, and attaches variable
+explanations. Use numeric long-format results for checks before pivoting.
+See \link{statistic-types} for calculations and \link{offline-workflow} for an example.
 }

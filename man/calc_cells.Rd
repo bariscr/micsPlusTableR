@@ -16,7 +16,8 @@ calc_cells(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE)
 
 \item{tab}{Cell specification with \code{row_index}, \code{col_index}, and \code{stat_type}.}
 
-\item{weight_var}{Weight-column name. May be NA for unweighted calculations.}
+\item{weight_var}{Weight-column name. Unweighted calculations may use NA.
+The \code{p_sum} statistic always needs a weight column.}
 
 \item{weighted}{FALSE for unweighted results, TRUE for weighted results,
 or \code{"both"} (legacy mode, returns the unweighted result only).}
@@ -28,9 +29,17 @@ A tibble with row/column indices, logic, statistic, and numeric value.
 Calculate individual horizontal table cells
 }
 \details{
-Supports n/n1, n_unw/n_unw1, p/p1/mean, mean(variable),
-median(variable), p_sum(variable), and 100. Median and \code{Mean }-prefixed
-indicators are unweighted. p_sum always uses the supplied weight column.
+This background helper is available for explicit cell tests and
+code-only work; app users normally use Tabulator. Supported statistics
+include counts, indicator percentages, numeric means, medians, and
+constant totals. See \link{statistic-types} for the complete horizontal forms
+and their populations.
+
+Bare \code{mean} is an indicator percentage; \code{mean(variable)} averages the named
+variable. Median and \code{mean_unw} forms are unweighted, as are legacy
+capitalized \code{Mean} indicators. The \code{p_sum} statistic divides the variable
+sum by the weight sum within both conditions, then multiplies by 100.
+
 Missing statistic cells return NA. An empty denominator can produce NaN.
 Optional \verb{d=} arguments are returned as \code{display_digits} metadata and never
 round the calculated value; see \link{statistic-precision}.

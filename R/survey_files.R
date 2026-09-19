@@ -13,7 +13,7 @@
 #' @details
 #' Survey folders use the country, survey period, and wave, such as
 #' `Jamaica (2023-24) Wave 1`. Legacy code-and-wave folders are also supported.
-#' Downloads include root-level Excel plans (`.xls`, `.xlsx`) and `.R` scripts
+#' Downloads include root-level tabulation plans (`.xls`, `.xlsx`) and `.R` scripts
 #' or `.RData` reference assets inside `prep-files-*` subfolders. Other files,
 #' including SPSS microdata and hidden files, are excluded. Preparation
 #' subfolders are preserved. A single Git commit is resolved before listing or downloading,

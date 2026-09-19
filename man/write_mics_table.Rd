@@ -16,7 +16,8 @@ write_mics_table(
 \arguments{
 \item{session}{A tabulation session with a loaded plan.}
 
-\item{destination}{Existing destination workbook.}
+\item{destination}{Existing destination workbook. Create it with
+\code{\link[=create_excel_workbooks]{create_excel_workbooks()}} or supply a previously created workbook.}
 
 \item{sheet}{Sheet name or index; defaults to the current sheet.}
 
@@ -33,6 +34,9 @@ The destination path, invisibly.
 Write cell results to a tabulation workbook
 }
 \details{
+Writes to an existing workbook; this function does not create one.
+Automatic creation for unset destinations is part of the app's Multi-Sheet
+Tabulator workflow. Rewriting a sheet replaces its previously written values.
 Optional worksheet \verb{d=} arguments set Excel decimal places in both
 output formats. Numeric values retain their precision; suppression markers
 and parentheses retain their meaning. See \link{statistic-precision}.

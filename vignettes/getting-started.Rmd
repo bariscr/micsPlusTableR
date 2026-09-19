@@ -7,9 +7,19 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-`micsPlusTableR` turns an Excel tabulation plan, survey data, and a preparation
-script into checked survey tables. Use its Shiny application for interactive
-review or its R functions for a scripted workflow.
+`micsPlusTableR` is the R package behind the **MICS Plus Tabulation**
+application. The package was created primarily to serve this browser-based
+Shiny app: users select survey inputs, prepare data, calculate tables, review
+consistency checks, explore data, and save results when needed.
+
+Most other package functions perform background tasks for the app or expose
+its calculation engine. They are documented to explain how the system works,
+support tests and diagnosis, and enable workflows run directly in R. App users
+do not need to call those functions individually.
+
+Use supplied materials or create/adapt a tabulation plan with a compatible
+preparation script and survey data. Both routes work through the app. Viewing
+results in Tabulator can be sufficient; exporting a workbook is a choice.
 
 ## Set up your survey project first
 
@@ -22,10 +32,14 @@ file selection, and the application's buttons with screenshots.
    [RStudio Desktop](https://posit.co/download/rstudio-desktop/).
 2. Create your own survey project using **File > New Project > New Directory
    > New Project**. For an existing survey folder without an `.Rproj` file,
-   choose **Existing Directory**. For an existing RStudio project, use
-   **File > Open Project** and select its `.Rproj` file.
+   choose **Existing Directory**. For an existing RStudio project, double-click
+   its `.Rproj` file or use **File > Open Project** to select it.
 3. Confirm the survey project name at the top right. In the **R Console**, run
    the installation commands once, waiting for each to finish:
+
+Install `remotes` only if it is not already available. Once installed, you do
+not need to install it again for ordinary launches or package updates; use the
+second command to install or update `micsPlusTableR`.
 
 ```{r install, eval=FALSE}
 install.packages("remotes")
@@ -55,7 +69,7 @@ Tabulation plans, preparation scripts, and supporting reference assets are maint
 Household and household-member microdata are **not** distributed there or by
 these functions. Obtain the `.sav` data files separately from the
 [MICS surveys page](https://mics.unicef.org/surveys) with the required permission.
-Once the files repository is public, no GitHub account is needed for its
+The public files repository requires no GitHub account for its
 plans and preparation files. You can
 [download all plans and preparation files as a ZIP](https://github.com/bariscr/micsPlusTableR-Files/archive/refs/heads/main.zip)
 and extract it, use the app tab, or run the Console commands below.
@@ -118,19 +132,20 @@ New survey folders are discovered from GitHub without updating the package.
 Use `ref = "<commit-or-tag>"` to retrieve a recorded version; the returned table's
 `commit` attribute records the resolved commit. Internet access and a public
 files repository are required. If GitHub limits requests, retry later or use
-the ZIP link. Before publication, obtain the plans and preparation files from
-your survey lead.
+the ZIP link. After updating the package, restart the R session before
+launching the app so it uses the updated download and calculation code.
 
 ## Inputs
 
 Prepare these files before starting:
 
-1. An Excel plan with an `IDX` sheet and one worksheet per table.
+1. A tabulation plan (Excel) with an `IDX` sheet and one worksheet per table.
 2. Household (`hh`) and household-member (`hl`) SPSS `.sav` files obtained
    separately from the MICS Plus website with permission.
 3. A preparation folder with one top-level prep-like `.R` script. The script
    reads `hh_path` and `hl_path` and creates data frames named `hh` and `hl`.
-   Optional FIES assets belong in a sibling `FIES-inputs` subdirectory.
+   Include the `FIES-inputs` subfolder beside the main script when its
+   helpers and reference assets are required.
 
 Preparation scripts execute R code and define survey-specific recodes and
 additional tables. Review and validate them for the survey being analysed.
@@ -163,28 +178,46 @@ remain available for diagnosis, repair, or custom scripts with additional
 requirements; they are not part of normal setup.
 Use `help("prep-script-dependencies", package = "micsPlusTableR")` for their
 purposes and script-author instructions, or `help("package-dependencies",
-package = "micsPlusTableR")` for the 23 required app/engine packages.
+package = "micsPlusTableR")` for the required app and engine packages.
 
-## Interactive use
+## Use the application
 
-```{r launch, eval=FALSE}
-library(micsPlusTableR)
-run_app()
-# Or select the output location:
-run_app(output_dir = "survey-results")
-```
+Start `micsPlusTableR::run_app()` in your survey project. The app opens on
+**Data Preparation**. Its navigation bar provides these tools in order:
 
-Select the survey and wave, provide the plan, data files, and preparation
-folder, then prepare the data. Calculate the required tables, inspect the
-consistency checks, and export the workbooks. By default, workbooks are written
-to `micsPlusTableR-output` below the project root detected by `here::here()`.
+| Tab | Purpose |
+|---|---|
+| **User's Guide** | Read the instructions, open the full guide in another browser tab, or download the PDF. |
+| **Download Files** | Obtain tabulation plans and complete preparation folders. Survey microdata are obtained separately. |
+| **Data Preparation** | Select the survey, wave, data, plan, and preparation folder; click **Set**. |
+| **Tabulator** | Calculate one table and inspect it using Header, Index, or Logic labels and the desired display format. |
+| **Consistency Checks** | Inspect applicable group-total and percentage checks; filter to inconsistent cells when needed. |
+| **Write to Excel** | Create or select workbook destinations and write the current table. |
+| **Multi-Sheet Tabulator** | Calculate and write several selected tables, then inspect the run results. |
+| **Data Exploration** | Examine frequencies and cross-tabulations. |
+| **Data View** | Inspect prepared household or household-member records and their labels. |
+| **Long Format Data** | Combine calculated table cells and download Excel, CSV, or RDS data. |
 
-The **Long Format Data** tab offers Excel, CSV, and RDS downloads. Downloads
-include the full prepared dataset even when the preview is filtered. RDS
-preserves R column types. The SDMX-compatible fields follow the package's
-observation contract; review requirements of any external SDMX system separately.
+For single-table writing, create or select the required workbook first.
+**Multi-Sheet Tabulator creates workbooks automatically when a required
+destination has not been set**, and reuses destinations already created or
+selected in **Write to Excel**. It does not automatically find previously saved
+workbooks after restarting the app. Select those explicitly to continue them.
+The default output folder is `micsPlusTableR-output` in the survey project;
+`run_app(output_dir = "survey-results")` changes it.
 
-## Scripted use
+The workbook preview loads the external SheetJS browser library. Its first
+load needs internet; browser caching may support subsequent use but is not
+guaranteed after closing or clearing the browser. With packages and inputs
+available locally, calculations and Excel output do not need this download.
+
+## Work directly in R
+
+The following functions support the app's engine and are available for
+reference, testing, and code-only work. They are not additional setup steps
+for app users. For statistic meanings, populations, weights, and direction
+limits, use `help("statistic-types", package = "micsPlusTableR")` and the
+User's Guide's **Understand the tabulation plan** reference.
 
 A session keeps prepared data, the table plan, and results together. Create a
 separate session for independent workflows:
@@ -343,8 +376,8 @@ columns retain the same local population.
 An explicit `filter(TRUE)` replaces a local restriction while retaining B.
 
 Scope uses the effective statistics after worksheet filling and trimming
-surrounding whitespace. Mean forms are `mean(variable)`, `mean`, and legacy
-`Mean`. Changes among non-mean statistics, between mean variables, and from
+surrounding whitespace. Mean forms include bare `mean`, `mean(variable)`, their `mean_unw`
+variants, and legacy `Mean`. Changes among non-mean statistics, between bare and variable means, between mean variables, and from
 means to other statistics preserve inheritance. A filter starting on a mean
 applies there and continues until a later non-mean-to-mean transition or a new
 explicit filter. Filters run before block

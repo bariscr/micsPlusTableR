@@ -2,10 +2,12 @@ Package: micsPlusTableR
 Title: MICS Plus Excel Tabulation and Review Application
 Version: 0.3.1
 Authors@R: person("MICS Plus", "Tabulation Team", email = "micsplustabler@example.org", role = c("aut", "cre"))
-Description: Runs interactive and scriptable workflows for preparing,
-    tabulating, checking, reviewing, and exporting MICS Plus tables from an
-    Excel tabulation plan, survey data files, and a survey-specific preparation
-    script.
+Description: Provides the MICS Plus Tabulation application for preparing,
+    calculating, checking, exploring, and exporting survey tables from an
+    Excel tabulation plan, survey data, and a survey-specific preparation
+    script. The package is built primarily to support this browser-based
+    application. Its documented R functions expose the supporting engine for
+    reference, testing, and workflows run directly in R.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

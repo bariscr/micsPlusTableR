@@ -20,12 +20,13 @@ app: `here`, `tibble`, and `tidyr`; Wave 2 additionally uses `purrr`.
 
 Before executing a preparation script, the app checks its declared requirements
 and detected helper dependencies. If a package is missing or cannot load, the
-error identifies the package and script and includes a repair command. Users
-should pass this message to their support person.
+error identifies the package and script and includes a repair command. Use the named package and script to diagnose the issue; follow the displayed
+repair command if installation is incomplete.
 
 For diagnosis, use `check_prep_dependencies()`. For an incomplete installation
 or extra requirements in a custom script, use `install_prep_dependencies()`.
-These functions are not additional steps in the normal user workflow.
+These functions are supporting tools for diagnosis and code-based work, not
+additional steps in the normal app workflow.
 
 For package purposes and maintenance details, open the package reference in R:
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/workflow_api.R
 \name{mics_session}
 \alias{mics_session}
-\title{Create a non-Shiny MICS Plus tabulation session}
+\title{Create an isolated MICS Plus tabulation session}
 \usage{
 mics_session(hh = NULL, hl = NULL)
 }
@@ -15,5 +15,7 @@ mics_session(hh = NULL, hl = NULL)
 A mutable, isolated tabulation session environment.
 }
 \description{
-Create a non-Shiny MICS Plus tabulation session
+Holds prepared data, a loaded plan, engine functions, and results. The app
+creates its own session automatically. Use this function directly for
+code-only workflows, diagnosis, or tests; see \link{offline-workflow}.
 }

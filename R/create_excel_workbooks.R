@@ -3,6 +3,11 @@
 #' Copies the source tabulation plan to one or both standard output workbook
 #' names. Existing files are never overwritten; a numeric suffix is added when
 #' a generated name already exists.
+#' @details Creates copies of the tabulation plan; it does not calculate or
+#' populate table results. In the app, Write to Excel calls it on request, and
+#' Multi-Sheet Tabulator calls it automatically for unset required destinations.
+#' In R workflows, call it before [write_mics_table()] unless using an existing
+#' workbook. Unrequested entries in the returned list are NULL.
 #'
 #' @param path_tab_excel Existing `.xls` or `.xlsx` tabulation plan.
 #' @param output_dir Directory where workbooks will be created.

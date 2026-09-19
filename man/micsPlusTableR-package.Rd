@@ -166,8 +166,8 @@ Run a single consistency check:
 \item \code{\link[=row_indent_group_perc_total_check]{row_indent_group_perc_total_check()}} checks indented percentages.
 }
 Each returns status, issue count, all comparisons, and failing comparisons.
-Stateful helpers take a session;
-see the getting-started vignette for examples.
+Stateful helpers take a session. See \link{offline-workflow} for individual-step
+examples. The \code{\link[=calc_cells]{calc_cells()}} help page includes a runnable weighted example.
 }
 
 \section{Dependencies}{

@@ -143,8 +143,8 @@
 #'   \item [row_indent_group_perc_total_check()] checks indented percentages.
 #' }
 #' Each returns status, issue count, all comparisons, and failing comparisons.
-#' Stateful helpers take a session;
-#' see the getting-started vignette for examples.
+#' Stateful helpers take a session. See [offline-workflow] for individual-step
+#' examples. The [calc_cells()] help page includes a runnable weighted example.
 #'
 #' @section Dependencies:
 #' [package-dependencies] explains required app/engine packages and development

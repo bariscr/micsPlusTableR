@@ -109,8 +109,7 @@ output do not need that download.
 | Resource | Use it for |
 |---|---|
 | [User's Guide (PDF)](inst/doc/user-guide.pdf) | Setup, the app's tools in navigation order, understanding and creating tabulation plans, and troubleshooting. Also available inside the app's **User's Guide** tab. |
-| [Package reference manual](output/pdf/micsPlusTableR-manual.pdf) | How the supporting functions work, their arguments and examples, statistic types, filters, and display precision. |
-| [Getting-started vignette](vignettes/getting-started.Rmd) | Further workflow details and examples for working directly in R. |
+| [Package reference manual](output/pdf/micsPlusTableR-manual.pdf) | Direct R workflows, supporting functions and their examples, statistic types, filters, and display precision. |
 | [Preparation dependency notes](inst/doc/manager-notes.md) | Diagnosing preparation-package requirements and installation problems. |
 | [Release notes](NEWS.md) | Changes between package versions. |
 
@@ -143,7 +142,7 @@ Open `micsPlusTableR.Rproj`, or set your R working directory to this folder.
 Install development dependencies once:
 
 ```r
-install.packages(c("devtools", "pkgload", "roxygen2", "rmarkdown"))
+install.packages(c("devtools", "pkgload", "roxygen2"))
 remotes::install_deps(".", dependencies = TRUE)
 ```
 
@@ -178,13 +177,13 @@ users do not need Quarto or LaTeX. Review both formats after edits. The HTML
 guide is served directly by Shiny and works without a browser PDF plugin.
 
 The package command validates the CSV and builds a standard source archive in
-`build/`, including the vignette. The manual command regenerates the PDF reference
+`build/`, including the bundled User's Guide. The manual command regenerates the PDF reference
 manual from `man/*.Rd`; it requires a working LaTeX installation. Edit function
 documentation in its roxygen comments in `R/`, then run
 `roxygen2::roxygenise(".", roclets = "rd")`. Handwritten help topics in `man/`
 are maintained directly.
 
-Commit the source files, help files, vignette, and reference PDF to GitHub.
+Commit the source files, help files, User's Guide assets, and reference PDF to GitHub.
 Build archives, check output, local R state, and generated survey output are
 excluded by `.gitignore`; `.Rbuildignore` keeps development artifacts out of
 the installable package. Before publishing, replace the placeholder maintainer
@@ -199,8 +198,10 @@ The standard directory layout and reference manual follow R's
 Use `tabulate_v(session)` or `tabulate_h(session)` for a loaded plan,
 `calc_cells()` for explicit cell calculations, and the six individual
 `*_total_check()` helpers to investigate one consistency check. Parsing and
-cleaning helpers are also exported. See the getting-started vignette and
-`help(package = "micsPlusTableR")` for arguments and examples. The direction
+cleaning helpers are also exported. See
+`help("offline-workflow", package = "micsPlusTableR")` for scripting and
+individual-step examples, and `help(package = "micsPlusTableR")` for the
+function reference. The direction
 functions replace the old names ending in `2`. Calculation errors now include
 the worksheet and relevant block, cell, or expression when available.
 

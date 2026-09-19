@@ -112,6 +112,16 @@ tabulate_extra_table <- function(session, table) {
 #'   data.frame(col_index = 3L, col_condition = "total == 1", col_var_name = "total_1"),
 #'   data.frame(row_index = 9L, col_index = 3L, stat_type = "n_unw"),
 #'   weight_var = NA_character_)
+#'
+#' # Weighted count of sex == 2: 5. Use weighted = FALSE for a count of 2.
+#' calc_cells(
+#'   df = data.frame(total = 1, sex = c(1, 2, 2), weight = c(1, 2, 3)),
+#'   tab_r = data.frame(row_index = 9L, row_lgc = "TRUE"),
+#'   tab_c3 = data.frame(col_index = 3L, col_condition = "sex == 2",
+#'                      col_var_name = "sex_2"),
+#'   tab = data.frame(row_index = 9L, col_index = 3L, stat_type = "n"),
+#'   weight_var = "weight", weighted = TRUE
+#' )
 #' @export
 calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
   session_engine_function(mics_session(), "calc_cells")(

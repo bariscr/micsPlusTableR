@@ -11,16 +11,15 @@ Description: Provides the MICS Plus Tabulation application for preparing,
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Depends: R (>= 4.2.0)
 Imports: bslib, dplyr, flextable, haven, here, htmltools, htmlwidgets,
         janitor, jsonlite, later, officer, openxlsx2, purrr, reactable, readr, readxl,
         rlang, shiny, shinyFiles, stringr, tibble, tidyr, tidyxl,
         ggplot2, Hmisc, labelled, memisc, reshape2, RM.weights, survey, srvyr
-Suggests: testthat (>= 3.0.0), knitr, rmarkdown
+Suggests: testthat (>= 3.0.0)
 Config/micsPlusTableR/prep-packages: ggplot2, Hmisc, labelled, memisc,
         reshape2, RM.weights, survey, srvyr
-VignetteBuilder: knitr
 Config/testthat/edition: 3
 NeedsCompilation: no
 Config/build/clean-inst-doc: FALSE
+Config/roxygen2/version: 8.1.0

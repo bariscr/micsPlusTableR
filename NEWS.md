@@ -1,5 +1,9 @@
 # micsPlusTableR 0.3.1
 
+- Consolidate application instructions in the User's Guide and direct R
+  examples in the package reference. Remove the duplicated getting-started
+  vignette and its knitr/rmarkdown build dependencies.
+
 - Add optional `d=` display precision to every worksheet statistic, for example
   `mean(HCS8, d=0)`, `mean(d=1)`, `p(d=2)`, `n(d=1)`, and `p(100, d=2)`.
   Keep existing defaults when omitted. Apply overrides to Tabulator displays,

@@ -80,9 +80,10 @@ NULL
 #'   \item `readr`: CSV downloads of long-format results.
 #'   \item `later`: schedule application UI updates.
 #' }
-#' Development-only Suggests are testthat for tests and knitr/rmarkdown for
-#' vignette building. Developer tools such as roxygen2, pkgload, and remotes
-#' are installed separately as described in the README.
+#' The development-only Suggests entry is testthat for tests. Developer tools
+#' such as roxygen2, pkgload, and remotes are installed separately as described
+#' in the README. Rebuilding the User's Guide requires Quarto and XeLaTeX;
+#' its rendered HTML and PDF are bundled for users.
 #'
 #' The maintainer command `Rscript tools/check-dependencies.R` inspects
 #' executable app and engine code, qualified references, and imported function

@@ -97,6 +97,11 @@ tabulate_extra_table <- function(session, table) {
 #'   include counts, indicator percentages, numeric means, medians, and
 #'   constant totals. See [statistic-types] for the complete horizontal forms
 #'   and their populations.
+#'   With `n_unw` or `n_unw1`, the column condition `hhmembers` instead sums
+#'   `HLnum` for row-selected records with `total == 1`. This is a household
+#'   member base from household records, not an ordinary record count.
+#'   Worksheet aliases such as `total1 == 1` and `totalHL == 1` are converted
+#'   by [read_mics_tabulation()], not this helper; see [worksheet-conditions].
 #'
 #'   Bare `mean` is an indicator percentage; `mean(variable)` averages the named
 #'   variable. Median and `mean_unw` forms are unweighted, as are legacy
@@ -135,7 +140,7 @@ calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
 #'   condition, generated variable name, and `calculation`.
 #' @details Separates mutate calls from predicates; blank or NA row logic
 #'   means TRUE. Parses text without evaluating it against survey data.
-#' @seealso [col_condition_f()], [normalize_condition_text()]
+#' @seealso [col_condition_f()], [normalize_condition_text()], [worksheet-conditions]
 #' @export
 row_condition_f <- function(tab_r) {
   mics_require_columns(tab_r, c("row_index", "row_lgc"), "tab_r")
@@ -149,7 +154,9 @@ row_condition_f <- function(tab_r) {
 #' @details Uses the last meaningful line after excluding source, filter,
 #'   calculation, separator, and weight lines. Parses text without evaluating
 #'   it against survey data.
-#' @seealso [row_condition_f()], [normalize_condition_text()]
+#'   Worksheet total aliases are converted by [read_mics_tabulation()] before
+#'   this parser is called; this helper alone does not convert them.
+#' @seealso [row_condition_f()], [normalize_condition_text()], [worksheet-conditions]
 #' @export
 col_condition_f <- function(tab_c) {
   mics_require_columns(tab_c, c("col_index", "col_lgc"), "tab_c")

@@ -20,7 +20,9 @@ Parse column conditions from a plan
 Uses the last meaningful line after excluding source, filter,
 calculation, separator, and weight lines. Parses text without evaluating
 it against survey data.
+Worksheet total aliases are converted by \code{\link[=read_mics_tabulation]{read_mics_tabulation()}} before
+this parser is called; this helper alone does not convert them.
 }
 \seealso{
-\code{\link[=row_condition_f]{row_condition_f()}}, \code{\link[=normalize_condition_text]{normalize_condition_text()}}
+\code{\link[=row_condition_f]{row_condition_f()}}, \code{\link[=normalize_condition_text]{normalize_condition_text()}}, \link{worksheet-conditions}
 }

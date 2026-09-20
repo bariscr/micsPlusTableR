@@ -16,6 +16,8 @@
 #' condition defines its outcome. In vertical tables, the column condition
 #' selects the base and the row condition defines the outcome. Counts, numeric
 #' means, and medians use records satisfying both conditions.
+#' See [worksheet-conditions] for preparing predicates, numbered total aliases,
+#' and household-member bases.
 #'
 #' A percentage denominator comes from the applicable population, not a nearby
 #' count cell. Weighted percentages are 100 times the sum of outcome weights
@@ -28,7 +30,9 @@
 #'   \item{`n`}{Weighted count: sum of weights for qualifying records. Both directions.}
 #'   \item{`n_unw`}{Unweighted count of qualifying records. Both directions.
 #'     In horizontal tables, the special `hhmembers` column condition instead
-#'     sums `HLnum` for qualifying household records.}
+#'     sums `HLnum` for qualifying household records with `total == 1`.
+#'     The worksheet column alias `totalHL == 1` selects this behavior;
+#'     it does not change the weight or apply to vertical tables.}
 #'   \item{`p`}{Weighted percentage of the outcome within the base. Both directions.}
 #'   \item{`p_unw`}{Unweighted percentage of the row outcome within the column base.
 #'     Vertical tables only.}

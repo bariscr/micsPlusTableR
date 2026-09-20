@@ -21,5 +21,5 @@ Separates mutate calls from predicates; blank or NA row logic
 means TRUE. Parses text without evaluating it against survey data.
 }
 \seealso{
-\code{\link[=col_condition_f]{col_condition_f()}}, \code{\link[=normalize_condition_text]{normalize_condition_text()}}
+\code{\link[=col_condition_f]{col_condition_f()}}, \code{\link[=normalize_condition_text]{normalize_condition_text()}}, \link{worksheet-conditions}
 }

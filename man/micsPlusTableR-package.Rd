@@ -107,7 +107,9 @@ them explicitly to continue writing to those files.
 
 The User's Guide explains the worksheet layout, dataset name in B4:B7,
 filters, row/column conditions, and cell statistics, for readers as well as
-plan authors. \link{statistic-types} documents each statistic's population,
+plan authors. \link{worksheet-conditions} explains output-oriented condition
+design, total aliases, and household-member bases.
+\link{statistic-types} documents each statistic's population,
 weighting, and supported direction. \link{statistic-precision} explains optional
 \verb{d=} display settings. \code{\link[=tabulate_h]{tabulate_h()}} documents global and additional filters,
 including non-mean-to-mean boundaries and consecutive mean columns.

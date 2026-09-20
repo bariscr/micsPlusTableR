@@ -341,7 +341,10 @@ resolve_preparation_source <- function(file, prep_dir, fies_inputs_dir = NULL) {
 #' filled by the worksheet reader. Direction is horizontal when an `n_unw`
 #' instruction immediately precedes IDX or a `100`/`100.0` statistic is present;
 #' otherwise it is vertical. Optional `d=` does not change that decision.
-#' See [statistic-types], [statistic-precision], and [tabulate_h()].
+#' The reader converts recognized numbered total column aliases to
+#' `total == 1` and `totalHL` column aliases to `hhmembers`.
+#' See [worksheet-conditions], [statistic-types], [statistic-precision],
+#' and [tabulate_h()].
 #'
 #' @param session A session created by [mics_session()].
 #' @param path_tab_excel Path to the Excel tabulation plan.

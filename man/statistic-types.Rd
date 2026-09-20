@@ -21,6 +21,8 @@ tables, the row condition selects the percentage base and the column
 condition defines its outcome. In vertical tables, the column condition
 selects the base and the row condition defines the outcome. Counts, numeric
 means, and medians use records satisfying both conditions.
+See \link{worksheet-conditions} for preparing predicates, numbered total aliases,
+and household-member bases.
 
 A percentage denominator comes from the applicable population, not a nearby
 count cell. Weighted percentages are 100 times the sum of outcome weights
@@ -35,7 +37,9 @@ plan's weight; the low-level \code{\link[=calc_cells]{calc_cells()}} helper also
 \item{\code{n}}{Weighted count: sum of weights for qualifying records. Both directions.}
 \item{\code{n_unw}}{Unweighted count of qualifying records. Both directions.
 In horizontal tables, the special \code{hhmembers} column condition instead
-sums \code{HLnum} for qualifying household records.}
+sums \code{HLnum} for qualifying household records with \code{total == 1}.
+The worksheet column alias \code{totalHL == 1} selects this behavior;
+it does not change the weight or apply to vertical tables.}
 \item{\code{p}}{Weighted percentage of the outcome within the base. Both directions.}
 \item{\code{p_unw}}{Unweighted percentage of the row outcome within the column base.
 Vertical tables only.}

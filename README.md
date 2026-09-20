@@ -109,7 +109,7 @@ output do not need that download.
 | Resource | Use it for |
 |---|---|
 | [User's Guide (PDF)](inst/doc/user-guide.pdf) | Setup, the app's tools in navigation order, understanding and creating tabulation plans, and troubleshooting. Also available inside the app's **User's Guide** tab. |
-| [Package reference manual](output/pdf/micsPlusTableR-manual.pdf) | Direct R workflows, supporting functions and their examples, statistic types, filters, and display precision. |
+| [Package reference manual](output/pdf/micsPlusTableR-manual.pdf) | Direct R workflows, supporting functions and their examples, row/column conditions and total aliases, statistic types, filters, and display precision. |
 | [Preparation dependency notes](inst/doc/manager-notes.md) | Diagnosing preparation-package requirements and installation problems. |
 | [Release notes](NEWS.md) | Changes between package versions. |
 

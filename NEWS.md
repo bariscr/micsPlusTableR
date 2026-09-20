@@ -1,5 +1,11 @@
 # micsPlusTableR 0.3.1
 
+- Expand the User's Guide with output-oriented row and column condition
+  instructions, repeated total aliases, household-member bases, and worked
+  layouts for percentages, means, and vertical distributions. Add a matching
+  worksheet-conditions reference topic explaining `total1 == 1`,
+  `totalHL == 1`, `hhmembers`, and their calculation limits.
+
 - Consolidate application instructions in the User's Guide and direct R
   examples in the package reference. Remove the duplicated getting-started
   vignette and its knitr/rmarkdown build dependencies.

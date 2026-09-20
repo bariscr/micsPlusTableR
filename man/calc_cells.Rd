@@ -34,6 +34,11 @@ code-only work; app users normally use Tabulator. Supported statistics
 include counts, indicator percentages, numeric means, medians, and
 constant totals. See \link{statistic-types} for the complete horizontal forms
 and their populations.
+With \code{n_unw} or \code{n_unw1}, the column condition \code{hhmembers} instead sums
+\code{HLnum} for row-selected records with \code{total == 1}. This is a household
+member base from household records, not an ordinary record count.
+Worksheet aliases such as \code{total1 == 1} and \code{totalHL == 1} are converted
+by \code{\link[=read_mics_tabulation]{read_mics_tabulation()}}, not this helper; see \link{worksheet-conditions}.
 
 Bare \code{mean} is an indicator percentage; \code{mean(variable)} averages the named
 variable. Median and \code{mean_unw} forms are unweighted, as are legacy

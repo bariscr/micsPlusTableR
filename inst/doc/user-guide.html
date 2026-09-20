@@ -2224,7 +2224,7 @@ html { scroll-padding-top: 6rem; }
 <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
   <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Find a task</h2>
-
+   
   <ul>
   <li><a href="#about-system" id="toc-about-system" class="nav-link active" data-scroll-target="#about-system">About micsPlusTableR</a></li>
   <li><a href="#ways-to-use" id="toc-ways-to-use" class="nav-link" data-scroll-target="#ways-to-use">Ways to use the system</a></li>
@@ -2270,17 +2270,17 @@ html { scroll-padding-top: 6rem; }
              <p>MICS Team </p>
           </div>
   </div>
-
+    
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
       <p class="date">September 17, 2026</p>
     </div>
   </div>
-
-
+  
+    
   </div>
-
+  
 
 
 </header>
@@ -2349,7 +2349,7 @@ html { scroll-padding-top: 6rem; }
 </ol>
 <p><strong>Reference sections</strong></p>
 <ul>
-<li><a href="#worksheet-reference"><strong>Understand the tabulation plan</strong></a> - locate datasets, interpret filters and conditions, and read the statistics and display settings that produce each table.</li>
+<li><a href="#worksheet-reference"><strong>Understand the tabulation plan</strong></a> - locate datasets, prepare conditions for the intended outputs, and choose statistics and display settings. See <a href="#worksheet-conditions">row and column conditions</a> for total aliases and household-member bases.</li>
 <li><a href="#other-environments"><strong>Other editors and code systems</strong></a> - use the package with an R environment other than RStudio.</li>
 <li><a href="#guide-terms"><strong>Terms and reference information</strong></a> - find definitions, notes about the screenshots, and links to the package reference.</li>
 </ul>
@@ -3084,16 +3084,178 @@ weight by w</code></pre>
 </section>
 </section>
 <section id="worksheet-conditions" class="level2">
-<h2 class="anchored" data-anchor-id="worksheet-conditions">Read the row and column conditions</h2>
-<p><strong>Row conditions</strong> are in column B below the condition row, beside the labels in column A. For example, a row labelled “Urban” might use <code>area == 1</code>. Read the expression and the prepared variable’s value labels together to confirm what the row includes.</p>
-<p><strong>Column conditions</strong> are in column C onward on the condition row, below the column headings. For example, <code>HCS7 == 1</code> identifies records with that response. A cell containing a filter and a column condition can separate them with <code>- - -</code>:</p>
-<pre class="text"><code>filter(age &gt;= 18)
+<h2 class="anchored" data-anchor-id="worksheet-conditions">Define row and column conditions for your output</h2>
+<p>Conditions connect the labels in your table to the records used in each result. Prepare them by deciding <strong>who the result describes, what you want to measure, and which groups you want to compare</strong>. A heading such as “Urban”, “Total”, or “Number of household members” does not select records or change the calculation by itself.</p>
+<section id="start-with-the-intended-population-and-result" class="level3">
+<h3 class="anchored" data-anchor-id="start-with-the-intended-population-and-result">Start with the intended population and result</h3>
+<ol type="1">
+<li><strong>Choose the unit.</strong> Are you describing households, individual members, or people living in households with a particular characteristic? Use the matching prepared dataset and weight. The member-count convention described below lets a household table count the people represented by its household records.</li>
+<li><strong>Set eligibility with filters.</strong> Apply the table-wide eligibility rule in B, and any additional population restrictions in the relevant horizontal block. For example, a table about healthcare users might include only households reporting that a member received care.</li>
+<li><strong>Decide which groups and outcomes belong on each axis.</strong> In a horizontal percentage table, rows select comparison groups and columns select outcomes. In a vertical percentage table, columns select comparison groups and rows select outcomes.</li>
+<li><strong>Choose the statistic and its base.</strong> Use <code>p</code> for a weighted percentage, <code>n</code> for a weighted count, <code>n_unw</code> for an unweighted base, or <code>mean(variable)</code> for a numeric average. Conditions select records; the statistic determines the calculation.</li>
+</ol>
+<p>The worksheet layout determines the calculation direction. An <code>n_unw</code> statistic immediately before the <code>IDX</code> column, or a constant <code>100</code> statistic in the table, selects horizontal mode; otherwise the reader selects vertical mode. Start from a working plan with the required direction and retain its base-count and <code>IDX</code> structure. Merely moving headings between rows and columns does not transpose the calculation.</p>
+<p><strong>Write out the denominator before writing a percentage.</strong> For example, “Among eligible urban households, what percentage reported healthcare expenses?” needs the eligible urban households in the base and the expense response as the outcome. Putting the expense response in a filter instead would exclude households without that response from the denominator.</p>
+<div style="page-break-after: always;"></div>
+</section>
+<section id="write-the-conditions-in-the-correct-cells" class="level3">
+<h3 class="anchored" data-anchor-id="write-the-conditions-in-the-correct-cells">Write the conditions in the correct cells</h3>
+<p>Put <strong>row conditions in column B</strong>, below the condition row and beside their labels in column A. Use <code>total == 1</code> beside the overall Total row, then conditions such as <code>area == 1</code> for Urban and <code>area == 2</code> for Rural, if these are the survey’s codes. Keep group-heading or separator rows without a calculation condition. A blank row-condition cell is not a request to calculate an unrestricted total.</p>
+<p>Put <strong>column conditions in C onward on the condition row</strong>, below the column headings. A column for households reporting healthcare expenses might use <code>HCS7 == 1</code>. A column for all eligible households in the same block uses <code>total == 1</code>. The preparation script must supply the named variables; check their codes in <strong>Data View</strong> before using them.</p>
+<p>Write logical expressions as plain cell text, without an Excel <code>=</code> prefix. Names and letter case must match the prepared data. Numeric codes use numbers; text values use quotes. These examples are patterns to adapt to your survey:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Intended selection</th>
+<th>Condition</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>One category</td>
+<td><code>area == 1</code></td>
+</tr>
+<tr class="even">
+<td>Either of two response codes</td>
+<td><code>response %in% c(1, 2)</code></td>
+</tr>
+<tr class="odd">
+<td>Age 15 through 49</td>
+<td><code>age &gt;= 15 &amp; age &lt;= 49</code></td>
+</tr>
+<tr class="even">
+<td>Urban households meeting an outcome</td>
+<td><code>area == 1 &amp; HCS7 == 1</code></td>
+</tr>
+<tr class="odd">
+<td>A text category</td>
+<td><code>status == &quot;Complete&quot;</code></td>
+</tr>
+<tr class="even">
+<td>A recorded numeric value</td>
+<td><code>!is.na(expense)</code></td>
+</tr>
+</tbody>
+</table>
+<p>Use <code>==</code> for equality, <code>!=</code> for inequality, <code>&amp;</code> for both conditions, and <code>|</code> for either condition. For example, <code>(HCS7 == 1) | (HCS9 == 1)</code> selects records meeting either criterion. Use parentheses to make combinations clear. Avoid <code>&amp;&amp;</code> and <code>||</code>, which do not express record-by-record selection. Unknown-response codes such as 98 or 99 are ordinary values unless the preparation script recodes them. Explicitly decide whether they belong in the base. Excluding them only from the outcome is different from excluding them with a filter.</p>
+<p>A combined instruction cell can place the filter above a separator and the column condition below it:</p>
+<pre class="text"><code>filter(HCS7 %in% c(1, 2))
 - - -
 HCS7 == 1</code></pre>
-<p>The first line restricts the available population to adults. The last line defines the outcome for this column. They have different roles: moving <code>HCS7 == 1</code> into the filter would also restrict the percentage’s denominator and could change the meaning of the result.</p>
-<p><strong>How they work together.</strong> In a horizontal table, the active filters first define the available records. The row condition selects a group within those records. For a percentage or bare <code>mean</code>, the column condition identifies the outcome within that row’s population. For a count, it identifies the records to count. For <code>mean(variable)</code>, it selects the records whose named variable is averaged. In a vertical table, column conditions define the populations and row conditions define the outcomes within them.</p>
-<p>For example, with B’s <code>filter(age &gt;= 18)</code>, a row condition <code>area == 1</code>, a column condition <code>HCS7 == 1</code>, and statistic <code>p</code>, a horizontal table shows the percentage meeting <code>HCS7 == 1</code> among adults with <code>area == 1</code>, using the specified weight.</p>
+<p>This restricts the block to the listed response codes, then measures code 1 within that base. Keep the complete column condition on one logical line; when a cell contains several instruction lines, the column parser takes the last remaining condition line. A blank column instruction can inherit the preceding instruction, so write changed conditions explicitly. See <a href="#worksheet-filters">worksheet filters</a> for how far an additional filter extends.</p>
 <div style="page-break-after: always;"></div>
+</section>
+<section id="use-total-conditions-for-the-correct-base" class="level3">
+<h3 class="anchored" data-anchor-id="use-total-conditions-for-the-correct-base">Use total conditions for the correct base</h3>
+<p>The maintained preparation scripts create <code>total = 1</code> in both <code>hh</code> and <code>hl</code>. Thus <code>total == 1</code> includes every record still eligible after the applicable filters. In a horizontal table it also remains subject to the row condition: an Urban row still counts only urban records.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Condition written in a column instruction</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>total == 1</code></td>
+<td>Include all eligible records for that row and block. With <code>n</code>, sum their weights; with <code>n_unw</code>, count their records.</td>
+</tr>
+<tr class="even">
+<td><code>total1 == 1</code> through <code>total5 == 1</code></td>
+<td>Numbered aliases for <code>total == 1</code>, used for repeated total/base columns in different blocks. The number does not select a subgroup.</td>
+</tr>
+<tr class="odd">
+<td><code>totalHL == 1</code>, or <code>totalHL1 == 1</code> through <code>totalHL4 == 1</code></td>
+<td>Aliases for the special <code>hhmembers</code> condition. In a horizontal <code>n_unw</code> cell, sum household sizes rather than count household records.</td>
+</tr>
+<tr class="even">
+<td><code>hhmembers</code></td>
+<td>The member-count condition itself; this is also the form shown after the plan reader converts a <code>totalHL</code> alias.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Why use <code>total1</code>?</strong> Suppose the first block describes all eligible households and a later block describes only households with healthcare expenses. The first block may use <code>total == 1</code> for its count columns; the later block may use <code>total1 == 1</code>. Both are evaluated as <code>total == 1</code>. The later block’s filter creates its different base. Changing the suffix alone does not create that base or change weights. You do not need a variable called <code>total1</code> in the data for this column alias.</p>
+<p>These aliases are recognized by the <strong>worksheet column reader</strong>. Write the complete forms exactly as shown, including <code>== 1</code> and its spacing; <code>total1</code> alone is not the alias. Use <code>total == 1</code> for an ordinary Total row. Numbered names in row conditions or inside <code>filter(...)</code> are not converted and would require real variables with those names. Likewise, do not combine an alias into <code>total1 == 1 &amp; area == 1</code>; place the group restriction in the row condition or a filter and keep the column alias on its own. Higher suffixes are not automatically supported.</p>
+<p><code>TRUE</code> is an unrestricted logical condition, but use <code>total == 1</code> for ordinary totals in a plan: consistency checks also recognize the total condition. Some supplied extra-table layouts use <code>ph</code> as a placeholder for results calculated by their matching preparation script. Keep those layouts with their script; <code>ph</code> does not define a survey outcome.</p>
+<p>The visible word “Total”, a total condition, and the statistic <code>100</code> have different functions. A total condition selects records. A percentage with <code>total == 1</code> measures all eligible records and normally returns 100 when the base is nonempty. The statistic <code>100</code> supplies a constant for a distribution-total column; it does not count records.</p>
+<div style="page-break-after: always;"></div>
+</section>
+<section id="count-household-members-from-household-records" class="level3">
+<h3 class="anchored" data-anchor-id="count-household-members-from-household-records">Count household members from household records</h3>
+<p>Use the <code>totalHL == 1</code> convention when the source is <strong>one record per household</strong> and the output needs the <strong>unweighted number of people living in those households</strong>. For a horizontal column, write:</p>
+<ul>
+<li><strong>Column condition:</strong> <code>totalHL == 1</code> (converted to <code>hhmembers</code>).</li>
+<li><strong>Statistic below it:</strong> <code>n_unw</code>.</li>
+<li><strong>Required prepared variables:</strong> <code>total</code>, equal to 1 for included households, and numeric <code>HLnum</code>, the number of members in each household.</li>
+</ul>
+<p>After the filters and row condition, this sums <code>HLnum</code> for households with <code>total == 1</code>, ignoring missing contributions. For two qualifying households of sizes 2 and 4, the result is <strong>6 members</strong>. An ordinary <code>total == 1</code> / <code>n_unw</code> cell gives <strong>2 households</strong>. Verify that <code>HLnum</code> is complete and matches the intended member definition; missing sizes would understate the member base.</p>
+<p><strong>Weighted member estimates need a member-based weight as well.</strong> The <code>totalHL</code> alias does not change weights. In a household-level analysis of people living in those households, the supplied plans use a weight such as household weight multiplied by household size. For example, Mongolia Wave 1 table 5.1 uses this instruction in B6:</p>
+<pre class="text"><code>hh.sav
+mutate(hhmemwt = hhweightA*HLnum)
+filter(HH17 %in% c(0,1))
+weight by hhmemwt</code></pre>
+<p>Its weighted member-count column uses <code>total == 1</code> with <code>n</code>; its unweighted member-count column uses <code>totalHL == 1</code> with <code>n_unw</code>. Its <code>p</code> cells use <code>hhmemwt</code> to estimate the share of people living in households with each characteristic. Use the household weight approved for your survey; <code>hhweightA</code> is the name in this example plan.</p>
+<p>For an illustration, let the two household sizes be 2 and 4, with household weights 1 and 3. The ordinary weighted household count is <strong>1 + 3 = 4</strong>. The weighted member count is <strong>1 × 2 + 3 × 4 = 14</strong>; the unweighted member base remains <strong>2 + 4 = 6</strong>. If only the first household meets an outcome, its share is <strong>25% of households</strong> but about <strong>14.3% of members</strong>. Choose the weight to match the output’s unit, and label both estimates and bases accordingly.</p>
+<p><strong>Use the convention only for its supported calculation.</strong> It is special handling for horizontal <code>n_unw</code> (also the existing <code>n_unw1</code> variant), not a general condition for <code>n</code>, <code>p</code>, means, or vertical tables. On an <code>hl</code> dataset with one record per member, use ordinary conditions and <code>n_unw</code> to count qualifying members. Summing <code>HLnum</code> again on member records would repeat household sizes and overcount. To count a subset of members, such as children under five, use the member dataset and the relevant age condition; <code>hhmembers</code> always sums the supplied household size and does not inspect individual ages.</p>
+<div style="page-break-after: always;"></div>
+</section>
+<section id="build-a-horizontal-table-around-the-intended-output" class="level3">
+<h3 class="anchored" data-anchor-id="build-a-horizontal-table-around-the-intended-output">Build a horizontal table around the intended output</h3>
+<p>Suppose your prepared <code>hh</code> data have <code>total = 1</code>, <code>area</code>, <code>HCS7</code> (1 = healthcare expenses reported, 2 = no expenses), and <code>HCS8</code> (expense amount). First select the eligible households with the table’s global filter and choose its household weight. Use <code>total == 1</code> for the Total row, <code>area == 1</code> for Urban, and <code>area == 2</code> for Rural.</p>
+<p>For a percentage and its base, prepare these columns:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Output heading</th>
+<th>Column condition</th>
+<th>Statistic</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Percentage reporting expenses</td>
+<td><code>HCS7 == 1</code></td>
+<td><code>p</code></td>
+</tr>
+<tr class="even">
+<td>Weighted number of eligible households</td>
+<td><code>total == 1</code></td>
+<td><code>n</code></td>
+</tr>
+<tr class="odd">
+<td>Unweighted number of eligible households</td>
+<td><code>total == 1</code></td>
+<td><code>n_unw</code></td>
+</tr>
+</tbody>
+</table>
+<p>The percentage denominator includes all eligible households in the row. Changing the count columns to <code>HCS7 == 1</code> would count households reporting expenses instead; it would not change the percentage’s denominator. Keep the base counts aligned with the population described by the percentage and with the intended suppression base.</p>
+<p>For average expenses <strong>among households reporting expenses with a valid amount</strong>, start another block with this instruction:</p>
+<pre class="text"><code>filter(HCS7 == 1 &amp; HCS8 &lt; 9999998)
+- - -
+total1 == 1</code></pre>
+<p>Use <code>mean(HCS8)</code> in that first result column, followed by columns with condition <code>total1 == 1</code> and statistics <code>n</code> and <code>n_unw</code>. Those count columns describe the same filtered population as the mean. This follows the pattern in Mongolia Wave 2 table 6.2a. Its threshold excludes that survey’s special amount codes; substitute the valid range for your survey. Put the filter on the mean column itself: entering a mean can stop an inherited additional filter, as explained above.</p>
+<p>An average <strong>across all eligible households</strong>, including those with no expenses, is a different output. It needs an appropriately prepared amount variable with true no-expense values coded as zero and a base that includes those households. Do not obtain it by treating unknown amounts as zero or by retaining the expense-only filter.</p>
+<div style="page-break-after: always;"></div>
+</section>
+<section id="prepare-a-vertical-distribution-and-check-the-result" class="level3">
+<h3 class="anchored" data-anchor-id="prepare-a-vertical-distribution-and-check-the-result">Prepare a vertical distribution and check the result</h3>
+<p>For a vertical distribution of households by area, put <code>area == 1</code> and <code>area == 2</code> in the row conditions. A column condition <code>total == 1</code> defines all eligible households; another column condition <code>HCS7 == 1</code> defines households reporting expenses. Use <code>p</code> for the category cells. Each column’s denominator is its own eligible population, so its area categories can sum to 100 when they cover all records without overlap. Retain the vertical layout of the source plan; adding the horizontal <code>n_unw</code>/<code>IDX</code> arrangement changes direction.</p>
+<p>For an explicit first Total row, use row condition <code>total == 1</code>. Existing vertical plans may use <code>p(100)</code> to set the first calculated row to 100; see <a href="#worksheet-statistics">statistic types</a> before adapting that convention. Keep group-heading rows separate from calculated rows.</p>
+<p>Before using a new or changed plan:</p>
+<ol type="1">
+<li>Read one result aloud as “[statistic] of [outcome] among [base], grouped by [row/column characteristic].” Check that the dataset, filters, conditions, and weight implement that sentence.</li>
+<li>Check the Total row and one subgroup in <strong>Tabulator</strong>, using <strong>Header</strong>, <strong>Index</strong>, and <strong>Logic</strong> to match labels to instructions. Seeing <code>total == 1</code> in place of <code>total1 == 1</code>, or <code>hhmembers</code> in place of <code>totalHL == 1</code>, is expected after alias conversion.</li>
+<li>Confirm whether each count represents household records, member records, or summed household sizes, and whether it is weighted. Inspect the unformatted base before interpreting suppression.</li>
+<li>For a distribution, make categories exhaustive and non-overlapping, with an explicit decision about missing responses. Overlapping multiple-response outcomes need not sum to 100.</li>
+<li>Save and upload the plan again, rerun the affected tables, and review <strong>Consistency Checks</strong>. Checks can reveal discrepancies; they cannot decide whether you chose the intended population or unit.</li>
+</ol>
+<div style="page-break-after: always;"></div>
+</section>
 </section>
 <section id="worksheet-statistics" class="level2">
 <h2 class="anchored" data-anchor-id="worksheet-statistics">Understand statistic types (<code>stat_type</code>)</h2>
@@ -3136,9 +3298,9 @@ HCS7 == 1</code></pre>
 <p>The directions in the final column refer to the calculation modes explained under <a href="#worksheet-filters">worksheet filters</a>.</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 26%">
-<col style="width: 63%">
-<col style="width: 10%">
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -3180,7 +3342,7 @@ HCS7 == 1</code></pre>
 </tr>
 </tbody>
 </table>
-<p>For a horizontal <code>n_unw</code> column using the special condition <code>hhmembers</code>, the app sums <code>HLnum</code> for qualifying household records. This gives a member count rather than a count of household records.</p>
+<p>For a horizontal <code>n_unw</code> column using <code>totalHL == 1</code> (converted to <code>hhmembers</code>), the app sums <code>HLnum</code> for qualifying household records with <code>total == 1</code>. This gives a member count rather than a household-record count. See <a href="#worksheet-conditions">household-member bases</a> for the paired weighted count, required variables, and limits of this convention.</p>
 <div style="page-break-after: always;"></div>
 </section>
 <section id="numeric-means-and-medians" class="level3">
@@ -3188,9 +3350,9 @@ HCS7 == 1</code></pre>
 <p>Here, <code>variable</code> is a numeric variable in the prepared dataset, such as <code>HCS8</code> or <code>age</code>. Its name must appear inside the parentheses.</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 26%">
-<col style="width: 63%">
-<col style="width: 10%">
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -3287,8 +3449,8 @@ HCS7 == 1</code></pre>
 <p>These instructions have specific roles. Use their stated direction; adding a decimal argument does not make an unsupported form available in another direction.</p>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 26%">
-<col style="width: 73%">
+<col style="width: 50%">
+<col style="width: 50%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -3421,12 +3583,12 @@ HCS7 == 1</code></pre>
 <li><strong>Install the package</strong> using the <a href="#package-setup">installation commands</a> in that R session. Then check <code>here::here()</code> after installation: it shows the project root used for the default Excel output. If it selects a parent folder, supply your intended output directory explicitly when launching.</li>
 <li><strong>Launch in a browser</strong> with the command below, then <a href="#survey-files">gather your inputs</a> and choose the <a href="#guide-contents">app tasks</a> you need:</li>
 </ol>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>micsPlusTableR<span class="sc">::</span><span class="fu">run_app</span>(<span class="at">launch.browser =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>micsPlusTableR<span class="sc">::</span><span class="fu">run_app</span>(<span class="at">launch.browser =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>To choose the results folder explicitly, replace the example path below with an existing location on your computer. On Windows, use forward slashes, for example <code>C:/Users/YourName/Documents/MySurvey/results</code>:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>micsPlusTableR<span class="sc">::</span><span class="fu">run_app</span>(</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">launch.browser =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">output_dir =</span> <span class="st">&quot;/full/path/to/MySurvey/results&quot;</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>micsPlusTableR<span class="sc">::</span><span class="fu">run_app</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">launch.browser =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">output_dir =</span> <span class="st">&quot;/full/path/to/MySurvey/results&quot;</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><strong>Keep R running:</strong> the session or notebook cell stays busy while the app is open. Use its interrupt/stop control after saving your results. A terminal running R can usually be interrupted with <strong>Ctrl+C</strong>.</p>
 <p><strong>Remote or hosted environments:</strong> RStudio Server, Posit Workbench, and remote editor or notebook sessions need server-side package installation, access to the inputs, and a browser connection arranged by the administrator (often a proxy or port forwarding). Their output paths are on the server. The local <code>127.0.0.1</code> browser instructions assume R runs on your own computer; ask your support person for the hosted application’s address and file-retrieval steps.</p>
 <div style="page-break-after: always;"></div>
@@ -3464,7 +3626,7 @@ HCS7 == 1</code></pre>
     anchorJS.add('.anchored');
     const isCodeAnnotation = (el) => {
       for (const clz of el.classList) {
-        if (clz.startsWith('code-annotation-')) {
+        if (clz.startsWith('code-annotation-')) {                     
           return true;
         }
       }
@@ -3484,11 +3646,11 @@ HCS7 == 1</code></pre>
         button.setAttribute("data-bs-toggle", "tooltip");
         button.setAttribute("data-bs-placement", "left");
         button.setAttribute("data-bs-title", "Copied!");
-        tooltip = new bootstrap.Tooltip(button,
-          { trigger: "manual",
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
             customClass: "code-copy-button-tooltip",
             offset: [0, -8]});
-        tooltip.show();
+        tooltip.show();    
       }
       setTimeout(function() {
         if (tooltip) {
@@ -3564,7 +3726,7 @@ HCS7 == 1</code></pre>
       if (onUntriggerFn) {
         config.onUntrigger = onUntriggerFn;
       }
-      window.tippy(el, config);
+      window.tippy(el, config); 
     }
     const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
     for (var i=0; i<noterefs.length; i++) {
@@ -3639,7 +3801,7 @@ HCS7 == 1</code></pre>
       tippyHover(xref, undefined, function(instance) {
         instance.disable();
         let url = xref.getAttribute('href');
-        let hash = undefined;
+        let hash = undefined; 
         if (url.startsWith('#')) {
           hash = url;
         } else {
@@ -3667,7 +3829,7 @@ HCS7 == 1</code></pre>
               if (note !== null) {
                 const html = processXRef(id, note);
                 instance.setContent(html);
-              }
+              } 
             }).finally(() => {
               instance.enable();
               instance.show();
@@ -3691,7 +3853,7 @@ HCS7 == 1</code></pre>
               }
               const html = processXRef(null, note);
               instance.setContent(html);
-            }
+            } 
           }).finally(() => {
             instance.enable();
             instance.show();
@@ -3731,7 +3893,7 @@ HCS7 == 1</code></pre>
               height = bottom - top;
             }
             if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it
+              // cook up a div (if necessary) and position it 
               let div = window.document.getElementById("code-annotation-line-highlight");
               if (div === null) {
                 div = window.document.createElement("div");
@@ -3871,18 +4033,18 @@ HCS7 == 1</code></pre>
             slideConfig.href = srcAttr;
           }
         }
-      }
+      } 
     });
-
+  
     lightboxQuarto.on('slide_after_load', (data) => {
       const { slideIndex, slideNode, slideConfig, player, trigger } = data;
       if (window.Quarto?.typesetMath) {
         window.Quarto.typesetMath(slideNode);
       }
     });
-
+  
   };
-
+  
 })();
           </script>
 

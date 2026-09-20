@@ -90,7 +90,9 @@
 #' @section Understanding a tabulation plan:
 #' The User's Guide explains the worksheet layout, dataset name in B4:B7,
 #' filters, row/column conditions, and cell statistics, for readers as well as
-#' plan authors. [statistic-types] documents each statistic's population,
+#' plan authors. [worksheet-conditions] explains output-oriented condition
+#' design, total aliases, and household-member bases.
+#' [statistic-types] documents each statistic's population,
 #' weighting, and supported direction. [statistic-precision] explains optional
 #' `d=` display settings. [tabulate_h()] documents global and additional filters,
 #' including non-mean-to-mean boundaries and consecutive mean columns.

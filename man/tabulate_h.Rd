@@ -11,7 +11,8 @@ tabulate_h(session, skip_row_conditions = FALSE)
 a plan loaded by \code{\link[=read_mics_tabulation]{read_mics_tabulation()}}.}
 
 \item{skip_row_conditions}{Logical; replace row predicates with TRUE during
-calculation while retaining their labels. Intended for extra-table testing.}
+calculation and skip row mutations while retaining their labels. Intended
+for extra-table testing.}
 }
 \value{
 A long-format cell-results data frame.
@@ -40,7 +41,8 @@ never changes earlier cells. Column B's calculation runs once at the start
 of each block. Mutations do not start or stop a secondary filter or change
 its count-linking boundaries. They use temporary data and do not modify
 the session's prepared \code{hh} or \code{hl}. Vertical tabulation keeps its separate
-primary-filter behavior; see \code{\link[=tabulate_v]{tabulate_v()}}.
+primary-filter behavior; see \code{\link[=tabulate_v]{tabulate_v()}}. Row mutations run top to bottom
+independently within each column calculation stage, before row predicates.
 See \link{statistic-types} for calculation rules. Display precision \verb{d=} is
 independent of filter scope; see \link{statistic-precision}.
 }

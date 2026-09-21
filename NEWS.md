@@ -1,5 +1,7 @@
 # micsPlusTableR 0.3.1
 
+* Fix row-condition mutations in horizontal, vertical, and standalone cell calculations: support nested calls and separators, execute top to bottom, preserve earlier results, and retain repeated setup steps. Vertical shared column-B setup now executes before row mutations.
+
 - Restore condition-row mutations in column order within horizontal filter
   blocks, so later recodes cannot overwrite earlier column calculations.
   Apply shared calculations once per block. Parse multiline mutations and

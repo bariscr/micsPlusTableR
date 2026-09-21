@@ -18,7 +18,10 @@ Parse row conditions from a plan
 }
 \details{
 Separates mutate calls from predicates; blank or NA row logic
-means TRUE. Parses text without evaluating it against survey data.
+means TRUE. Supports nested and multiline calls, multiple mutations, and
+\verb{- - -} between setup and the complete multiline predicate. Legacy inline
+pipe-separated row instructions are also accepted. Parses text without
+evaluating it against survey data.
 }
 \seealso{
 \code{\link[=col_condition_f]{col_condition_f()}}, \code{\link[=normalize_condition_text]{normalize_condition_text()}}, \link{worksheet-conditions}

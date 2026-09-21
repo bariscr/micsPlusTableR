@@ -44,6 +44,16 @@
 #' operate on temporary data; they do not add columns to prepared `hh` or `hl`.
 #' Multiline and multiple `mutate(...)` instructions are supported.
 #'
+#' The same syntax works in row-condition cells in column B, in both table
+#' directions. Row mutations run top to bottom before that row's predicate,
+#' and remain available to following rows. Later redefinitions do not affect
+#' earlier rows, and repeated mutations execute at each occurrence. A cell
+#' containing only mutations has predicate TRUE. Setup also runs on rows
+#' without a statistic. Horizontal row mutations run independently on each
+#' column calculation stage after its filters and column setup; vertical row
+#' mutations run after the primary filter and shared B setup, before column
+#' predicates. Row predicates do not restrict the data passed to later rows.
+#'
 #' @section Total aliases in worksheet columns:
 #' Maintained preparation scripts set `total = 1` in household and member data.
 #' `total == 1` therefore selects the records remaining under the applicable

@@ -52,3 +52,36 @@ mics_parse_condition_instruction <- function(x) {
   if (length(predicates)) out$condition <- paste(predicates, collapse = " ")
   out
 }
+
+# Accept the historical inline form as well as separated/multiline row setup.
+# Only consume complete leading mutate calls, using R syntax rather than a
+# regex that would stop at a nested function's closing parenthesis.
+mics_parse_row_instruction <- function(x) {
+  rest <- trimws(x)
+  calls <- character()
+  repeat {
+    rest <- sub("^-\\s*-\\s*-[ \t]*(?:\\n|$)", "", rest, perl = TRUE)
+    rest <- trimws(rest)
+    if (!grepl("^(?:dplyr::)?mutate\\s*\\(", rest, perl = TRUE)) break
+    ends <- gregexpr(")", rest, fixed = TRUE)[[1L]]
+    end <- NA_integer_
+    for (candidate in ends[ends > 0L]) {
+      parsed <- tryCatch(parse(text = substr(rest, 1L, candidate)), error = function(e) NULL)
+      if (length(parsed) == 1L) {
+        end <- candidate
+        break
+      }
+    }
+    if (is.na(end)) stop("Invalid row mutation: ", rest, call. = FALSE)
+    calls <- c(calls, paste(deparse(parsed[[1L]], width.cutoff = 500L), collapse = " "))
+    rest <- trimws(substring(rest, end + 1L))
+    rest <- sub("^(\\|>|%>%)\\s*", "", rest, perl = TRUE)
+  }
+  # Reuse the condition parser for separators and complete multiline predicates.
+  out <- mics_parse_condition_instruction(paste(c(calls, rest), collapse = "\n"))
+  if (any(!is.na(unlist(out[c("df", "weight", "filter_condition")])))) {
+    stop("Row setup supports mutate(); put source, weight and filter instructions in the condition row.",
+         call. = FALSE)
+  }
+  out
+}

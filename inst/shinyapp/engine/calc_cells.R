@@ -20,11 +20,17 @@ calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
   
   cell_results <- tibble()
   
+  tab_r <- dplyr::arrange(tab_r, row_index)
+  row_instructions <- row_condition_f(tab_r)
   for (r in seq_along(tab_r$row_index)) {
     context <- paste0(mics_sheet_context(environment(sys.function())),
       "; Excel row ", tab_r$row_index[r], "; row condition: ", tab_r$row_lgc[r])
     row_condition <- tab_r$row_lgc[r]
-    row_condition_eval <- normalize_condition_text(row_condition)
+    row_condition_eval <- row_instructions$row_condition[r]
+    calculation <- row_instructions$calculation[r]
+    if (!is.na(calculation) && nzchar(calculation)) {
+      df <- eval(rlang::parse_expr(paste0("df |> ", calculation)))
+    }
     if (!is.na(row_condition_eval) && identical(trimws(row_condition_eval), "ph")) {
       row_condition_eval <- "TRUE"
     }
@@ -232,7 +238,7 @@ calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
         tibble(
           row_index = tab_r$row_index[r],
           col_index = tab_c3$col_index[c],
-          row_logic = tab_r$row_lgc[r],
+          row_logic = row_instructions$row_condition[r],
           col_logic = if ("col_logic" %in% names(tab_c3)) {
             tab_c3$col_logic[c]
           } else {

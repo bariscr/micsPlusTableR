@@ -14,14 +14,19 @@ run_direction_tabulation <- function(session, direction, skip_row_conditions) {
 #' Results are also saved in `session$cell_results`.
 #' Use [tabulate_mics_table()] for automatic direction selection and additional
 #' variable-explanation labels.
-#' @details Every supported statistic accepts an optional `d=` display argument;
+#' @details Shared column-B calculations run after the primary filter. Row
+#' mutations then run top to bottom, before column and row predicates. Each
+#' mutation is available to its own and subsequent rows; later redefinitions
+#' do not affect earlier results. See [worksheet-conditions] for setup syntax.
+#' Every supported statistic accepts an optional `d=` display argument;
 #' for example, `mean(x, d=0)`, `mean(d=1)`, or `p(d=2)`. Omitting it preserves
 #' existing formatting. See [statistic-types] for each calculation, population,
 #' weighting rule, and direction limit, and [statistic-precision] for display rules.
 #' @param session A session created by [mics_session()] with prepared data and
 #'   a plan loaded by [read_mics_tabulation()].
 #' @param skip_row_conditions Logical; replace row predicates with TRUE during
-#'   calculation while retaining their labels. Intended for extra-table testing.
+#'   calculation and skip row mutations while retaining their labels. Intended
+#'   for extra-table testing.
 #' @return A long-format cell-results data frame.
 #' @seealso [tabulate_h()], [tabulate_mics_table()]
 #' @export
@@ -53,7 +58,8 @@ tabulate_v <- function(session, skip_row_conditions = FALSE) {
 #' of each block. Mutations do not start or stop a secondary filter or change
 #' its count-linking boundaries. They use temporary data and do not modify
 #' the session's prepared `hh` or `hl`. Vertical tabulation keeps its separate
-#' primary-filter behavior; see [tabulate_v()].
+#' primary-filter behavior; see [tabulate_v()]. Row mutations run top to bottom
+#' independently within each column calculation stage, before row predicates.
 #' See [statistic-types] for calculation rules. Display precision `d=` is
 #' independent of filter scope; see [statistic-precision].
 #' @inherit tabulate_v return
@@ -97,7 +103,8 @@ tabulate_extra_table <- function(session, table) {
 #'   code-only work; app users normally use Tabulator. Supported statistics
 #'   include counts, indicator percentages, numeric means, medians, and
 #'   constant totals. See [statistic-types] for the complete horizontal forms
-#'   and their populations.
+#'   and their populations. Row mutations in `row_lgc` execute in Excel row
+#'   order before row predicates and remain available to subsequent rows.
 #'   With `n_unw` or `n_unw1`, the column condition `hhmembers` instead sums
 #'   `HLnum` for row-selected records with `total == 1`. This is a household
 #'   member base from household records, not an ordinary record count.
@@ -140,7 +147,10 @@ calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
 #' @return A tibble containing the row index, original condition, cleaned
 #'   condition, generated variable name, and `calculation`.
 #' @details Separates mutate calls from predicates; blank or NA row logic
-#'   means TRUE. Parses text without evaluating it against survey data.
+#'   means TRUE. Supports nested and multiline calls, multiple mutations, and
+#'   `- - -` between setup and the complete multiline predicate. Legacy inline
+#'   pipe-separated row instructions are also accepted. Parses text without
+#'   evaluating it against survey data.
 #' @seealso [col_condition_f()], [normalize_condition_text()], [worksheet-conditions]
 #' @export
 row_condition_f <- function(tab_r) {

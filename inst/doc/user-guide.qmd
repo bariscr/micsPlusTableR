@@ -1397,12 +1397,17 @@ WS1R == 1 &
 between(WS4, 1, 30)
 ```
 
-Within a horizontal filter block, the new variable is available from that
-column onward. A later mutation can use it or redefine it for later columns;
-earlier results keep the earlier definition. Multiline and multiple mutation
-instructions are supported. Filters run before these calculations. Use the
-preparation script for variables needed by filters or across filter blocks.
-Worksheet mutations use temporary data and do not change prepared `hh`/`hl`.
+Within a horizontal filter block, mutations run left to right; later
+redefinitions leave earlier results unchanged. Multiple and multiline calls
+are supported. Filters run first, so create variables needed by filters or
+across blocks in the preparation script. Mutations use temporary data and
+do not change prepared `hh`/`hl`.
+
+In row-condition cells in column B, both table directions apply mutations
+top to bottom, before each row's condition. Variables remain available to
+following rows; later redefinitions leave earlier results unchanged. Repeated
+mutations run again. Mutation-only cells mean `TRUE`, and setup also runs on
+rows without a statistic. Row conditions do not restrict subsequent rows.
 
 {{< pagebreak >}}
 

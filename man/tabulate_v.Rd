@@ -11,7 +11,8 @@ tabulate_v(session, skip_row_conditions = FALSE)
 a plan loaded by \code{\link[=read_mics_tabulation]{read_mics_tabulation()}}.}
 
 \item{skip_row_conditions}{Logical; replace row predicates with TRUE during
-calculation while retaining their labels. Intended for extra-table testing.}
+calculation and skip row mutations while retaining their labels. Intended
+for extra-table testing.}
 }
 \value{
 A long-format cell-results data frame.
@@ -24,6 +25,10 @@ Use \code{\link[=tabulate_mics_table]{tabulate_mics_table()}} for automatic dire
 variable-explanation labels.
 }
 \details{
+Shared column-B calculations run after the primary filter. Row
+mutations then run top to bottom, before column and row predicates. Each
+mutation is available to its own and subsequent rows; later redefinitions
+do not affect earlier results. See \link{worksheet-conditions} for setup syntax.
 Every supported statistic accepts an optional \verb{d=} display argument;
 for example, \code{mean(x, d=0)}, \code{mean(d=1)}, or \code{p(d=2)}. Omitting it preserves
 existing formatting. See \link{statistic-types} for each calculation, population,

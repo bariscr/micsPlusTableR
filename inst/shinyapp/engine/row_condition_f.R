@@ -14,26 +14,6 @@ normalize_condition_text <- function(x) {
 }
 
 row_condition_f <- function(tab_r) {
-  # pull all mutate(...) calls
-  extract_calc <- function(x) {
-    # all mutate(...) occurrences, any spacing, any content until matching ')'
-    calls <- stringr::str_extract_all(x, "mutate\\s*\\([^)]*\\)", simplify = FALSE)[[1]]
-    calls <- calls[!is.na(calls)]
-    calls <- stringr::str_trim(calls)
-    if (length(calls)) paste(calls, collapse = " |> ") else NA_character_
-  }
-  
-  # remove every mutate(...) and any adjacent trailing pipe tokens
-  strip_all_mutates <- function(x) {
-    # remove "mutate(...) |> " or "mutate(... ) |>" or just "mutate(...)"
-    cleaned <- stringr::str_remove_all(
-      x,
-      stringr::regex("mutate\\s*\\([^)]*\\)\\s*(\\|>?\\s*)?", dotall = TRUE)
-    )
-    cleaned <- stringr::str_squish(cleaned)
-    if (!nzchar(cleaned)) "TRUE" else cleaned
-  }
-  
   split_clauses <- function(cond) {
     stringr::str_split(cond, "\\|\\|?|&&?", simplify = FALSE)[[1]] |>
       stringr::str_trim()
@@ -105,8 +85,10 @@ row_condition_f <- function(tab_r) {
   for (r in seq_along(tab_r$row_index)) {
     raw_cond  <- normalize_condition_text(tab_r$row_lgc[r] %||% "")
     if (is.na(raw_cond)) raw_cond <- ""
-    calc_part <- extract_calc(raw_cond)
-    cleaned   <- strip_all_mutates(raw_cond)   # <- strips all, defaults to "TRUE" if empty
+    parsed <- mics_parse_row_instruction(raw_cond)
+    calc_part <- parsed$calculation
+    cleaned <- parsed$condition
+    if (is.na(cleaned) || !nzchar(cleaned)) cleaned <- "TRUE"
     
     clauses <- split_clauses(cleaned)
     tokens  <- purrr::map_chr(clauses, normalize_clause) |> purrr::discard(is.na)

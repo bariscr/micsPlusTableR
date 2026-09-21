@@ -8,7 +8,7 @@ tabulate_v <- function(skip_row_conditions = FALSE) {
   tab <- mics_normalize_statistics(out_glob$tab)
   tab_c <- out_glob$tab_c
   tab_c2 <- out_glob$tab_c2
-  tab_r <- out_glob$tab_r
+  tab_r <- dplyr::arrange(out_glob$tab_r, row_index)
   filter_row <- out_glob$filter_row
   col_header <- out_glob$col_header
   row_header <- out_glob$row_header
@@ -37,7 +37,7 @@ tabulate_v <- function(skip_row_conditions = FALSE) {
     dplyr::select(-dplyr::any_of(c("col_lgc")))  # drop raw col condition if present
   
   # ---------- row conditions (clean + calculations) ----------
-  row_condition_table <- row_condition_f(tab_r)  # must be the hardened version we finalized
+  row_condition_table <- row_condition_f(tab_r)
   row_condition_eval <- row_condition_table
   placeholder_rows <- trimws(row_condition_eval$row_condition) == "ph"
   row_condition_eval$row_condition[placeholder_rows] <- "TRUE"
@@ -49,7 +49,7 @@ tabulate_v <- function(skip_row_conditions = FALSE) {
     row_condition_eval$calculation <- NA_character_
   }
   
-  # ---------- base DF, primary filter, then ALL row calc mutates ----------
+  # ---------- base data, primary filter, and shared calculations ----------
   df_base    <- filter_row$df[[1]]
   filt1      <- filter_row$filter_condition[1]
   weight_var <- filter_row$weight[[1]]
@@ -74,26 +74,13 @@ tabulate_v <- function(skip_row_conditions = FALSE) {
   # 1) apply the primary filter (if present)
   df <- if (is_present(filt1)) apply_chain_df(df0, filt1) else df0
   
-  # 2) build a single calculation chain from ALL available row calculations
-  #    - keep order
-  #    - drop NA/empty
-  #    - split any pre-joined " |> " chains
-  #    - de-duplicate identical steps
-  row_calcs <- row_condition_eval$calculation
-  row_calcs <- row_calcs[!is.na(row_calcs) & nzchar(trimws(row_calcs))]
-  if (length(row_calcs)) {
-    steps <- unlist(strsplit(row_calcs, "\\|>", perl = TRUE), use.names = FALSE)
-    steps <- trimws(steps)
-    steps <- steps[nzchar(steps)]
-    steps <- steps[!duplicated(steps)]
-    calc_chain_all <- paste(steps, collapse = " |> ")
-  } else {
-    calc_chain_all <- NA_character_
+  # Shared setup runs once; row setup runs only when its row is reached.
+  shared_calc <- filter_row$calculation[filter_row$col_index == 2L]
+  shared_calc <- shared_calc[!is.na(shared_calc) & nzchar(trimws(shared_calc))]
+  if (length(shared_calc)) {
+    context <- paste0(context, "; shared calculations: ", paste(shared_calc, collapse = " |> "))
+    df <- apply_chain_df(df, paste(shared_calc, collapse = " |> "))
   }
-  
-  # 3) apply the full calculation chain (create ALL row vars once)
-  context <- paste0(context, "; row calculations: ", calc_chain_all)
-  df <- apply_chain_df(df, calc_chain_all)
   base_context <- context
   
   # ---------- helpers used during cell computation ----------
@@ -115,28 +102,31 @@ tabulate_v <- function(skip_row_conditions = FALSE) {
   # ---------- main loop ----------
   out <- tibble::tibble()
   
-  for (c in seq_along(tab_c2$col_index)) {
+  for (r in seq_along(tab_r$row_index)) {
+    context <- paste0(base_context, "; Excel row ", tab_r$row_index[r],
+      "; row calculation: ", row_condition_eval$calculation[r])
+    df <- apply_chain_df(df, row_condition_eval$calculation[r])
+    for (c in seq_along(tab_c2$col_index)) {
     
-    context <- paste0(base_context, "; Excel column ", tab_c2$col_index[c],
-      "; column condition: ", tab_c2$col_condition[c])
-    col_condition <- tab_c2$col_condition[c]
+      context <- paste0(base_context, "; Excel column ", tab_c2$col_index[c],
+        "; column condition: ", tab_c2$col_condition[c])
+      col_condition <- tab_c2$col_condition[c]
     
-    if (startsWith(trimws(col_condition), "filter(")) {
-      col_condition <- sub("^filter\\s*\\((.*)\\)\\s*$", "\\1", col_condition)
-    }
-    
-    
-    # make sure df_base is a concrete data.frame, not a delayed tibble reference
-    df_work <- as.data.frame(df)
-    
-    if (!is.na(col_condition) && nzchar(col_condition)) {
-      df_c <- dplyr::filter(df_work, !!rlang::parse_expr(col_condition))
-    } else {
-      df_c <- df_work
-    }
+      if (startsWith(trimws(col_condition), "filter(")) {
+        col_condition <- sub("^filter\\s*\\((.*)\\)\\s*$", "\\1", col_condition)
+      }
     
     
-    for (r in seq_along(tab_r$row_index)) {
+      # make sure df_base is a concrete data.frame, not a delayed tibble reference
+      df_work <- as.data.frame(df)
+    
+      if (!is.na(col_condition) && nzchar(col_condition)) {
+        df_c <- dplyr::filter(df_work, !!rlang::parse_expr(col_condition))
+      } else {
+        df_c <- df_work
+      }
+    
+    
       st <- tab %>%
         dplyr::filter(row_index == tab_r$row_index[r],
                       col_index == tab_c2$col_index[c]) %>%
@@ -304,7 +294,7 @@ out <-
     out %>%
     mutate(var_name_col = purrr::map_chr(col_logic, extract_var)) 
 
-return(mics_apply_display_digits(out))
+return(mics_apply_display_digits(dplyr::arrange(out, col_index, row_index)))
 
 
   }, error = function(e) mics_abort_context(e, context))

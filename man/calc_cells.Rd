@@ -33,7 +33,8 @@ This background helper is available for explicit cell tests and
 code-only work; app users normally use Tabulator. Supported statistics
 include counts, indicator percentages, numeric means, medians, and
 constant totals. See \link{statistic-types} for the complete horizontal forms
-and their populations.
+and their populations. Row mutations in \code{row_lgc} execute in Excel row
+order before row predicates and remain available to subsequent rows.
 With \code{n_unw} or \code{n_unw1}, the column condition \code{hhmembers} instead sums
 \code{HLnum} for row-selected records with \code{total == 1}. This is a household
 member base from household records, not an ordinary record count.

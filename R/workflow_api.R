@@ -20,9 +20,29 @@ session_engine_function <- function(session, name) {
 #' creates its own session automatically. Use this function directly for
 #' code-only workflows, diagnosis, or tests; see [offline-workflow].
 #'
+#' @details A session is an ordinary R environment that keeps related objects
+#' together. Creating one does not start Shiny, open a browser, or launch the
+#' app. Pass the same session to subsequent workflow functions so they can
+#' use its loaded plan and data. Use separate sessions for independent tests.
+#'
+#' An empty session is enough to read and inspect a plan with
+#' [read_mics_tabulation()]. Calculating results also requires the prepared
+#' datasets referenced by the plan. Supply already prepared `hh` and `hl`
+#' objects here, or add them later with `session$hh <- hh` and
+#' `session$hl <- hl`. These assignments do not run a preparation script;
+#' variables and weights used by the plan must already exist in those data.
+#' Use [prepare_mics_data()] when starting from raw survey files instead.
 #' @param hh Optional prepared household data frame.
 #' @param hl Optional prepared household-member data frame.
 #' @return A mutable, isolated tabulation session environment.
+#' @examples
+#' # Creates an R object; no app or browser is started.
+#' session <- mics_session()
+#' session
+#' \dontrun{
+#' # If hh and hl are already prepared data frames in your workspace:
+#' session <- mics_session(hh = hh, hl = hl)
+#' }
 #' @export
 mics_session <- function(hh = NULL, hl = NULL) {
   if (!is.null(hh)) mics_require_columns(hh, character(), "hh")
@@ -346,10 +366,35 @@ resolve_preparation_source <- function(file, prep_dir, fies_inputs_dir = NULL) {
 #' See [worksheet-conditions], [statistic-types], [statistic-precision],
 #' and [tabulate_h()].
 #'
-#' @param session A session created by [mics_session()].
+#' @details This function runs directly in R without the app. The `session`
+#' argument is required and has no default. Create it with [mics_session()],
+#' which creates an R environment without starting Shiny or opening a browser.
+#' Reading and inspecting a plan does not require survey data. To calculate
+#' results afterward, add the prepared datasets referenced by the plan to
+#' the same session, then call [tabulate_mics_table()]. See [offline-workflow]
+#' for examples using existing prepared data or raw survey files.
+#' @param session Required session created by [mics_session()].
 #' @param path_tab_excel Path to the Excel tabulation plan.
 #' @param sheet Sheet name or index.
 #' @return The parsed tabulation-plan context.
+#' @examples
+#' \dontrun{
+#' # Only the Excel plan is needed for this inspection.
+#' session <- mics_session()
+#' plan <- read_mics_tabulation(
+#'   session = session,
+#'   path_tab_excel = "TabulationPlan.xlsx",
+#'   sheet = "6.2"
+#' )
+#' plan$filter_row
+#' plan$tab
+#'
+#' # To calculate, add your already prepared data to the same session.
+#' session$hh <- hh
+#' session$hl <- hl
+#' results <- tabulate_mics_table(session)
+#' pivot_mics_table(session, results, type = "header")
+#' }
 #' @export
 read_mics_tabulation <- function(session, path_tab_excel, sheet) {
   validate_mics_session(session)

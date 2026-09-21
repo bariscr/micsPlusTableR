@@ -129,34 +129,17 @@ read_tabulation <- function(path_tab_excel, sheet) {
                  names_to = "col_index",
                  values_to = "conditions"
     ) |> 
-    # Include source, calculation, filter and unfilter instructions.
-    filter(str_detect(conditions, ".sav") | 
-             str_detect(conditions, "filter") |
-             str_detect(conditions, "mutate")   
-    ) |> 
-    mutate(col_index = as.numeric(str_replace(col_index, "...", ""))) |> 
-    mutate(df = ifelse(
-      grepl("\\.sav", conditions),
-      sub("\\.sav.*", "", conditions),
-      NA
-    )) |> 
-    mutate(filter_condition = ifelse(
-      str_detect(conditions, "- - -"),
-      str_extract(conditions, "\\b(?:unfilter\\s*\\(\\s*\\)|filter\\([\\s\\S]*?\\)(?=\\s*- - -))"),
-      str_extract(conditions, "\\b(?:unfilter\\s*\\(\\s*\\)|filter\\([\\s\\S]*\\))")
-    )) |> 
     mutate(
-      calculation = if_else(
-        str_detect(conditions, "(?m)^\\s*mutate\\("),
-        str_trim(str_extract(conditions, "(?m)^\\s*mutate\\([^\\n\\r]*")),
-        NA_character_
-      )
-    ) |> 
-    mutate(weight = ifelse(
-      grepl("weight by", conditions),
-      sub(".*weight by\\s*", "", conditions),
-      NA
-    )) |> 
+      col_index = as.numeric(str_replace(col_index, "...", "")),
+      instructions = purrr::map(conditions, mics_parse_condition_instruction),
+      df = purrr::map_chr(instructions, "df"),
+      filter_condition = purrr::map_chr(instructions, "filter_condition"),
+      calculation = purrr::map_chr(instructions, "calculation"),
+      weight = purrr::map_chr(instructions, "weight")
+    ) |>
+    filter(!is.na(df) | !is.na(filter_condition) | !is.na(calculation) |
+             !is.na(weight)) |>
+    select(-instructions) |>
     fill(df, weight)
   
   out_glob$filter_row <- filter_row
@@ -189,19 +172,9 @@ read_tabulation <- function(path_tab_excel, sheet) {
     filter(col_index >= 3) |> 
     filter(!col_index %in% empty_cols) |> 
     fill(col_lgc) |> 
-    mutate(col_lgc = trimws(col_lgc)) |> 
-    mutate(
-      col_lgc = if_else(
-        str_detect(col_lgc, "(?s)(?:---|-\\s*-\\s*-)"),
-        str_trim(str_replace(col_lgc, "(?s).*?(?:---|-\\s*-\\s*-)\\s*", "")),
-        col_lgc
-      )
-    ) |> 
-    mutate(col_lgc = (if_else(str_detect(col_lgc, ".sav"), 
-                              NA, 
-                              col_lgc
-    )))
-  
+    mutate(col_lgc = purrr::map_chr(col_lgc,
+      ~ mics_parse_condition_instruction(.x)$condition))
+
   # Enabling tatal1 == 1 alike logic in cell
   tab_c0 <-
     tab_c0 |> 

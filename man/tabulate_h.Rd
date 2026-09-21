@@ -33,9 +33,14 @@ Write \code{unfilter()} in place of \code{filter(...)} to clear the secondary fi
 from that column onward and use only B's global filter until a new filter
 starts. Row and column predicates still apply. Blank filter cells, changes
 of statistic or \verb{d=}, and changes down rows do not stop a filter.
-Sources, calculation chains, weights, and column/row predicates retain their
-existing roles; filters run before calculations. Vertical tabulation keeps
-its separate primary-filter behavior; see \code{\link[=tabulate_v]{tabulate_v()}}.
+Filters run before calculations. Within each filter block, condition-row
+\code{mutate(...)} instructions run in column order. Each mutation is available
+to its own column and following columns in that block; a later redefinition
+never changes earlier cells. Column B's calculation runs once at the start
+of each block. Mutations do not start or stop a secondary filter or change
+its count-linking boundaries. They use temporary data and do not modify
+the session's prepared \code{hh} or \code{hl}. Vertical tabulation keeps its separate
+primary-filter behavior; see \code{\link[=tabulate_v]{tabulate_v()}}.
 See \link{statistic-types} for calculation rules. Display precision \verb{d=} is
 independent of filter scope; see \link{statistic-precision}.
 }

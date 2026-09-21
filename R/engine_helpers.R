@@ -46,9 +46,14 @@ tabulate_v <- function(session, skip_row_conditions = FALSE) {
 #' from that column onward and use only B's global filter until a new filter
 #' starts. Row and column predicates still apply. Blank filter cells, changes
 #' of statistic or `d=`, and changes down rows do not stop a filter.
-#' Sources, calculation chains, weights, and column/row predicates retain their
-#' existing roles; filters run before calculations. Vertical tabulation keeps
-#' its separate primary-filter behavior; see [tabulate_v()].
+#' Filters run before calculations. Within each filter block, condition-row
+#' `mutate(...)` instructions run in column order. Each mutation is available
+#' to its own column and following columns in that block; a later redefinition
+#' never changes earlier cells. Column B's calculation runs once at the start
+#' of each block. Mutations do not start or stop a secondary filter or change
+#' its count-linking boundaries. They use temporary data and do not modify
+#' the session's prepared `hh` or `hl`. Vertical tabulation keeps its separate
+#' primary-filter behavior; see [tabulate_v()].
 #' See [statistic-types] for calculation rules. Display precision `d=` is
 #' independent of filter scope; see [statistic-precision].
 #' @inherit tabulate_v return
@@ -147,9 +152,11 @@ row_condition_f <- function(tab_r) {
 #' @param tab_c Data frame containing `col_index` and `col_lgc`.
 #' @return A tibble containing the column index, original condition, cleaned
 #'   condition, and generated variable name.
-#' @details Uses the last meaningful line after excluding source, filter,
-#'   calculation, separator, and weight lines. Parses text without evaluating
-#'   it against survey data.
+#' @details Separates source, filter, calculation, and weight instructions from
+#'   the complete column predicate. Use `- - -` between setup instructions and
+#'   the predicate. Multiline `mutate(...)` calls and predicates are supported;
+#'   predicates such as `x == 1 &` followed by `y == 2` retain both clauses.
+#'   Parses text without evaluating it against survey data.
 #'   Worksheet total aliases are converted by [read_mics_tabulation()] before
 #'   this parser is called; this helper alone does not convert them.
 #' @seealso [row_condition_f()], [normalize_condition_text()], [worksheet-conditions]

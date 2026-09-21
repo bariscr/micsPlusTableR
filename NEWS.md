@@ -1,5 +1,14 @@
 # micsPlusTableR 0.3.1
 
+- Restore condition-row mutations in column order within horizontal filter
+  blocks, so later recodes cannot overwrite earlier column calculations.
+  Apply shared calculations once per block. Parse multiline mutations and
+  complete predicates, with `- - -` separating setup from the condition.
+
+- Clarify that standalone sessions are ordinary R environments and do not
+  launch the app. Add examples for inspecting a plan without survey data
+  and calculating with data already prepared in the workspace.
+
 - Ask for browser confirmation before closing, reloading, or leaving the app
   tab after user interaction, to help prevent accidental session loss.
 

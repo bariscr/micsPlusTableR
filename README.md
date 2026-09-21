@@ -195,6 +195,42 @@ The standard directory layout and reference manual follow R's
 
 ### Test individual tabulation steps
 
+You can run the functions directly in R without the app. A `session` is an
+ordinary R environment holding data, a plan, and results. `mics_session()`
+does not start Shiny or open a browser. Functions such as
+`read_mics_tabulation()` require this argument explicitly.
+
+To read and inspect a worksheet, only the Excel plan is needed:
+
+```r
+library(micsPlusTableR)
+
+session <- mics_session()
+plan <- read_mics_tabulation(
+  session = session,
+  path_tab_excel = "TabulationPlan.xlsx",
+  sheet = "6.2"
+)
+plan$filter_row
+plan$tab
+```
+
+To calculate using `hh` and `hl` already prepared in your workspace, add
+them to the same session. Supply the datasets referenced by the plan;
+their required variables and weights must already be present.
+
+```r
+session$hh <- hh
+session$hl <- hl
+results <- tabulate_mics_table(session)
+preview <- pivot_mics_table(session, results, type = "header")
+```
+
+You can also supply prepared data when creating a session:
+`session <- mics_session(hh = hh, hl = hl)`, then read and calculate the plan.
+For raw survey files, use `prepare_mics_data()` first. Reuse the same session
+for related steps and create separate sessions for independent tests.
+
 Use `tabulate_v(session)` or `tabulate_h(session)` for a loaded plan,
 `calc_cells()` for explicit cell calculations, and the six individual
 `*_total_check()` helpers to investigate one consistency check. Parsing and

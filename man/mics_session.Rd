@@ -19,3 +19,26 @@ Holds prepared data, a loaded plan, engine functions, and results. The app
 creates its own session automatically. Use this function directly for
 code-only workflows, diagnosis, or tests; see \link{offline-workflow}.
 }
+\details{
+A session is an ordinary R environment that keeps related objects
+together. Creating one does not start Shiny, open a browser, or launch the
+app. Pass the same session to subsequent workflow functions so they can
+use its loaded plan and data. Use separate sessions for independent tests.
+
+An empty session is enough to read and inspect a plan with
+\code{\link[=read_mics_tabulation]{read_mics_tabulation()}}. Calculating results also requires the prepared
+datasets referenced by the plan. Supply already prepared \code{hh} and \code{hl}
+objects here, or add them later with \code{session$hh <- hh} and
+\code{session$hl <- hl}. These assignments do not run a preparation script;
+variables and weights used by the plan must already exist in those data.
+Use \code{\link[=prepare_mics_data]{prepare_mics_data()}} when starting from raw survey files instead.
+}
+\examples{
+# Creates an R object; no app or browser is started.
+session <- mics_session()
+session
+\dontrun{
+# If hh and hl are already prepared data frames in your workspace:
+session <- mics_session(hh = hh, hl = hl)
+}
+}

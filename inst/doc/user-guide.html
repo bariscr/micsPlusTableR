@@ -2224,7 +2224,7 @@ html { scroll-padding-top: 6rem; }
 <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
   <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Find a task</h2>
-   
+
   <ul>
   <li><a href="#about-system" id="toc-about-system" class="nav-link active" data-scroll-target="#about-system">About micsPlusTableR</a></li>
   <li><a href="#ways-to-use" id="toc-ways-to-use" class="nav-link" data-scroll-target="#ways-to-use">Ways to use the system</a></li>
@@ -2270,17 +2270,17 @@ html { scroll-padding-top: 6rem; }
              <p>MICS Team </p>
           </div>
   </div>
-    
+
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
       <p class="date">September 17, 2026</p>
     </div>
   </div>
-  
-    
+
+
   </div>
-  
+
 
 
 </header>
@@ -3080,7 +3080,7 @@ weight by w</code></pre>
 <p>No cell includes people under 18. D’s filter applies to D-G, including the percentage, its counts, and the mean. It stops at H’s <code>unfilter()</code>. I starts a new filter, which applies to I-K, including the change from <code>mean</code> to <code>mean(age)</code>, and does not include D’s sex restriction. Other row and column conditions still determine what is measured within these populations.</p>
 <p><strong>Statistic changes do not stop filters.</strong> This includes bare <code>mean</code>, <code>mean(variable)</code>, their <code>mean_unw</code> variants, and the legacy <code>Mean</code> form, with or without <code>d=</code>. A blank statistic cell also preserves the filter. Only a new <code>filter(...)</code> or <code>unfilter()</code> ends the previous additional filter’s scope.</p>
 <p><strong>When filters run.</strong> For each required population, the engine loads the selected source, applies B, applies any active additional filter, and then runs the block’s calculations. It calculates cell values from that data. The filters therefore affect both the numerator and denominator of a percentage. A filter variable must already exist before those calculations.</p>
-<p>Existing data-source, weight, calculation, and row/column-condition instructions keep their roles. A calculation-only instruction does not end the filter’s column range.</p>
+<p>Within each filter block, calculations run in column order. A <code>mutate(...)</code> instruction applies to its own column and later columns; a later recode does not change earlier cells. Column B’s calculation runs once per block. A calculation-only instruction does not end the filter’s column range.</p>
 <p><strong>Filters do not reach left.</strong> Adding a filter in G does not change F’s calculated mean. Display suppression still needs an unweighted count: if a new filter separates a cell from its count, the engine uses the next <code>n_unw</code> to its right on the same row and data source when no count is already linked. Existing count links and the small-sample thresholds remain in effect.</p>
 <p><strong>Review after upgrading.</strong> Earlier versions stopped additional filters at statistic changes, most recently when entering a mean. Filters now continue across all statistic changes. Add <code>unfilter()</code> above any column that should return to B’s population, then recalculate affected tables and review denominators and suppression. B remains global, including in later blocks.</p>
 <div style="page-break-after: always;"></div>
@@ -3145,7 +3145,13 @@ weight by w</code></pre>
 <pre class="text"><code>filter(HCS7 %in% c(1, 2))
 - - -
 HCS7 == 1</code></pre>
-<p>This restricts the block to the listed response codes, then measures code 1 within that base. Keep the complete column condition on one logical line; when a cell contains several instruction lines, the column parser takes the last remaining condition line. A blank column instruction can inherit the preceding instruction, so write changed conditions explicitly. See <a href="#worksheet-filters">worksheet filters</a> for how far an additional filter extends.</p>
+<p>This restricts the block to the listed response codes, then measures code 1 within that base. Write setup instructions above <code>- - -</code> and the complete column condition below it. The condition can span multiple lines. A blank column instruction can inherit the preceding instruction, so write changed conditions explicitly. See <a href="#worksheet-filters">worksheet filters</a> for how far an additional filter extends.</p>
+<p>You can create a variable for the conditions with <code>mutate(...)</code>:</p>
+<pre class="text"><code>mutate(WS1R = if_else(WS1 %in% c(11, 12), 1, 0))
+- - -
+WS1R == 1 &amp;
+between(WS4, 1, 30)</code></pre>
+<p>Within a horizontal filter block, the new variable is available from that column onward. A later mutation can use it or redefine it for later columns; earlier results keep the earlier definition. Multiline and multiple mutation instructions are supported. Filters run before these calculations. Use the preparation script for variables needed by filters or across filter blocks. Worksheet mutations use temporary data and do not change prepared <code>hh</code>/<code>hl</code>.</p>
 <div style="page-break-after: always;"></div>
 </section>
 <section id="use-total-conditions-for-the-correct-base" class="level3">
@@ -3585,12 +3591,12 @@ total1 == 1</code></pre>
 <li><strong>Install the package</strong> using the <a href="#package-setup">installation commands</a> in that R session. Then check <code>here::here()</code> after installation: it shows the project root used for the default Excel output. If it selects a parent folder, supply your intended output directory explicitly when launching.</li>
 <li><strong>Launch in a browser</strong> with the command below, then <a href="#survey-files">gather your inputs</a> and choose the <a href="#guide-contents">app tasks</a> you need:</li>
 </ol>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>micsPlusTableR<span class="sc">::</span><span class="fu">run_app</span>(<span class="at">launch.browser =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>micsPlusTableR<span class="sc">::</span><span class="fu">run_app</span>(<span class="at">launch.browser =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>To choose the results folder explicitly, replace the example path below with an existing location on your computer. On Windows, use forward slashes, for example <code>C:/Users/YourName/Documents/MySurvey/results</code>:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>micsPlusTableR<span class="sc">::</span><span class="fu">run_app</span>(</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">launch.browser =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">output_dir =</span> <span class="st">&quot;/full/path/to/MySurvey/results&quot;</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>micsPlusTableR<span class="sc">::</span><span class="fu">run_app</span>(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">launch.browser =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">output_dir =</span> <span class="st">&quot;/full/path/to/MySurvey/results&quot;</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><strong>Keep R running:</strong> the session or notebook cell stays busy while the app is open. Use its interrupt/stop control after saving your results. A terminal running R can usually be interrupted with <strong>Ctrl+C</strong>.</p>
 <p><strong>Remote or hosted environments:</strong> RStudio Server, Posit Workbench, and remote editor or notebook sessions need server-side package installation, access to the inputs, and a browser connection arranged by the administrator (often a proxy or port forwarding). Their output paths are on the server. The local <code>127.0.0.1</code> browser instructions assume R runs on your own computer; ask your support person for the hosted application’s address and file-retrieval steps.</p>
 <div style="page-break-after: always;"></div>
@@ -3628,7 +3634,7 @@ total1 == 1</code></pre>
     anchorJS.add('.anchored');
     const isCodeAnnotation = (el) => {
       for (const clz of el.classList) {
-        if (clz.startsWith('code-annotation-')) {                     
+        if (clz.startsWith('code-annotation-')) {
           return true;
         }
       }
@@ -3648,11 +3654,11 @@ total1 == 1</code></pre>
         button.setAttribute("data-bs-toggle", "tooltip");
         button.setAttribute("data-bs-placement", "left");
         button.setAttribute("data-bs-title", "Copied!");
-        tooltip = new bootstrap.Tooltip(button, 
-          { trigger: "manual", 
+        tooltip = new bootstrap.Tooltip(button,
+          { trigger: "manual",
             customClass: "code-copy-button-tooltip",
             offset: [0, -8]});
-        tooltip.show();    
+        tooltip.show();
       }
       setTimeout(function() {
         if (tooltip) {
@@ -3728,7 +3734,7 @@ total1 == 1</code></pre>
       if (onUntriggerFn) {
         config.onUntrigger = onUntriggerFn;
       }
-      window.tippy(el, config); 
+      window.tippy(el, config);
     }
     const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
     for (var i=0; i<noterefs.length; i++) {
@@ -3803,7 +3809,7 @@ total1 == 1</code></pre>
       tippyHover(xref, undefined, function(instance) {
         instance.disable();
         let url = xref.getAttribute('href');
-        let hash = undefined; 
+        let hash = undefined;
         if (url.startsWith('#')) {
           hash = url;
         } else {
@@ -3831,7 +3837,7 @@ total1 == 1</code></pre>
               if (note !== null) {
                 const html = processXRef(id, note);
                 instance.setContent(html);
-              } 
+              }
             }).finally(() => {
               instance.enable();
               instance.show();
@@ -3855,7 +3861,7 @@ total1 == 1</code></pre>
               }
               const html = processXRef(null, note);
               instance.setContent(html);
-            } 
+            }
           }).finally(() => {
             instance.enable();
             instance.show();
@@ -3895,7 +3901,7 @@ total1 == 1</code></pre>
               height = bottom - top;
             }
             if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
+              // cook up a div (if necessary) and position it
               let div = window.document.getElementById("code-annotation-line-highlight");
               if (div === null) {
                 div = window.document.createElement("div");
@@ -4035,18 +4041,18 @@ total1 == 1</code></pre>
             slideConfig.href = srcAttr;
           }
         }
-      } 
+      }
     });
-  
+
     lightboxQuarto.on('slide_after_load', (data) => {
       const { slideIndex, slideNode, slideConfig, player, trigger } = data;
       if (window.Quarto?.typesetMath) {
         window.Quarto.typesetMath(slideNode);
       }
     });
-  
+
   };
-  
+
 })();
           </script>
 

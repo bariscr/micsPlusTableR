@@ -7,7 +7,7 @@
 read_mics_tabulation(session, path_tab_excel, sheet)
 }
 \arguments{
-\item{session}{A session created by \code{\link[=mics_session]{mics_session()}}.}
+\item{session}{Required session created by \code{\link[=mics_session]{mics_session()}}.}
 
 \item{path_tab_excel}{Path to the Excel tabulation plan.}
 
@@ -26,4 +26,32 @@ The reader converts recognized numbered total column aliases to
 \code{total == 1} and \code{totalHL} column aliases to \code{hhmembers}.
 See \link{worksheet-conditions}, \link{statistic-types}, \link{statistic-precision},
 and \code{\link[=tabulate_h]{tabulate_h()}}.
+}
+\details{
+This function runs directly in R without the app. The \code{session}
+argument is required and has no default. Create it with \code{\link[=mics_session]{mics_session()}},
+which creates an R environment without starting Shiny or opening a browser.
+Reading and inspecting a plan does not require survey data. To calculate
+results afterward, add the prepared datasets referenced by the plan to
+the same session, then call \code{\link[=tabulate_mics_table]{tabulate_mics_table()}}. See \link{offline-workflow}
+for examples using existing prepared data or raw survey files.
+}
+\examples{
+\dontrun{
+# Only the Excel plan is needed for this inspection.
+session <- mics_session()
+plan <- read_mics_tabulation(
+  session = session,
+  path_tab_excel = "TabulationPlan.xlsx",
+  sheet = "6.2"
+)
+plan$filter_row
+plan$tab
+
+# To calculate, add your already prepared data to the same session.
+session$hh <- hh
+session$hl <- hl
+results <- tabulate_mics_table(session)
+pivot_mics_table(session, results, type = "header")
+}
 }

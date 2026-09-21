@@ -1269,9 +1269,10 @@ data. The filters therefore affect both the numerator and denominator of
 a percentage. A filter variable must already exist before those
 calculations.
 
-Existing data-source, weight, calculation, and row/column-condition
-instructions keep their roles. A calculation-only instruction does not
-end the filter's column range.
+Within each filter block, calculations run in column order. A `mutate(...)`
+instruction applies to its own column and later columns; a later recode does
+not change earlier cells. Column B's calculation runs once per block. A
+calculation-only instruction does not end the filter's column range.
 
 **Filters do not reach left.** Adding a filter in G does not change F's
 calculated mean. Display suppression still needs an unweighted count: if
@@ -1381,12 +1382,27 @@ HCS7 == 1
 ```
 
 This restricts the block to the listed response codes, then measures
-code 1 within that base. Keep the complete column condition on one
-logical line; when a cell contains several instruction lines, the
-column parser takes the last remaining condition line. A blank column
-instruction can inherit the preceding instruction, so write changed
-conditions explicitly. See [worksheet filters](#worksheet-filters) for
-how far an additional filter extends.
+code 1 within that base. Write setup instructions above `- - -` and the
+complete column condition below it. The condition can span multiple lines.
+A blank column instruction can inherit the preceding instruction, so write
+changed conditions explicitly. See [worksheet filters](#worksheet-filters)
+for how far an additional filter extends.
+
+You can create a variable for the conditions with `mutate(...)`:
+
+``` text
+mutate(WS1R = if_else(WS1 %in% c(11, 12), 1, 0))
+- - -
+WS1R == 1 &
+between(WS4, 1, 30)
+```
+
+Within a horizontal filter block, the new variable is available from that
+column onward. A later mutation can use it or redefine it for later columns;
+earlier results keep the earlier definition. Multiline and multiple mutation
+instructions are supported. Filters run before these calculations. Use the
+preparation script for variables needed by filters or across filter blocks.
+Worksheet mutations use temporary data and do not change prepared `hh`/`hl`.
 
 {{< pagebreak >}}
 

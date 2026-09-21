@@ -127,6 +127,11 @@ Excel output do not require that library or an external download.
 \section{Scripting workflow}{
 
 For work directly in R, use an isolated session and call the required steps.
+A session is an ordinary R environment holding your data, plan, and results.
+\code{\link[=mics_session]{mics_session()}} does not start Shiny or open a browser. An empty session is
+enough to read and inspect a worksheet; calculation additionally requires
+prepared data. Use \code{mics_session(hh = hh, hl = hl)} for data already prepared
+in your workspace, or \code{\link[=prepare_mics_data]{prepare_mics_data()}} for raw survey files.
 These interfaces also make the app's engine available for testing:
 \itemize{
 \item \code{\link[=mics_session]{mics_session()}} creates an isolated session.

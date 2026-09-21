@@ -17,9 +17,11 @@ condition, and generated variable name.
 Parse column conditions from a plan
 }
 \details{
-Uses the last meaningful line after excluding source, filter,
-calculation, separator, and weight lines. Parses text without evaluating
-it against survey data.
+Separates source, filter, calculation, and weight instructions from
+the complete column predicate. Use \verb{- - -} between setup instructions and
+the predicate. Multiline \code{mutate(...)} calls and predicates are supported;
+predicates such as \verb{x == 1 &} followed by \code{y == 2} retain both clauses.
+Parses text without evaluating it against survey data.
 Worksheet total aliases are converted by \code{\link[=read_mics_tabulation]{read_mics_tabulation()}} before
 this parser is called; this helper alone does not convert them.
 }

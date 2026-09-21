@@ -1,30 +1,6 @@
 col_condition_f <- function(tab_c) {
   
   # --- helpers ---------------------------------------------------------------
-  take_last_condition_line <- function(x) {
-    if (is.na(x) || !nzchar(x)) return(NA_character_)
-    
-    # normalize newlines and split
-    lines <- str_split(gsub("\r\n?", "\n", x), "\n", simplify = FALSE)[[1]]
-    lines <- str_trim(lines)
-    lines <- lines[nzchar(lines)]
-    
-    if (!length(lines)) return(NA_character_)
-    
-    # drop non-condition lines
-    keep <- !str_detect(lines, regex("\\.sav\\b", ignore_case = TRUE)) &          # data source
-      !str_detect(lines, "^\\s*mutate\\s*\\(") &                            # mutate(...)
-      !str_detect(lines, "^\\s*(?:unfilter|filter(?:_block)?)\\s*\\(") &     # filter(...), unfilter(), filter_block(...)
-      !str_detect(lines, "^\\s*-\\s*-\\s*-\\s*$") &                         # --- separators
-      !str_detect(lines, regex("^\\s*weight\\s*by\\b", ignore_case = TRUE)) # weight by ...
-    
-    cand <- lines[keep]
-    if (!length(cand)) return(NA_character_)
-    
-    # take the last remaining line (your rule)
-    str_trim(tail(cand, 1))
-  }
-  
   normalize_clause <- function(clause) {
     cl <- str_trim(clause)
     
@@ -93,7 +69,7 @@ col_condition_f <- function(tab_c) {
   
   for (c in seq_along(tab_c$col_index)) {
     raw_cond <- tab_c$col_lgc[c] %||% NA_character_
-    cleaned  <- take_last_condition_line(raw_cond)  # <<< key change
+    cleaned  <- mics_parse_condition_instruction(raw_cond)$condition
     
     clauses <- split_clauses(cleaned)
     tokens  <- map_chr(clauses, normalize_clause) |> discard(is.na)

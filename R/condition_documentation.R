@@ -22,8 +22,27 @@
 #' [row_condition_f()] helper instead treats blank predicates as TRUE.
 #' Column instructions can fill from the preceding column. Write changed
 #' predicates explicitly. In a multiline column instruction, use a separator
-#' `- - -` after source/filter/weight instructions and put the complete
-#' predicate on the final logical line.
+#' `- - -` after source/filter/weight/calculation instructions. The complete
+#' predicate below the separator can span multiple lines.
+#'
+#' @section Creating variables in the condition row:
+#' Use `mutate(...)` above `- - -` to create variables for column conditions.
+#' For example:
+#' ```
+#' mutate(WS1R = if_else(WS1 %in% c(11, 12), 1, 0))
+#' - - -
+#' WS1R == 1 &
+#' between(WS4, 1, 30)
+#' ```
+#' Within a horizontal filter block, a mutation applies at its own column and
+#' continues right. A later mutation can use an earlier variable or redefine
+#' it for subsequent columns without changing earlier results. Column B's
+#' calculation is shared by the filter blocks and runs once per block. A
+#' mutation does not change which secondary filter is active. Filters still
+#' run before these calculations. Use the preparation script for variables
+#' needed by filters or across different filter blocks. Worksheet mutations
+#' operate on temporary data; they do not add columns to prepared `hh` or `hl`.
+#' Multiline and multiple `mutate(...)` instructions are supported.
 #'
 #' @section Total aliases in worksheet columns:
 #' Maintained preparation scripts set `total = 1` in household and member data.

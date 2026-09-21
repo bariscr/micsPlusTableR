@@ -29,17 +29,6 @@ tabulate_h <- function(skip_row_conditions = FALSE) {
     !(is.na(x1) || !nzchar(trimws(x1)))
   }
   
-  split_mutate_blocks <- function(xx) {
-    # Split on lines that are exactly --- or - - - (allowing extra spaces)
-    parts <- unlist(strsplit(
-      xx,
-      "(?m)^\\s*(?:-\\s-\\s-|---)\\s*$",
-      perl = TRUE
-    ))
-    parts <- trimws(gsub("[\r\n]+", " ", parts))
-    parts[nzchar(parts)]
-  }
-  
   wrap_into_mutate_vec <- function(x) {
     x <- as.character(x)
     x <- x[!is.na(x) & nzchar(trimws(x))]
@@ -125,17 +114,16 @@ tabulate_h <- function(skip_row_conditions = FALSE) {
                      nzchar(trimws(filter_row$filter_condition)))
   
   filter_row <- filter_row %>%
+    dplyr::arrange(col_index) %>%
     dplyr::mutate(
       is_start = !is.na(filter_condition) & nzchar(trimws(filter_condition)),
       block    = cumsum(is_start)
     )
   
-  # ---------- shared calc ----------
-  first_start <- which(filter_row$is_start)[1]
-  shared_calc <- if (length(first_start)) {
-    wrap_into_mutate_vec(filter_row$calculation[first_start])
-  } else NA_character_
-  
+  # Column B calculations are shared by every filter block, exactly once.
+  shared_calc <- wrap_into_mutate_vec(
+    filter_row$calculation[filter_row$col_index == 2L])
+
   # B is the table-wide filter, independent of the first local filter's position.
   global_filter <- filter_row$filter_condition[filter_row$col_index == 2L]
   global_filter <- if (length(global_filter)) global_filter[[1L]] else NA_character_
@@ -149,82 +137,68 @@ tabulate_h <- function(skip_row_conditions = FALSE) {
     context <<- paste0(sheet_context,
       ", horizontal block ", i_block, ", starting column ", b$col_start[[1]],
       "; source: ", b$df_base[[1]], "; global filter: ", global_filter,
-      "; local filter: ", local_filter, "; calculation: ", b$calc_chain[[1]])
+      "; local filter: ", local_filter)
     df_b <- b$df_base[[1]]
     df0 <- mics_data_source(df_b, environment())
     df_global <- apply_chain_df(df0, global_filter)
-    calc_chain <- b$calc_chain[[1]]
-    wcol <- resolve_block_weight(b$weight_seq[[1]])
-
+    # Calculation stages do not create filter/suppression boundaries. Each
+    # stage sees only the mutations at or to the left of its starting column.
+    events <- b$events[[1L]]
     tab_c3 <- tab_c2 |>
       dplyr::filter(col_index >= b$col_start[[1]], col_index < b$col_end_exl[[1]]) |>
       dplyr::mutate(col_condition = col_pred)
     if (!nrow(tab_c3)) return(tibble::tibble())
 
-    # Every statistic inherits the block's local filter. A new filter replaces
-    # it; unfilter() starts a block using only the global filter.
-    scope <- tab |>
-      dplyr::filter(col_index >= b$col_start[[1]], col_index < b$col_end_exl[[1]],
-                    !is.na(stat_type)) |>
+    stage_starts <- sort(unique(c(b$col_start[[1]],
+      events$col_index[events$col_index >= b$col_start[[1]]])))
+    stage_ends <- c(stage_starts[-1L], b$col_end_exl[[1]])
+    df_stage <- if (is_present(local_filter)) {
+      apply_chain_df(df_global, local_filter)
+    } else df_global
+    df_stage <- apply_chain_df(df_stage, build_chain(shared_calc))
+    calc_chain <- build_chain(shared_calc)
+
+    stage_results <- purrr::map_dfr(seq_along(stage_starts), function(j) {
+      current <- events[events$col_index == stage_starts[j], , drop = FALSE]
+      # B was already applied as the shared calculation.
+      current <- current[current$col_index != 2L, , drop = FALSE]
+      step <- build_chain(wrap_into_mutate_vec(current$calculation))
+      context <<- paste0(sheet_context, ", horizontal block ", i_block,
+        ", starting column ", stage_starts[j], "; source: ", df_b,
+        "; global filter: ", global_filter, "; local filter: ", local_filter,
+        "; calculation: ", step)
+      df_stage <<- apply_chain_df(df_stage, step)
+      calc_chain <<- build_chain(calc_chain, step)
+      wcol <- resolve_block_weight(events$weight[events$col_index <= stage_starts[j]])
+      mics_weight(df_stage, wcol)
+      stage_columns <- tab_c3 |>
+        dplyr::filter(col_index >= stage_starts[j], col_index < stage_ends[j])
+      if (!nrow(stage_columns)) return(tibble::tibble())
+      calc_cells(
+        df = df_stage, tab_r = tab_r_eval, tab_c3 = stage_columns,
+        tab = tab, weight_var = wcol, weighted = TRUE
+      ) |>
+        dplyr::mutate(
+          filt1 = global_filter, filt2 = local_filter,
+          calc_chain = calc_chain, weight_var = wcol
+        )
+    })
+    stage_results |>
       dplyr::arrange(row_index, col_index) |>
-      dplyr::mutate(local_active = is_present(local_filter))
-
-    # Keep the existing filter -> calculation -> cell-statistic order.
-    # Prepare each population only once.
-    prepared <- new.env(parent = emptyenv())
-    data_for <- function(active) {
-      key <- if (active) "local" else "global"
-      if (!exists(key, envir = prepared, inherits = FALSE)) {
-        data <- if (active) apply_chain_df(df_global, local_filter) else df_global
-        data <- apply_chain_df(data, calc_chain)
-        mics_weight(data, wcol)
-        assign(key, data, envir = prepared)
-      }
-      get(key, envir = prepared, inherits = FALSE)
-    }
-
-    purrr::map_dfr(seq_len(nrow(tab_r_eval)), function(r) {
-      row_scope <- scope[scope$row_index == tab_r_eval$row_index[r], ]
-      active <- row_scope$local_active[match(tab_c3$col_index, row_scope$col_index)]
-      active[is.na(active)] <- FALSE
-      purrr::map_dfr(unique(active), function(use_local) {
-        calc_cells(
-          df = data_for(use_local),
-          tab_r = tab_r_eval[r, , drop = FALSE],
-          tab_c3 = tab_c3[active == use_local, , drop = FALSE],
-          tab = tab,
-          weight_var = wcol,
-          weighted = TRUE
-        ) |>
-          dplyr::mutate(filt1 = global_filter,
-                        filt2 = if (use_local) local_filter else NA_character_)
-      }) |>
-        dplyr::arrange(col_index)
-    }) |>
       dplyr::mutate(
-        cond = i_block,
-        df = if (is.character(df_b)) df_b else deparse(substitute(df_b)),
-        calc_chain = calc_chain,
-        weight_var = wcol,
-        col_start = b$col_start[[1]],
-        col_end_excl = b$col_end_exl[[1]]
+        cond = i_block, df = df_b,
+        col_start = b$col_start[[1]], col_end_excl = b$col_end_exl[[1]]
       )
   }
 
-  # Source, weight and calculation inheritance retain their filter-block
-  # windows. A filter or unfilter() starts a new block; a mutate-only cell
-  # cannot cut off the remaining columns.
+  # Keep filter boundaries independent of the calculation stages within them.
   build_blocks <- function(fr) {
     fr %>%
       dplyr::group_by(block) %>%
       dplyr::summarise(
         df_base = dplyr::first(df),
-        weight_seq = list(weight),
         filt = dplyr::first(filter_condition[!is.na(filter_condition) & nzchar(trimws(filter_condition))]),
-        calc_chain = {
-          calc_clean <- wrap_into_mutate_vec(calculation)
-          build_chain(shared_calc, calc_clean)
-        },
+        events = list(tibble::tibble(col_index, calculation, weight)),
         col_start_raw = dplyr::first(col_index),
         .groups = "drop"
       ) %>%

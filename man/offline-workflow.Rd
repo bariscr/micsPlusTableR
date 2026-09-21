@@ -4,9 +4,10 @@
 \description{
 The application is the main user interface. These supporting functions expose
 its packaged engine for reference, tests, and workflows run directly in R.
-They are not additional steps required when using the app. The explicit session keeps survey data, plan context, extra
-tables, and calculated results together without writing them into the user's
-global workspace.
+They are not additional steps required when using the app. A session is an
+ordinary R environment that keeps survey data, plan context, extra tables,
+and calculated results together. Creating it with \code{mics_session()}
+does not start Shiny, open a browser, or launch the app.
 }
 \details{
 Here, outside Shiny means running without the interface, not a guarantee that
@@ -14,15 +15,40 @@ every operation is offline. Installing packages or downloading survey files
 requires internet. With local packages and inputs, table calculations and
 workbook output can run offline.
 
-Prepare survey data in a new session, calculate a table from the tabulation plan,
-check its consistency, and pivot it for review before writing results.
-The example requires analyst-supplied files. See the package overview for
-links to the function references and workbook export steps.
+Workflow functions such as \code{read_mics_tabulation()} require an explicit
+\code{session} argument with no default. Create it once and pass the same
+object to subsequent calls. Use a separate session for each independent test.
+The examples require your own Excel plan, and prepared data or survey files
+when calculating results. Replace the example paths and sheet names with yours.
+See the package overview for links to the function references and export steps.
+}
+\section{Read and inspect a plan without survey data}{
+Create an empty session with \code{mics_session()}, then pass it to
+\code{read_mics_tabulation(session, path_tab_excel, sheet)}. Only the Excel
+plan is needed for this step. The returned list includes \code{filter_row}
+for filter instructions and \code{tab} for the cell statistics and conditions.
+The plan is also kept in the session for subsequent calculations.
+}
+\section{Calculate with already prepared data}{
+If \code{hh} and \code{hl} are already prepared data frames in your workspace,
+add them to the session holding the plan with \code{session$hh <- hh} and
+\code{session$hl <- hl}. Alternatively, start with
+\code{mics_session(hh = hh, hl = hl)} and then read the plan.
+Supply the datasets referenced by the plan; a household-only plan can use
+\code{hh} alone. These operations do not prepare or transform the data.
+The variables and weights required by the plan must already be present.
+Call \code{tabulate_mics_table(session)} to calculate results, then
+\code{pivot_mics_table(session, results, type = "header")} to review them.
+}
+\section{Start from raw survey files}{
+Create a session and call \code{prepare_mics_data()} with your household file,
+household-member file, and survey preparation script. Then read and calculate
+the plan, check consistency, and pivot the results before writing them.
 }
 \section{Inspect individual steps}{
-Stateful helpers take a session as their first argument; use a separate session
-for each independent workflow. After preparing data, read the plan and inspect
-its row and column predicates before calling the direction-specific engine.
+Stateful helpers take a session as their first argument. Read the plan and
+inspect its row and column predicates before calculating. Prepared data is
+needed for calculation, but not for reading the plan or parsing its predicates.
 \code{tabulate_mics_table()} selects the direction automatically and additionally
 attaches variable-explanation labels.
 
@@ -50,6 +76,29 @@ Checks cannot validate the substantive choices in a preparation script or plan.
 }
 \examples{
 \dontrun{
+library(micsPlusTableR)
+
+# 1. Read and inspect a plan without survey data or the app.
+session <- mics_session()
+plan <- read_mics_tabulation(
+  session = session,
+  path_tab_excel = "TabulationPlan.xlsx",
+  sheet = "6.2"
+)
+plan$filter_row
+plan$tab
+
+# 2. Continue with hh and hl already prepared in your workspace.
+session$hh <- hh
+session$hl <- hl
+results <- tabulate_mics_table(session)
+preview <- pivot_mics_table(session, results, type = "header")
+
+# Alternatively, supply prepared data when creating a new session.
+prepared_session <- mics_session(hh = hh, hl = hl)
+results <- tabulate_mics_table(prepared_session, "TabulationPlan.xlsx", "6.2")
+
+# 3. Start from raw files instead, using your survey preparation script.
 session <- mics_session()
 prepare_mics_data(
   session,

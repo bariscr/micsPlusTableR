@@ -14,7 +14,7 @@ col_condition_f <- function(tab_c) {
     # drop non-condition lines
     keep <- !str_detect(lines, regex("\\.sav\\b", ignore_case = TRUE)) &          # data source
       !str_detect(lines, "^\\s*mutate\\s*\\(") &                            # mutate(...)
-      !str_detect(lines, "^\\s*filter(?:_block)?\\s*\\(") &                 # filter(...), filter_block(...)
+      !str_detect(lines, "^\\s*(?:unfilter|filter(?:_block)?)\\s*\\(") &     # filter(...), unfilter(), filter_block(...)
       !str_detect(lines, "^\\s*-\\s*-\\s*-\\s*$") &                         # --- separators
       !str_detect(lines, regex("^\\s*weight\\s*by\\b", ignore_case = TRUE)) # weight by ...
     

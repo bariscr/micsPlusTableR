@@ -301,6 +301,13 @@ stage_preparation_upload_app <- function(uploaded_files,
 ui <- tagList(
   # tags$head style and scripts ------------------------------------------------------
   tags$head(
+    # The browser supplies the confirmation text after the user interacts.
+    tags$script(HTML("
+      window.addEventListener('beforeunload', function(event) {
+        event.preventDefault();
+        event.returnValue = true;
+      });
+    ")),
     tags$script(src = "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"),
     tags$style(HTML("
     #xlsx_tbl table { width: 100%; border-collapse: collapse; font-size: 12px; }

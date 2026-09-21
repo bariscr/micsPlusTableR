@@ -142,7 +142,10 @@ tabulate_h <- function(skip_row_conditions = FALSE) {
 
   # ---------- block processor ----------
   .process_block <- function(b, i_block) {
-    local_filter <- if (b$col_start_raw[[1]] == 2L) NA_character_ else b$filt[[1]]
+    local_filter <- if (b$col_start_raw[[1]] == 2L ||
+                         grepl("^unfilter\\s*\\(\\s*\\)$", trimws(b$filt[[1]]))) {
+      NA_character_
+    } else b$filt[[1]]
     context <<- paste0(sheet_context,
       ", horizontal block ", i_block, ", starting column ", b$col_start[[1]],
       "; source: ", b$df_base[[1]], "; global filter: ", global_filter,
@@ -158,24 +161,16 @@ tabulate_h <- function(skip_row_conditions = FALSE) {
       dplyr::mutate(col_condition = col_pred)
     if (!nrow(tab_c3)) return(tibble::tibble())
 
-    # Only entering a mean from a non-mean expires an inherited local filter.
-    # A filter starting on a mean applies there; p/count and mean/mean changes
-    # preserve scope. Once expired, it stays off until another explicit filter.
+    # Every statistic inherits the block's local filter. A new filter replaces
+    # it; unfilter() starts a block using only the global filter.
     scope <- tab |>
       dplyr::filter(col_index >= b$col_start[[1]], col_index < b$col_end_exl[[1]],
                     !is.na(stat_type)) |>
       dplyr::arrange(row_index, col_index) |>
-      dplyr::group_by(row_index) |>
-      dplyr::mutate(local_active = {
-        statistic <- trimws(stat_type)
-        is_mean <- mics_is_mean(statistic)
-        enters_mean <- is_mean & !dplyr::lag(is_mean, default = dplyr::first(is_mean))
-        is_present(local_filter) & !dplyr::cumany(enters_mean)
-      }) |>
-      dplyr::ungroup()
+      dplyr::mutate(local_active = is_present(local_filter))
 
     # Keep the existing filter -> calculation -> cell-statistic order.
-    # Prepare each population only once, even when rows have different scopes.
+    # Prepare each population only once.
     prepared <- new.env(parent = emptyenv())
     data_for <- function(active) {
       key <- if (active) "local" else "global"
@@ -217,7 +212,7 @@ tabulate_h <- function(skip_row_conditions = FALSE) {
   }
 
   # Source, weight and calculation inheritance retain their filter-block
-  # windows. Only an actual filter starts a new block; a mutate-only cell
+  # windows. A filter or unfilter() starts a new block; a mutate-only cell
   # cannot cut off the remaining columns.
   build_blocks <- function(fr) {
     fr %>%

@@ -129,7 +129,7 @@ read_tabulation <- function(path_tab_excel, sheet) {
                  names_to = "col_index",
                  values_to = "conditions"
     ) |> 
-    # Filter row is created depending on the availability of .sav, mutate or filter
+    # Include source, calculation, filter and unfilter instructions.
     filter(str_detect(conditions, ".sav") | 
              str_detect(conditions, "filter") |
              str_detect(conditions, "mutate")   
@@ -142,8 +142,8 @@ read_tabulation <- function(path_tab_excel, sheet) {
     )) |> 
     mutate(filter_condition = ifelse(
       str_detect(conditions, "- - -"),
-      str_extract(conditions, "filter\\([\\s\\S]*?\\)(?=\\s*- - -)"),
-      str_extract(conditions, "filter\\([\\s\\S]*\\)")
+      str_extract(conditions, "\\b(?:unfilter\\s*\\(\\s*\\)|filter\\([\\s\\S]*?\\)(?=\\s*- - -))"),
+      str_extract(conditions, "\\b(?:unfilter\\s*\\(\\s*\\)|filter\\([\\s\\S]*\\))")
     )) |> 
     mutate(
       calculation = if_else(

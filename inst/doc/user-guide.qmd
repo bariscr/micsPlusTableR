@@ -1202,28 +1202,26 @@ counts use the same population.
 
 There are two ways an additional filter stops:
 
-- **A non-mean statistic changes to a mean.** This applies to both bare
-  `mean` and `mean(variable)`: for example, `n` followed by `mean`, or
-  `p` followed by `mean(HCS8)`. That mean cell and following cells use B
-  alone. Returning to `n` does not restart the old filter. This rule is
-  checked across columns separately for each row; changes down rows do
-  not stop it.
-- **Another explicit filter starts.** The new filter replaces the
-  previous additional filter and combines with B. It applies at its own
-  starting column, including when that column calculates a mean.
+- **Another explicit filter starts.** The new `filter(...)` replaces the
+  previous additional filter and combines with B, starting at its own column.
+- **An `unfilter()` instruction appears.** Write `unfilter()` in the condition
+  row in place of `filter(...)`. That column and following columns use B alone
+  until a new explicit filter starts. Row and column predicates still apply.
 
-Changes among non-mean statistics, between consecutive mean types, and
-from a mean to a count do **not** stop the filter. This includes `mean`
-to `mean(age)`, `mean(age)` to `mean`, and `mean(age)` to
-`mean(income)`. Changing only `d=` also preserves the filter. A filter
-starting on a mean continues through later counts; a subsequent change
-from a non-mean to a mean stops it unless another explicit filter starts
-there.
+All statistic changes preserve the active filter, including changes from
+counts or percentages to means, between mean variables, and back to counts.
+Changing only `d=` and moving to a new table row also preserve it.
 
-Blank filter cells do not cancel an active filter. To remove an
-additional restriction explicitly, write `filter(TRUE)`; B still
-applies. To keep an additional restriction when entering a mean from a
-non-mean, repeat its `filter(...)` above that mean column.
+Blank filter cells do not cancel an active filter. Use `unfilter()` to remove
+an additional restriction explicitly; B still applies. The existing
+`filter(TRUE)` instruction also continues to select all records allowed by B.
+For a column with its own predicate, write for example:
+
+```r
+unfilter()
+- - -
+total == 1
+```
 
 **How to recognize the table direction.** The reader selects horizontal
 mode when the plan has `n_unw` immediately before `IDX`, or a
@@ -1239,33 +1237,30 @@ plan author before adding such blocks to a vertical table.
 Suppose B contains `filter(age >= 18)`. In one horizontal table row, the
 instructions are:
 
-| Column | Statistic | Additional filter starts here | Records available to this cell |
+| Column | Statistic | Filter instruction here | Records available to this cell |
 |----|----|----|----|
 | C | `p` | None | All adults |
 | D | `p` | `filter(sex == 2)` | Adults with sex code 2 |
 | E | `n` | None | Adults with sex code 2 |
 | F | `n_unw` | None | Adults with sex code 2 |
-| G | `mean` | None | All adults: entered a mean from a non-mean |
-| H | `n` | None | All adults: the old filter stays off |
+| G | `mean` | None | Adults with sex code 2 |
+| H | `n` | `unfilter()` | All adults |
 | I | `mean` | `filter(region == 1)` | Adults in region 1 |
 | J | `mean(age)` | None | Adults in region 1 |
 | K | `n_unw` | None | Adults in region 1 |
 
-No cell includes people under 18. D's filter applies to D-F, including
-the percentage and its counts. It stops at G. I starts a new filter,
+No cell includes people under 18. D's filter applies to D-G, including
+the percentage, its counts, and the mean. It stops at H's `unfilter()`.
+I starts a new filter,
 which applies to I-K, including the change from `mean` to `mean(age)`,
 and does not include D's sex restriction. Other row and column
 conditions still determine what is measured within these populations.
 
-**Which changes count?** The engine uses the effective statistic after
-the worksheet reader fills missing statistic cells and ignores
-surrounding spaces when identifying means. Supported mean forms are
-`mean`, `mean(variable)`, their `mean_unw` variants, and the legacy
-`Mean` form, with or without `d=`. A blank statistic cell does not
-itself mean "stop the filter." Changes such as `p` to `n`, `n` to
-`n_unw`, `mean` to `mean(age)`, `mean(age)` to `mean(income)`, and
-`mean(age)` to `n` all preserve it. Only entering a mean from a non-mean
-stops an inherited additional filter.
+**Statistic changes do not stop filters.** This includes bare `mean`,
+`mean(variable)`, their `mean_unw` variants, and the legacy `Mean` form,
+with or without `d=`. A blank statistic cell also preserves the filter.
+Only a new `filter(...)` or `unfilter()` ends the previous additional
+filter's scope.
 
 **When filters run.** For each required population, the engine loads the
 selected source, applies B, applies any active additional filter, and
@@ -1274,7 +1269,6 @@ data. The filters therefore affect both the numerator and denominator of
 a percentage. A filter variable must already exist before those
 calculations.
 
-Only filter inheritance stops on entering a mean from a non-mean.
 Existing data-source, weight, calculation, and row/column-condition
 instructions keep their roles. A calculation-only instruction does not
 end the filter's column range.
@@ -1286,12 +1280,12 @@ a new filter separates a cell from its count, the engine uses the next
 already linked. Existing count links and the small-sample thresholds
 remain in effect.
 
-**Review after upgrading.** The earlier rule stopped additional filters
-at every statistic change, including `p` to `n`; this could give
-percentages and their counts different populations. Recalculate affected
-tables and review denominators and suppression. B remains global,
-including in later blocks; only non-mean-to-mean transitions now stop
-inherited filters.
+**Review after upgrading.** Earlier versions stopped additional filters
+at statistic changes, most recently when entering a mean. Filters now
+continue across all statistic changes. Add `unfilter()` above any column
+that should return to B's population, then recalculate affected tables and
+review denominators and suppression. B remains global, including in later
+blocks.
 
 {{< pagebreak >}}
 
@@ -1536,8 +1530,8 @@ condition `total1 == 1` and statistics `n` and `n_unw`. Those count
 columns describe the same filtered population as the mean. This follows
 the pattern in Mongolia Wave 2 table 6.2a. Its threshold excludes that
 survey's special amount codes; substitute the valid range for your
-survey. Put the filter on the mean column itself: entering a mean can
-stop an inherited additional filter, as explained above.
+survey. Put the filter on the mean column itself to start this restricted
+population there. It continues until a new filter or `unfilter()` appears.
 
 An average **across all eligible households**, including those with no
 expenses, is a different output. It needs an appropriately prepared
@@ -1679,13 +1673,6 @@ column condition `HCS7 == 1`; their `HCS8` values are **100 and 200**.
 
 These are illustrative calculations. In a vertical table, the column
 condition selects the base and the row condition identifies the outcome.
-
-**Mean types and filters.** Bare `mean`, `mean(variable)`, and their
-unweighted forms all count as mean types. Entering one from a non-mean
-statistic stops an inherited additional horizontal filter, unless a new
-explicit filter starts there. Consecutive mean columns retain their
-active filter, including changes of variable, form, or `d=`. Column B's
-global filter remains active.
 
 {{< pagebreak >}}
 

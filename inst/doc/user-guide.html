@@ -2992,11 +2992,14 @@ weight by w</code></pre>
 <p><strong>Additional filters apply to horizontal blocks.</strong> In a horizontal table, a <code>filter(...)</code> in C or a later column combines with B. It applies to its own column and extends to the right. Its position relative to B makes no difference: it always combines with B. Changes from <code>p</code> to <code>n</code> or <code>n_unw</code> keep the filter, so percentages and their counts use the same population.</p>
 <p>There are two ways an additional filter stops:</p>
 <ul>
-<li><strong>A non-mean statistic changes to a mean.</strong> This applies to both bare <code>mean</code> and <code>mean(variable)</code>: for example, <code>n</code> followed by <code>mean</code>, or <code>p</code> followed by <code>mean(HCS8)</code>. That mean cell and following cells use B alone. Returning to <code>n</code> does not restart the old filter. This rule is checked across columns separately for each row; changes down rows do not stop it.</li>
-<li><strong>Another explicit filter starts.</strong> The new filter replaces the previous additional filter and combines with B. It applies at its own starting column, including when that column calculates a mean.</li>
+<li><strong>Another explicit filter starts.</strong> The new <code>filter(...)</code> replaces the previous additional filter and combines with B, starting at its own column.</li>
+<li><strong>An <code>unfilter()</code> instruction appears.</strong> Write <code>unfilter()</code> in the condition row in place of <code>filter(...)</code>. That column and following columns use B alone until a new explicit filter starts. Row and column predicates still apply.</li>
 </ul>
-<p>Changes among non-mean statistics, between consecutive mean types, and from a mean to a count do <strong>not</strong> stop the filter. This includes <code>mean</code> to <code>mean(age)</code>, <code>mean(age)</code> to <code>mean</code>, and <code>mean(age)</code> to <code>mean(income)</code>. Changing only <code>d=</code> also preserves the filter. A filter starting on a mean continues through later counts; a subsequent change from a non-mean to a mean stops it unless another explicit filter starts there.</p>
-<p>Blank filter cells do not cancel an active filter. To remove an additional restriction explicitly, write <code>filter(TRUE)</code>; B still applies. To keep an additional restriction when entering a mean from a non-mean, repeat its <code>filter(...)</code> above that mean column.</p>
+<p>All statistic changes preserve the active filter, including changes from counts or percentages to means, between mean variables, and back to counts. Changing only <code>d=</code> and moving to a new table row also preserve it.</p>
+<p>Blank filter cells do not cancel an active filter. Use <code>unfilter()</code> to remove an additional restriction explicitly; B still applies. The existing <code>filter(TRUE)</code> instruction also continues to select all records allowed by B. For a column with its own predicate, write for example:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unfilter</span>()</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="sc">-</span> <span class="sc">-</span> <span class="sc">-</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>total <span class="sc">==</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><strong>How to recognize the table direction.</strong> The reader selects horizontal mode when the plan has <code>n_unw</code> immediately before <code>IDX</code>, or a <code>100</code>/<code>100.0</code> statistic. Other plans use vertical mode. In vertical tables, the first filter in B still restricts the common dataset; additional horizontal filter blocks are not processed. Check with the plan author before adding such blocks to a vertical table.</p>
 <div style="page-break-after: always;"></div>
 <section id="filter-example-follow-one-row-from-left-to-right" class="level3">
@@ -3013,7 +3016,7 @@ weight by w</code></pre>
 <tr class="header">
 <th>Column</th>
 <th>Statistic</th>
-<th>Additional filter starts here</th>
+<th>Filter instruction here</th>
 <th>Records available to this cell</th>
 </tr>
 </thead>
@@ -3046,13 +3049,13 @@ weight by w</code></pre>
 <td>G</td>
 <td><code>mean</code></td>
 <td>None</td>
-<td>All adults: entered a mean from a non-mean</td>
+<td>Adults with sex code 2</td>
 </tr>
 <tr class="even">
 <td>H</td>
 <td><code>n</code></td>
-<td>None</td>
-<td>All adults: the old filter stays off</td>
+<td><code>unfilter()</code></td>
+<td>All adults</td>
 </tr>
 <tr class="odd">
 <td>I</td>
@@ -3074,12 +3077,12 @@ weight by w</code></pre>
 </tr>
 </tbody>
 </table>
-<p>No cell includes people under 18. D’s filter applies to D-F, including the percentage and its counts. It stops at G. I starts a new filter, which applies to I-K, including the change from <code>mean</code> to <code>mean(age)</code>, and does not include D’s sex restriction. Other row and column conditions still determine what is measured within these populations.</p>
-<p><strong>Which changes count?</strong> The engine uses the effective statistic after the worksheet reader fills missing statistic cells and ignores surrounding spaces when identifying means. Supported mean forms are <code>mean</code>, <code>mean(variable)</code>, their <code>mean_unw</code> variants, and the legacy <code>Mean</code> form, with or without <code>d=</code>. A blank statistic cell does not itself mean “stop the filter.” Changes such as <code>p</code> to <code>n</code>, <code>n</code> to <code>n_unw</code>, <code>mean</code> to <code>mean(age)</code>, <code>mean(age)</code> to <code>mean(income)</code>, and <code>mean(age)</code> to <code>n</code> all preserve it. Only entering a mean from a non-mean stops an inherited additional filter.</p>
+<p>No cell includes people under 18. D’s filter applies to D-G, including the percentage, its counts, and the mean. It stops at H’s <code>unfilter()</code>. I starts a new filter, which applies to I-K, including the change from <code>mean</code> to <code>mean(age)</code>, and does not include D’s sex restriction. Other row and column conditions still determine what is measured within these populations.</p>
+<p><strong>Statistic changes do not stop filters.</strong> This includes bare <code>mean</code>, <code>mean(variable)</code>, their <code>mean_unw</code> variants, and the legacy <code>Mean</code> form, with or without <code>d=</code>. A blank statistic cell also preserves the filter. Only a new <code>filter(...)</code> or <code>unfilter()</code> ends the previous additional filter’s scope.</p>
 <p><strong>When filters run.</strong> For each required population, the engine loads the selected source, applies B, applies any active additional filter, and then runs the block’s calculations. It calculates cell values from that data. The filters therefore affect both the numerator and denominator of a percentage. A filter variable must already exist before those calculations.</p>
-<p>Only filter inheritance stops on entering a mean from a non-mean. Existing data-source, weight, calculation, and row/column-condition instructions keep their roles. A calculation-only instruction does not end the filter’s column range.</p>
+<p>Existing data-source, weight, calculation, and row/column-condition instructions keep their roles. A calculation-only instruction does not end the filter’s column range.</p>
 <p><strong>Filters do not reach left.</strong> Adding a filter in G does not change F’s calculated mean. Display suppression still needs an unweighted count: if a new filter separates a cell from its count, the engine uses the next <code>n_unw</code> to its right on the same row and data source when no count is already linked. Existing count links and the small-sample thresholds remain in effect.</p>
-<p><strong>Review after upgrading.</strong> The earlier rule stopped additional filters at every statistic change, including <code>p</code> to <code>n</code>; this could give percentages and their counts different populations. Recalculate affected tables and review denominators and suppression. B remains global, including in later blocks; only non-mean-to-mean transitions now stop inherited filters.</p>
+<p><strong>Review after upgrading.</strong> Earlier versions stopped additional filters at statistic changes, most recently when entering a mean. Filters now continue across all statistic changes. Add <code>unfilter()</code> above any column that should return to B’s population, then recalculate affected tables and review denominators and suppression. B remains global, including in later blocks.</p>
 <div style="page-break-after: always;"></div>
 </section>
 </section>
@@ -3238,7 +3241,7 @@ weight by hhmemwt</code></pre>
 <pre class="text"><code>filter(HCS7 == 1 &amp; HCS8 &lt; 9999998)
 - - -
 total1 == 1</code></pre>
-<p>Use <code>mean(HCS8)</code> in that first result column, followed by columns with condition <code>total1 == 1</code> and statistics <code>n</code> and <code>n_unw</code>. Those count columns describe the same filtered population as the mean. This follows the pattern in Mongolia Wave 2 table 6.2a. Its threshold excludes that survey’s special amount codes; substitute the valid range for your survey. Put the filter on the mean column itself: entering a mean can stop an inherited additional filter, as explained above.</p>
+<p>Use <code>mean(HCS8)</code> in that first result column, followed by columns with condition <code>total1 == 1</code> and statistics <code>n</code> and <code>n_unw</code>. Those count columns describe the same filtered population as the mean. This follows the pattern in Mongolia Wave 2 table 6.2a. Its threshold excludes that survey’s special amount codes; substitute the valid range for your survey. Put the filter on the mean column itself to start this restricted population there. It continues until a new filter or <code>unfilter()</code> appears.</p>
 <p>An average <strong>across all eligible households</strong>, including those with no expenses, is a different output. It needs an appropriately prepared amount variable with true no-expense values coded as zero and a base that includes those households. Do not obtain it by treating unknown amounts as zero or by retaining the expense-only filter.</p>
 <div style="page-break-after: always;"></div>
 </section>
@@ -3441,7 +3444,6 @@ total1 == 1</code></pre>
 </tbody>
 </table>
 <p>These are illustrative calculations. In a vertical table, the column condition selects the base and the row condition identifies the outcome.</p>
-<p><strong>Mean types and filters.</strong> Bare <code>mean</code>, <code>mean(variable)</code>, and their unweighted forms all count as mean types. Entering one from a non-mean statistic stops an inherited additional horizontal filter, unless a new explicit filter starts there. Consecutive mean columns retain their active filter, including changes of variable, form, or <code>d=</code>. Column B’s global filter remains active.</p>
 <div style="page-break-after: always;"></div>
 </section>
 <section id="totals-special-forms-and-existing-plan-variants" class="level3">
@@ -3583,12 +3585,12 @@ total1 == 1</code></pre>
 <li><strong>Install the package</strong> using the <a href="#package-setup">installation commands</a> in that R session. Then check <code>here::here()</code> after installation: it shows the project root used for the default Excel output. If it selects a parent folder, supply your intended output directory explicitly when launching.</li>
 <li><strong>Launch in a browser</strong> with the command below, then <a href="#survey-files">gather your inputs</a> and choose the <a href="#guide-contents">app tasks</a> you need:</li>
 </ol>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>micsPlusTableR<span class="sc">::</span><span class="fu">run_app</span>(<span class="at">launch.browser =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>micsPlusTableR<span class="sc">::</span><span class="fu">run_app</span>(<span class="at">launch.browser =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>To choose the results folder explicitly, replace the example path below with an existing location on your computer. On Windows, use forward slashes, for example <code>C:/Users/YourName/Documents/MySurvey/results</code>:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>micsPlusTableR<span class="sc">::</span><span class="fu">run_app</span>(</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">launch.browser =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">output_dir =</span> <span class="st">&quot;/full/path/to/MySurvey/results&quot;</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>micsPlusTableR<span class="sc">::</span><span class="fu">run_app</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">launch.browser =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">output_dir =</span> <span class="st">&quot;/full/path/to/MySurvey/results&quot;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><strong>Keep R running:</strong> the session or notebook cell stays busy while the app is open. Use its interrupt/stop control after saving your results. A terminal running R can usually be interrupted with <strong>Ctrl+C</strong>.</p>
 <p><strong>Remote or hosted environments:</strong> RStudio Server, Posit Workbench, and remote editor or notebook sessions need server-side package installation, access to the inputs, and a browser connection arranged by the administrator (often a proxy or port forwarding). Their output paths are on the server. The local <code>127.0.0.1</code> browser instructions assume R runs on your own computer; ask your support person for the hosted application’s address and file-retrieval steps.</p>
 <div style="page-break-after: always;"></div>

@@ -26,17 +26,13 @@ variable-explanation labels.
 \details{
 The condition-row \code{filter(...)} in Excel column B applies globally.
 Each additional horizontal \code{filter(...)} starts at its own column and
-combines with B. For each row independently, it extends right until the
-next explicit filter or the first transition from a non-mean statistic to
-a mean statistic. That mean cell uses B alone unless it starts a new explicit
-filter. A stopped filter stays off until another explicit filter starts.
-Mean statistics include bare \code{mean}, \code{mean(variable)}, their \code{mean_unw}
-variants, and the legacy \code{Mean} form. Switching between bare and variable
-means preserves an active filter, as does changing only \verb{d=}.
-Changes among other statistics (including \code{p}, \code{n}, and \code{n_unw}), between
-mean variables, or from a mean to a non-mean do not stop inheritance.
-Worksheet statistic filling and trimming surrounding whitespace happen
-before scope is determined. Changes down rows do not stop a filter.
+combines with B. It extends right across all statistic types, including
+means, until the next explicit \code{filter(...)} or \code{unfilter()} instruction
+in the condition row. A new filter replaces the previous secondary filter.
+Write \code{unfilter()} in place of \code{filter(...)} to clear the secondary filter
+from that column onward and use only B's global filter until a new filter
+starts. Row and column predicates still apply. Blank filter cells, changes
+of statistic or \verb{d=}, and changes down rows do not stop a filter.
 Sources, calculation chains, weights, and column/row predicates retain their
 existing roles; filters run before calculations. Vertical tabulation keeps
 its separate primary-filter behavior; see \code{\link[=tabulate_v]{tabulate_v()}}.

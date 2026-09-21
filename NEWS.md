@@ -1,5 +1,13 @@
 # micsPlusTableR 0.3.1
 
+- Ask for browser confirmation before closing, reloading, or leaving the app
+  tab after user interaction, to help prevent accidental session loss.
+
+- Keep secondary horizontal filters active across all statistic changes,
+  including means. Add `unfilter()` in the condition row to clear the secondary
+  filter from that column onward while retaining column B's global filter.
+  A new `filter(...)` still replaces the preceding secondary filter.
+
 - Expand the User's Guide with output-oriented row and column condition
   instructions, repeated total aliases, household-member bases, and worked
   layouts for percentages, means, and vertical distributions. Add a matching
@@ -39,17 +47,14 @@
   including an expense mean in F followed by a new filter in G.
 
 - Apply the condition-row filter in column B globally to every horizontal
-  block, regardless of the position of later filters. Stop additional column
-  filters only when a row enters a mean from a non-mean statistic; B remains
-  active, and a stopped filter restarts only with an explicit new filter.
-  Preserve local filters across p/n/n_unw transitions so percentages and
-  their bases use the same population. Changes between mean variables and
-  from means to counts also retain the filter. This replaces the earlier
-  rule that stopped inheritance at every statistic change.
+  block, regardless of the position of later filters. Preserve secondary
+  filters across all statistic changes so percentages, means, and their
+  bases use the same population. A new filter replaces the secondary filter;
+  `unfilter()` clears it while B remains active.
   Keep vertical filtering, statistic calculations, and row predicates intact.
   Prevent mutate-only entries from prematurely cutting off horizontal columns.
-  Add regression tests and explain the rules in the HTML/PDF User's Guide,
-  README, scripting vignette, and function reference.
+  Add regression tests and explain the rules in the HTML/PDF User's Guide
+  and function reference.
 
 - Display undefined estimates from empty groups with the standard MICS `-`
   marker in the app and Excel exports while retaining `NaN` in the underlying

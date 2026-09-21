@@ -107,10 +107,11 @@ removed from the base.
 
 \section{Filters and display}{
 
-Column B's filter remains global. A transition from a non-mean to a mean type
-stops an inherited additional horizontal filter unless a new explicit filter
-starts there. Consecutive bare, variable, and unweighted means keep the active
-filter; see \code{\link[=tabulate_h]{tabulate_h()}}.
+Column B's filter remains global. Additional horizontal filters continue
+across every statistic type, including means. A new \code{filter(...)} replaces
+the secondary filter; \code{unfilter()} in the condition row clears it and
+restores the global-only population from that column onward.
+See \code{\link[=tabulate_h]{tabulate_h()}}.
 
 Every supported statistic accepts optional \verb{d=} display precision without
 changing its calculation or direction support. For example, \code{mean(d=1)},

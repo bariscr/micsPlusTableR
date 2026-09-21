@@ -95,7 +95,7 @@
 #' [statistic-types] documents each statistic's population,
 #' weighting, and supported direction. [statistic-precision] explains optional
 #' `d=` display settings. [tabulate_h()] documents global and additional filters,
-#' including non-mean-to-mean boundaries and consecutive mean columns.
+#' including inheritance across means and clearing a filter with `unfilter()`.
 #'
 #' @section Internet access:
 #' Installing packages and downloading survey materials require internet.

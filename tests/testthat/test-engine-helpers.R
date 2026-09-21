@@ -59,6 +59,9 @@ test_that("condition and cleaning helpers work without a session", {
   cols <- col_condition_f(data.frame(col_index = 3L,
     col_lgc = "hh.sav\nfilter(total == 1)\nweight by w\nsex == 2"))
   expect_identical(cols$col_condition, "sex == 2")
+  cleared <- col_condition_f(data.frame(col_index = 3:5,
+    col_lgc = c("unfilter()\n- - -\nsex == 2", "unfilter()", " unfilter ( ) \nTRUE")))
+  expect_identical(cleared$col_condition, c("sex == 2", NA_character_, "TRUE"))
   expect_identical(extract_var("sex == 2"), "sex")
   expect_true(is.na(extract_var("invalid(")))
   expect_identical(normalize_condition_text(" x \u2265 1 "), "x >= 1")

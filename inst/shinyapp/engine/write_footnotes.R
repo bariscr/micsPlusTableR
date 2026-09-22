@@ -97,6 +97,7 @@ if (!sheet %in% current_sheets) {
   
   last_col_num    <- (a_cells |> filter(character == "IDX") |> pull(col)) - 1
   last_col_let    <- openxlsx2::int2col(last_col_num)
+  wb$set_col_widths(sheet = sheet, cols = last_col_num, widths = 0.67)
   
   last_col_num2 <- last_col_num - 1
   last_col_let2    <- openxlsx2::int2col(last_col_num2)

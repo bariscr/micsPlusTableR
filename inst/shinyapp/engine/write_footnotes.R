@@ -97,7 +97,17 @@ if (!sheet %in% current_sheets) {
   
   last_col_num    <- (a_cells |> filter(character == "IDX") |> pull(col)) - 1
   last_col_let    <- openxlsx2::int2col(last_col_num)
-  wb$set_col_widths(sheet = sheet, cols = last_col_num, widths = 0.67)
+  # Keep the spacer width here because this code already locates the column
+  # before IDX and uses its left edge for the table and footnote right border.
+  wb$set_col_widths(sheet = sheet, cols = last_col_num, widths = 0.64)
+  # Use the exact width saved by Excel for a displayed 0.64 in the MICS
+  # template; set_col_widths() otherwise adds font-dependent padding.
+  worksheet <- wb$worksheets[[match(sheet, current_sheets)]]
+  columns <- worksheet$unfold_cols()
+  spacer <- as.integer(columns$min) == last_col_num
+  columns$width[spacer] <- "1.1640625"
+  columns$bestFit[spacer] <- ""
+  worksheet$fold_cols(columns)
   
   last_col_num2 <- last_col_num - 1
   last_col_let2    <- openxlsx2::int2col(last_col_num2)
@@ -203,7 +213,6 @@ wb$add_data(sheet = sheet, x = data.frame(note = I(list(txt))),
   openxlsx2::wb_save(wb, dest)
   invisible(NULL)
 }
-
 
 
 

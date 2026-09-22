@@ -154,7 +154,7 @@ if (!sheet %in% current_sheets) {
       col_names = FALSE
     )
     wb$add_fill(sheet = sheet, dims = row_range, color = white)
-    wb_set_row_heights(wb, sheet = sheet, rows = r, heights = 1) # When set to zero sometimes the bottom border is not visible
+    wb$set_row_heights(sheet = sheet, rows = r, heights = 1, hidden = TRUE)
   }
   
   # ---- right-align all cells in the table extent (openxlsx2) ----

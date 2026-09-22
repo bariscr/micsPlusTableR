@@ -119,12 +119,18 @@ if (!sheet %in% current_sheets) {
       dims  = paste0("A", start_row_foot_df)
     )
     
-    openxlsx2::wb_add_font(
-      wb,
+    footnote_dims <- paste0("A", start_row_foot_df, ":A", end_row_foot_df)
+    # Style only the newly written conditional notes; preserve existing notes' wrapping.
+    wb$add_font(
       sheet = sheet,
-      dims  = paste0("A", start_row_foot_df:end_row_foot),
+      dims  = footnote_dims,
       name  = "Arial",
       size  = 8
+    )
+    wb$add_cell_style(
+      sheet = sheet,
+      dims = footnote_dims,
+      wrap_text = FALSE
     )
     
     border_row <- end_row_foot
@@ -133,8 +139,7 @@ if (!sheet %in% current_sheets) {
   
   # ---- bottom border across to the last column ----
   top_dims <- paste0("A", border_row, ":", last_col_let2, border_row)
-  openxlsx2::wb_add_border(
-    wb,
+  wb$add_border(
     sheet = sheet,
     dims  = top_dims,
     bottom_border = NULL,
@@ -147,8 +152,7 @@ if (!sheet %in% current_sheets) {
   
   # ---- right border on the last column (from top of table to bottom border row) ----
   left_dims <- paste0(last_col_let, first_table_row, ":", last_col_let, border_row_l)
-  openxlsx2::wb_add_border(
-    wb,
+  wb$add_border(
     sheet = sheet,
     dims  = left_dims,
     right_border  = NULL,
@@ -198,8 +202,6 @@ wb$add_data(sheet = sheet, x = data.frame(note = I(list(txt))),
   openxlsx2::wb_save(wb, dest)
   invisible(NULL)
 }
-
-
 
 
 

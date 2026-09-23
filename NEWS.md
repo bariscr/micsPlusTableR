@@ -1,3 +1,15 @@
+# micsPlusTableR 0.3.2
+
+* Apply an 11.25-point minimum row height to existing and generated conditional
+  footnotes in Excel exports. Leave rows already at or above the minimum
+  untouched, including taller rows inherited from the worksheet default.
+
+* Set the default Excel export zoom to 100% instead of 140%.
+
+* Avoid rebuilding the wave selector when country selections share the same
+  available waves. This prevents a delayed update from restoring Wave 1 after
+  Wave 2 is selected, including the Turkmenistan file-upload workflow.
+
 # micsPlusTableR 0.3.1
 
 * Use one Excel-writing workflow for single-table and multi-sheet exports,

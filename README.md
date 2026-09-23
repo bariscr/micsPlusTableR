@@ -261,7 +261,7 @@ Or install a built source archive using base R:
 
 ```r
 install.packages(
-  "build/micsPlusTableR_0.3.1.tar.gz",
+  "build/micsPlusTableR_0.3.2.tar.gz",
   repos = NULL,
   type = "source"
 )

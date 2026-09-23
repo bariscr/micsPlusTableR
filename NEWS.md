@@ -1,5 +1,11 @@
 # micsPlusTableR 0.3.1
 
+* Use one Excel-writing workflow for single-table and multi-sheet exports,
+  including checks, suppression, and footnotes. Preserve the selected table's
+  plan when another sheet is processed, and remove obsolete generated
+  suppression notes when rewriting a workbook. Empty-group means still display
+  as `-` even in tables where small-sample suppression is disabled.
+
 * Make supplied extra tables honor the plan's suppression flag, which requires
   `n_unw` or `n_unw2` immediately before `IDX`. Write conditional suppression
   footnotes only for eligible tables with the corresponding display markers;

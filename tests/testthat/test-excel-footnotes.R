@@ -30,6 +30,7 @@ test_that("single-sheet and multi-sheet formatted exports include the same footn
   shiny::testServer(app, {
     session$flushReact()
     engine_env$out_glob <- context
+    table_context_rv(context)
     sheet_rv("Example")
     cell_results_rv(cells)
     dest_f_rv(paths[1])
@@ -95,4 +96,112 @@ test_that("footnotes require eligibility and the corresponding exact display mar
                                 !is.na(written$character)]
     expect_identical(notes, case$notes)
   }
+})
+
+test_that("rewriting an exempt table removes obsolete generated notes only", {
+  s <- small_plan_session()
+  cells <- tibble::tibble(row_index = 9:11, col_index = 3L, stat_type = "p",
+    value = c(42, 20, NaN), value_f = c("(42.0)", "(*)", "-"))
+  s$out_glob$tab <- s$out_glob$tab_org <- cells
+  s$out_glob$a_cells <- tibble::tibble(row = 1L, col = 5L, character = "IDX")
+  path <- tempfile(fileext = ".xlsx")
+  on.exit(unlink(path), add = TRUE)
+  wb <- openxlsx2::wb_workbook()$add_worksheet("Example")
+  wb$add_data("Example", "Original explanatory footnote", dims = "A16")$save(path)
+  s$out_glob$is_supp <- TRUE
+  write_mics_footnotes(s, path, table = cells)
+  s$out_glob$is_supp <- FALSE
+  write_mics_footnotes(s, path, table = cells)
+  written <- tidyxl::xlsx_cells(path, sheets = "Example")
+  expect_false(any(grepl("unweighted cases", written$character), na.rm = TRUE))
+  expect_identical(written$character[written$address == "A16"],
+                   "Original explanatory footnote")
+})
+
+test_that("both Excel tabs write identical cells and styles after another sheet runs", {
+  output_dir <- tempfile("excel-parity-")
+  dir.create(output_dir)
+  on.exit(unlink(output_dir, recursive = TRUE), add = TRUE)
+  old_options <- options(micsPlusTableR.output_dir = output_dir)
+  on.exit(options(old_options), add = TRUE)
+  paths <- file.path(output_dir, c("single-output.xlsx", "single-formatted.xlsx",
+                                  "multi-output.xlsx", "multi-formatted.xlsx"))
+  for (path in paths) {
+    openxlsx2::wb_workbook()$add_worksheet("Exempt")$add_worksheet("Eligible")$save(path)
+  }
+  results <- list(
+    Exempt = tibble::tibble(row_index = 9:11, col_index = 3L,
+      stat_type = "mean_unw(x)", value = c(1.5, 6, NaN),
+      value_f = c("1.5", "6", "-"), value_f_view = c("1.5", "6.0", "-")),
+    Eligible = tibble::tibble(row_index = 15:17, col_index = 3L,
+      stat_type = "p", value = c(42, 20, NaN),
+      value_f = c("(42.0)", "(*)", "-"), value_f_view = c("(42.0)", "(*)", "-"))
+  )
+  contexts <- lapply(names(results), function(sheet) {
+    condition_row <- if (sheet == "Exempt") 4L else 5L
+    list(tab = results[[sheet]], tab_org = results[[sheet]],
+      is_supp = sheet == "Eligible", tab_direction = if (sheet == "Exempt") "v" else "h",
+      condition_row_index = condition_row,
+      condition_write = tibble::tibble(row_index = condition_row, col_index = 3L, value = "TRUE"),
+      a_cells = tibble::tibble(row = 1L, col = 5L, character = "IDX"))
+  })
+  names(contexts) <- names(results)
+  app_env <- new.env()
+  app <- source(system.file("shinyapp", "app.R", package = "micsPlusTableR"),
+                local = app_env)$value
+  errors <- character()
+  app_env$showNotification <- function(ui, type, ...) {
+    if (identical(type, "error")) errors <<- c(errors, as.character(ui))
+  }
+  shiny::testServer(app, {
+    session$flushReact()
+    server_env <- environment(build_cell_results_for_sheet)
+    assign("build_cell_results_for_sheet", function(sheet) {
+      engine_env$out_glob <- contexts[[sheet]]
+      table_name_rv(sheet)
+      results[[sheet]]
+    }, envir = server_env)
+    assign("run_checks_core", function(...) invisible(TRUE), envir = server_env)
+    tab_path_rv(paths[1])
+    dest_rv(paths[3])
+    dest_f_rv(paths[4])
+    session$setInputs(sheet_ids_multi = names(results), write_target_all = "both",
+                       run_all_btn = 1L)
+    for (i in seq_len(20L)) {
+      later::run_now(timeoutSecs = 0)
+      session$flushReact()
+      if (!isTRUE(run_all_running_rv())) break
+    }
+    expect_false(run_all_running_rv())
+    expect_true(all(run_all_results_rv()$status == "OK"))
+    dest_rv(paths[1])
+    dest_f_rv(paths[2])
+    for (i in seq_along(results)) {
+      sheet <- names(results)[i]
+      session$setInputs(sheet_id = sheet, pivot_type = "index", format_type = "view", run_tab = i)
+      # A subsequent batch/long-format calculation overwrites the shared plan.
+      other <- setdiff(names(results), sheet)
+      get("build_cell_results_for_sheet", envir = server_env)(other)
+      session$setInputs(write_output_table = i, write_formatted_table = i)
+      expect_identical(engine_env$out_glob, contexts[[other]])
+    }
+  })
+  expect_identical(errors, character())
+  read_written <- function(path, sheet) {
+    cells <- tidyxl::xlsx_cells(path, sheets = sheet)
+    cells$numfmt <- tidyxl::xlsx_formats(path)$local$numFmt[cells$local_format_id]
+    cells[c("address", "character", "numeric", "numfmt")]
+  }
+  for (sheet in names(results)) {
+    expect_equal(read_written(paths[1], sheet), read_written(paths[3], sheet))
+    expect_equal(read_written(paths[2], sheet), read_written(paths[4], sheet))
+  }
+  exempt <- read_written(paths[2], "Exempt")
+  expect_equal(exempt$numeric[exempt$address == "C10"], 6)
+  expect_identical(exempt$character[exempt$address == "C11"], "-")
+  expect_false(any(grepl("unweighted cases", exempt$character), na.rm = TRUE))
+  eligible <- read_written(paths[2], "Eligible")
+  expect_identical(eligible$character[eligible$address == "C16"], "(*)")
+  expect_identical(eligible$numfmt[eligible$address == "C15"], "(#,##0.0)")
+  expect_equal(sum(grepl("unweighted cases", eligible$character), na.rm = TRUE), 3)
 })

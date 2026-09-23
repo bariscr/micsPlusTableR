@@ -895,6 +895,7 @@ server <- function(input, output, session) {
 
   sheet_rv <- reactiveVal(NULL)
   cell_results_rv <- reactiveVal(NULL)
+  table_context_rv <- reactiveVal(NULL)
 
 
 ensure_current_workbook <- function() {
@@ -1384,6 +1385,7 @@ ensure_current_workbook <- function() {
     tb_rv(NULL)
     sheet_rv(NULL)
     cell_results_rv(NULL)
+    table_context_rv(NULL)
     clear_checks_outputs()
 
     objs <- c("sheet", "cell_results", "tables_extra", "extra_tables_dict", "any_issues_found")
@@ -1405,9 +1407,8 @@ ensure_current_workbook <- function() {
     path_tab_excel <- get_current_tab_path()
 
     assign("path_tab_excel", path_tab_excel, envir = engine_env)
-    assign("sheet", sheet, envir = engine_env)
-
     clear_previous()
+    assign("sheet", sheet, envir = engine_env)
     ensure_current_workbook()
     read_tabulation(path_tab_excel, sheet)
     table_name_rv(get_table_name())
@@ -1688,6 +1689,32 @@ survey_info_msg_rv(
   }
 
   # TABULATOR (single sheet) ----------------------------------------------------------------
+  # Batch and long-format runs reuse engine_env. Keep the selected table's plan
+  # with its results, and restore it while checking or exporting that table.
+  with_table_context <- function(context, code) {
+    if (is.null(context)) stop("Run the table before writing it to Excel.")
+    previous <- engine_env$out_glob
+    on.exit(engine_env$out_glob <- previous, add = TRUE)
+    engine_env$out_glob <- context
+    force(code)
+  }
+
+  write_excel_results <- function(sheet, cells, context,
+                                  output_dest = NULL, formatted_dest = NULL) {
+    with_table_context(context, {
+      run_checks_core(cells, update_ui = FALSE)
+      sync_dest_globals()
+      if (!is.null(output_dest)) {
+        write_to_excel(dest = output_dest, sheet = sheet, table = cells)
+      }
+      if (!is.null(formatted_dest)) {
+        write_to_excel(dest = formatted_dest, sheet = sheet, table = cells,
+                       formatted = TRUE, drop_n_unw = TRUE)
+        write_footnotes(dest = formatted_dest, sheet = sheet, df = cells)
+      }
+    })
+  }
+
   observeEvent(input$run_tab, {
     req(input$sheet_id)
 
@@ -1696,10 +1723,10 @@ survey_info_msg_rv(
         clear_checks_outputs()
 
         sheet <- input$sheet_id
-        sheet_rv(sheet)
-
         cell_results <- build_cell_results_for_sheet(sheet)
+        sheet_rv(sheet)
         cell_results_rv(cell_results)
+        table_context_rv(engine_env$out_glob)
 
         format_type <- switch(input$format_type,
           "view"        = "view",
@@ -1808,9 +1835,8 @@ survey_info_msg_rv(
       {
         req(dest_rv(), sheet_rv(), cell_results_rv())
 
-        sync_dest_globals()
-
-        write_to_excel(dest = dest_rv(), sheet = sheet_rv(), table = cell_results_rv())
+        write_excel_results(sheet_rv(), cell_results_rv(), table_context_rv(),
+                            output_dest = dest_rv())
         showNotification(paste("Written to Output:", dest_rv()), type = "message")
       },
       error = function(e) {
@@ -1824,16 +1850,8 @@ survey_info_msg_rv(
       {
         req(dest_f_rv(), sheet_rv(), cell_results_rv())
 
-        sync_dest_globals()
-
-        write_to_excel(
-          dest = dest_f_rv(),
-          sheet = sheet_rv(),
-          table = cell_results_rv(),
-          formatted = TRUE,
-          drop_n_unw = TRUE
-        )
-        write_footnotes(dest = dest_f_rv(), sheet = sheet_rv(), df = cell_results_rv())
+        write_excel_results(sheet_rv(), cell_results_rv(), table_context_rv(),
+                            formatted_dest = dest_f_rv())
         showNotification(paste("Written to Formatted:", dest_f_rv()), type = "message")
       },
       error = function(e) {
@@ -1856,7 +1874,7 @@ survey_info_msg_rv(
         chk_row_indent_n_rv(NULL)
         chk_row_indent_p_rv(NULL)
 
-        run_checks_core(x, update_ui = TRUE)
+        with_table_context(table_context_rv(), run_checks_core(x, update_ui = TRUE))
         showNotification("Checks completed.", type = "message")
       },
       error = function(e) {
@@ -2032,26 +2050,18 @@ modalDialog(
             tname <- table_name_rv()
 
 
-            run_checks_core(cell_results, update_ui = FALSE)
-
+            write_excel_results(
+              sheet, cell_results, engine_env$out_glob,
+              output_dest = if (need_output) dest else NULL,
+              formatted_dest = if (need_formatted) destf else NULL
+            )
             wrote <- character(0)
 
             if (need_output) {
-              sync_dest_globals()
-              write_to_excel(dest = dest, sheet = sheet, table = cell_results)
               wrote <- c(wrote, "output")
             }
 
             if (need_formatted) {
-              sync_dest_globals()
-              write_to_excel(
-                dest = destf,
-                sheet = sheet,
-                table = cell_results,
-                formatted = TRUE,
-                drop_n_unw = TRUE
-              )
-              write_footnotes(dest = destf, sheet = sheet, df = cell_results)
               wrote <- c(wrote, "formatted")
             }
 

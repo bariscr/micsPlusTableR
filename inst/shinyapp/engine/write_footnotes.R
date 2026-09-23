@@ -90,11 +90,18 @@ if (!sheet %in% current_sheets) {
     txt <- c(foot3)
   }
   
-  wb <- openxlsx2::wb_load(dest)
-  
   # ---- bounds (columns from tab; rows from tab_org) ----
   last_table_row  <- max(tab$row_index, na.rm = T) + 1
   first_table_row <- min(tab$row_index, na.rm = TRUE)
+
+  # Rewriting an existing workbook must also remove notes that no longer apply.
+  # Match only our standard notes below the data; preserve authored footnotes.
+  existing <- tidyxl::xlsx_cells(dest, sheets = sheet)
+  old_notes <- existing$address[existing$col == 1L &
+    existing$row >= last_table_row & existing$character %in% c(foot1, foot2, foot3)]
+  for (address in old_notes) {
+    wb$add_data(sheet = sheet, x = "", dims = address, col_names = FALSE)
+  }
   
   last_col_num    <- (a_cells |> filter(character == "IDX") |> pull(col)) - 1
   last_col_let    <- openxlsx2::int2col(last_col_num)
@@ -214,7 +221,6 @@ wb$add_data(sheet = sheet, x = data.frame(note = I(list(txt))),
   openxlsx2::wb_save(wb, dest)
   invisible(NULL)
 }
-
 
 
 

@@ -80,6 +80,10 @@ if (!sheet %in% current_sheets) {
     val <- table$value[i]
     st  <- table$stat_type[i]
     dims <- cell_ref(r, c)
+
+    # Override template fonts for every written value, including blank/marker cells.
+    wb$add_font(sheet = sheet, dims = dims, name = "Arial", size = 8,
+                scheme = "", update = c("name", "size", "scheme"))
     
     # if stat_type == "n_unw" and we want to drop (formatted mode), blank out and continue
     if (!is.na(st) && st %in% c("n_unw", "n_unw2") && isTRUE(formatted) && tab_direction == "h" && isTRUE(drop_n_unw)) {

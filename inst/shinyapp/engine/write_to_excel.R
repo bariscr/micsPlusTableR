@@ -3,7 +3,7 @@ write_to_excel <- function(dest,
                            sheet, 
                            drop_n_unw = FALSE,
                            formatted = FALSE, 
-                           zoom_level = 140) {
+                           zoom_level = 100) {
   
   table <- mics_normalize_statistics(table)
   is_supp <- out_glob$is_supp

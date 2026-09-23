@@ -151,6 +151,18 @@ if (!sheet %in% current_sheets) {
       dims = footnote_dims,
       wrap_text = FALSE
     )
+    # Keep taller template rows, but ensure each generated note is readable.
+    footnote_rows <- seq.int(start_row_foot_df, end_row_foot_df)
+    row_attrs <- worksheet$sheet_data$row_attr
+    heights <- as.numeric(row_attrs$ht[match(footnote_rows, row_attrs$r)])
+    sheet_attrs <- openxlsx2::xml_attr(worksheet$sheetFormatPr, "sheetFormatPr")
+    default_height <- as.numeric(sheet_attrs[[1]]["defaultRowHeight"])
+    heights[is.na(heights)] <- default_height
+    wb$set_row_heights(
+      sheet = sheet,
+      rows = footnote_rows,
+      heights = pmax(11.25, heights, na.rm = TRUE)
+    )
     
     border_row <- end_row_foot
     
@@ -221,7 +233,6 @@ wb$add_data(sheet = sheet, x = data.frame(note = I(list(txt))),
   openxlsx2::wb_save(wb, dest)
   invisible(NULL)
 }
-
 
 
 

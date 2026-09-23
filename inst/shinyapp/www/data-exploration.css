@@ -13,6 +13,8 @@
 .explorer-table-scroll { overflow: auto; max-height: 560px; border-bottom: 2px solid #738a9b; }
 .explorer-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; line-height: 1.5; }
 .explorer-table caption { caption-side: top; padding: 0 0 13px; font-size: 14px; font-weight: 700; color: #243746; text-align: left; }
+/* Leave one frequency-header row (18px text + 18px padding + 2px rule) below the statistics caption. */
+.explorer-statistics .explorer-table caption { padding-bottom: 51px; }
 .explorer-table th, .explorer-table td { padding: 9px 12px; border-bottom: 1px solid #dfe6ec; vertical-align: top; }
 .explorer-table thead th { position: sticky; top: 0; z-index: 1; background: #fff; color: #547083; font-size: 12px; font-weight: 600; border-bottom: 2px solid #738a9b; vertical-align: bottom; }
 .explorer-table .explorer-stub { background: #f0f4f7; color: #476175; font-weight: 400; text-align: left; min-width: 65px; overflow-wrap: anywhere; }
@@ -25,7 +27,7 @@
 .explorer-notes p { margin: 3px 0; }
 .explorer-empty { text-align: center; padding: 70px 24px; color: #637787; }
 .explorer-empty h3 { color: #243746; font-size: 22px; }
-@media (max-width: 1150px) { .explorer-tables { grid-template-columns: 1fr; gap: 22px; } .explorer-statistics { max-width: 340px; } }
-@container (max-width: 850px) { .explorer-tables { grid-template-columns: 1fr; gap: 22px; } .explorer-statistics { max-width: 340px; } }
+@media (max-width: 1150px) { .explorer-tables { grid-template-columns: 1fr; gap: 22px; } .explorer-statistics { max-width: 340px; } .explorer-statistics .explorer-table caption { padding-bottom: 13px; } }
+@container (max-width: 850px) { .explorer-tables { grid-template-columns: 1fr; gap: 22px; } .explorer-statistics { max-width: 340px; } .explorer-statistics .explorer-table caption { padding-bottom: 13px; } }
 @media (max-width: 600px) { .explorer-output { padding: 12px; } .explorer-variable { padding: 16px; } .explorer-report-heading { align-items: flex-start; } }
 @media print { .explorer-output { padding: 0; background: white; } .explorer-table-scroll { max-height: none; overflow: visible; } .explorer-variable { box-shadow: none; break-inside: avoid; } }

@@ -71,6 +71,7 @@ test_that("the explorer runs with one dataset and honors filters and the weighti
   app_env <- new.env()
   app <- source(system.file("shinyapp", "app.R", package = "micsPlusTableR"), local = app_env)$value
   shiny::testServer(app, {
+    expect_match(output$explorer_report$html, "Explore your data")
     hh_rv(data.frame(x = c(1, 2, NA), y = c(1, 1, 2), w = c(5, 2, 1)))
     session$setInputs(select_data = "hh", select_variable = "x", analysis_type = "frequency",
       select_weight_type = "unweighted_type", select_weight = "w",
@@ -85,8 +86,13 @@ test_that("the explorer runs with one dataset and honors filters and the weighti
     session$setInputs(select_variable = c("x", "y"), analysis_type = "cross-table", run_data_analysis = 4L)
     expect_null(exploration_rv())
     expect_equal(sum(freq_rv()$Frequency), 2)
-    session$setInputs(analysis_type = "frequency", filter_area1 = "not_a_variable == 1", run_data_analysis = 5L)
+    expect_null(output$explorer_report)
+    session$setInputs(analysis_type = "frequency", run_data_analysis = 5L)
+    expect_match(output$explorer_report$html, "Cumulative Percent")
+    expect_null(freq_rv())
+    session$setInputs(filter_area1 = "not_a_variable == 1", run_data_analysis = 6L)
     expect_null(exploration_rv())
     expect_null(freq_rv())
+    expect_match(output$explorer_report$html, "Explore your data")
   })
 })

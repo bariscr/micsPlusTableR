@@ -92,8 +92,11 @@ if (!sheet %in% current_sheets) {
     txt <- c(foot3)
   }
   
-  # ---- bounds (columns from tab; rows from tab_org) ----
-  last_table_row  <- max(tab$row_index, na.rm = T) + 1
+  # The parsed plan fills statistic cells down through authored footnotes.
+  # Locate the data boundary from calculated rows so those notes are not skipped.
+  data_rows <- df$row_index[is.finite(df$row_index)]
+  if (!length(data_rows)) data_rows <- tab$row_index
+  last_table_row  <- max(data_rows, na.rm = TRUE) + 1
   first_table_row <- min(tab$row_index, na.rm = TRUE)
 
   # Rewriting an existing workbook must also remove notes that no longer apply.
@@ -134,25 +137,28 @@ if (!sheet %in% current_sheets) {
   
   # ---- write footnotes if any ----
   if (!is.null(txt) && length(txt) > 0) {
-    # Extend the existing footnote block, removing its old closing rule.
-    # Excel may store that rule below the note or above the following row.
-    for (row in footnote_rows) {
-      wb$add_border(
-        sheet = sheet,
-        dims = paste0("A", row, ":", last_col_let2, row),
-        bottom_border = "none", top_border = NULL,
-        left_border = NULL, right_border = NULL, update = TRUE
-      )
-      wb$add_border(
-        sheet = sheet,
-        dims = paste0("A", row + 1L, ":", last_col_let2, row + 1L),
-        top_border = "none", bottom_border = NULL,
-        left_border = NULL, right_border = NULL, update = TRUE
-      )
-    }
-    
     start_row_foot_df <- max(c(last_table_row, footnote_rows + 1L))
     end_row_foot_df   <- start_row_foot_df + length(txt) - 1
+
+    # Remove every internal horizontal rule before extending the note block.
+    # Include blank rows and previously generated notes, whose closing border
+    # may now fall inside the block. Preserve the top and vertical edges.
+    old_note_rows <- existing$row[existing$address %in% old_notes]
+    clear_start <- min(c(footnote_rows, old_note_rows, start_row_foot_df))
+    clear_end <- max(c(old_note_rows, end_row_foot_df))
+    wb$add_border(
+      sheet = sheet,
+      dims = paste0("A", clear_start, ":", last_col_let2, clear_end),
+      top_border = NULL, bottom_border = "none", inner_hgrid = "none",
+      left_border = NULL, right_border = NULL, update = TRUE
+    )
+    # A closing rule can also be stored as the next row's top border.
+    wb$add_border(
+      sheet = sheet,
+      dims = paste0("A", clear_end + 1L, ":", last_col_let2, clear_end + 1L),
+      top_border = "none", bottom_border = NULL,
+      left_border = NULL, right_border = NULL, update = TRUE
+    )
     
     start_row_foot <- start_row_foot_df + 1
     end_row_foot   <- start_row_foot + length(txt) - 1
@@ -266,8 +272,6 @@ footnote_rows <- union(footnote_rows, xxx_cell$row)
   openxlsx2::wb_save(wb, dest)
   invisible(NULL)
 }
-
-
 
 
 

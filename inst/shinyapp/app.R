@@ -810,7 +810,7 @@ ui <- tagList(
         layout_columns(
           col_widths = c(12),
           card(full_screen = TRUE, card_header("Analysis results"),
-            div(class = "explorer-output", uiOutput("explorer_report")),
+            uiOutput("explorer_report"),
             uiOutput("explorer_crosstab_output"))
         )
       )
@@ -2663,8 +2663,11 @@ modalDialog(
   output$explorer_report <- renderUI({
     result <- exploration_rv()
     if (!is.null(freq_rv())) return(NULL)
-    if (is.null(result)) return(mics_explorer_report_ui(list()))
-    mics_explorer_report_ui(result$reports, result$dataset, result$weighted)
+    # Keep the output binding visible before its first render. Hiding an empty
+    # binding with CSS suspends Shiny and prevents it from ever receiving HTML.
+    div(class = "explorer-output",
+      if (is.null(result)) mics_explorer_report_ui(list()) else
+        mics_explorer_report_ui(result$reports, result$dataset, result$weighted))
   })
 
   output$explorer_crosstab_output <- renderUI({

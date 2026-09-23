@@ -1,5 +1,17 @@
 # micsPlusTableR 0.3.2
 
+* Persist column B's width using Excel's saved value for an input of 0.5 and
+  force the condition row to a visible height of 3 points, including when the
+  template or a previous export had hidden it.
+
+* Keep Data Exploration's output binding visible while it is empty so Shiny
+  can render the report after an analysis completes.
+
+* Find existing footnotes below the calculated data, including footnotes that
+  the parsed plan carries in its row range. Before appending conditional notes,
+  remove internal horizontal borders across the footnote block and place the
+  closing border below the final note, including when rewriting merged notes.
+
 * Replace Data Exploration's flat frequency list with SPSS-style reports per
   variable: selectable descriptive statistics, valid and missing counts,
   frequency percentages, valid percentages, cumulative percentages, and totals.

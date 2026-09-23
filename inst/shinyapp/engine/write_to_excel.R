@@ -143,9 +143,17 @@ if (!sheet %in% current_sheets) {
     # Column B: blank, white spacer.
     wb$add_data(sheet = sheet, x = rep("", n_rows), dims = sprintf("B1:B%d", n_rows), col_names = FALSE)
     wb$add_fill(sheet = sheet, dims = sprintf("B1:B%d", n_rows), color = white)
-    wb_set_col_widths(wb, sheet = sheet, cols = 2, widths = 0.5)
+    wb$set_col_widths(sheet = sheet, cols = 2, widths = 0.5, hidden = FALSE)
+    worksheet <- wb$worksheets[[match(sheet, current_sheets)]]
+    columns <- worksheet$unfold_cols()
+    spacer <- as.integer(columns$min) == 2L
+    # Excel saves a width entered as 0.5 as 1 in the worksheet XML.
+    # The library adds padding that otherwise makes this spacer display as 0.64.
+    columns$width[spacer] <- "1"
+    columns$bestFit[spacer] <- ""
+    worksheet$fold_cols(columns)
     
-    # Specific row (condition_row_index): blank + white + hide
+    # Keep a visible, three-point spacer in place of the conditions.
     r <- condition_row_index
     start_col <- 1L
     end_col   <- n_cols
@@ -158,7 +166,10 @@ if (!sheet %in% current_sheets) {
       col_names = FALSE
     )
     wb$add_fill(sheet = sheet, dims = row_range, color = white)
-    wb$set_row_heights(sheet = sheet, rows = r, heights = 3, hidden = TRUE)
+    wb$set_row_heights(sheet = sheet, rows = r, heights = 3, hidden = FALSE)
+    # hidden = FALSE does not clear an inherited hidden flag in openxlsx2.
+    condition_row <- as.integer(worksheet$sheet_data$row_attr$r) == r
+    worksheet$sheet_data$row_attr$hidden[condition_row] <- "0"
   }
   
   # ---- right-align all cells in the table extent (openxlsx2) ----

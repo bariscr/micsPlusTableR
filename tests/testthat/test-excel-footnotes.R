@@ -64,6 +64,12 @@ test_that("single-sheet and multi-sheet formatted exports include the same footn
   for (path in paths[1:2]) {
     written <- tidyxl::xlsx_cells(path, sheets = "Example")
     expect_identical(written$character[written$col == 1L & written$row %in% 12:14], notes)
+    sheet <- openxlsx2::wb_load(path)$worksheets[[1]]
+    columns <- sheet$unfold_cols()
+    expect_identical(columns$width[columns$min == "2"], "1")
+    rows <- sheet$sheet_data$row_attr
+    expect_identical(rows$ht[rows$r == "4"], "3")
+    expect_true(rows$hidden[rows$r == "4"] %in% c("", "0", "false"))
   }
   raw <- tidyxl::xlsx_cells(paths[3], sheets = "Example")
   expect_false(any(raw$character %in% notes))

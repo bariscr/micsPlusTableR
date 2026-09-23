@@ -301,6 +301,7 @@ stage_preparation_upload_app <- function(uploaded_files,
 ui <- tagList(
   # tags$head style and scripts ------------------------------------------------------
   tags$head(
+    tags$link(rel = "stylesheet", href = "data-exploration.css"),
     # The browser supplies the confirmation text after the user interacts.
     tags$script(HTML("
       window.addEventListener('beforeunload', function(event) {
@@ -798,11 +799,19 @@ ui <- tagList(
               )
             )
           ),
+          conditionalPanel(
+            condition = "input.analysis_type == 'frequency'",
+            checkboxGroupInput("explorer_statistics", "Statistics",
+              choices = mics_explorer_statistics, selected = mics_explorer_statistics),
+            helpText("Numeric statistics use valid values only.")
+          ),
           actionButton("run_data_analysis", "Run Data Explorer", class = "btn-primary w-100")
         ),
         layout_columns(
           col_widths = c(12),
-          card(full_screen = TRUE, card_header("Output Table"), reactableOutput("freq_table_df"))
+          card(full_screen = TRUE, card_header("Analysis results"),
+            div(class = "explorer-output", uiOutput("explorer_report")),
+            uiOutput("explorer_crosstab_output"))
         )
       )
     ),
@@ -1174,7 +1183,7 @@ ensure_current_workbook <- function() {
 
   observeEvent(list(hh_rv(), hl_rv(), input$select_data),
     {
-      req(hh_rv(), hl_rv())
+      req(input$select_data)
 
       ds <- if (identical(input$select_data, "hh")) hh_rv() else hl_rv()
       req(ds)
@@ -2494,13 +2503,17 @@ modalDialog(
 
 
   freq_rv <- reactiveVal(NULL)
+  exploration_rv <- reactiveVal(NULL)
 
   selected_dataset_rv <- reactive({
-    req(hh_rv(), hl_rv(), input$select_data)
-    if (identical(input$select_data, "hh")) hh_rv() else hl_rv()
+    req(input$select_data)
+    ds <- if (identical(input$select_data, "hh")) hh_rv() else hl_rv()
+    req(ds)
+    ds
   })
 
   weight_var_rv <- reactive({
+    if (!identical(input$select_weight_type, "weighted_type")) return(NULL)
     w <- as.character(input$select_weight %||% "")
     w <- stringr::str_trim(w)
     if (!nzchar(w)) {
@@ -2533,72 +2546,6 @@ modalDialog(
       error = function(e) stop("Filter failed for: '", txt, "'\n", e$message)
     )
   }
-  build_freq_table <- function(ds, vars, weight_var = NULL) {
-    vars <- as.character(vars %||% character(0))
-    vars <- vars[nzchar(vars)]
-    if (length(vars) == 0) {
-      return(NULL)
-    }
-
-    vmap <- var_display_map(ds)
-    ds_pretty <- make_value_label_df(ds) # labelled -> "code - (label)"
-
-    # prepare weights once (if requested) ----------------------------------------------
-    if (!is.null(weight_var)) {
-      if (!weight_var %in% names(ds)) stop("Weight variable not found: ", weight_var)
-
-      w <- ds[[weight_var]]
-
-      # labelled weights -> numeric values
-      if (haven::is.labelled(w)) w <- haven::zap_labels(w)
-
-      # robust numeric coercion (handles characters etc.)
-      w <- suppressWarnings(as.numeric(w))
-      if (all(is.na(w))) stop("Weight variable '", weight_var, "' is not numeric (or all missing).")
-
-      # NA weights contribute 0
-      w[is.na(w)] <- 0
-    }
-
-    out <- lapply(vars, function(v) {
-      if (!v %in% names(ds)) {
-        return(NULL)
-      }
-
-      x <- ds_pretty[[v]]
-
-      # make NA explicit like useNA="ifany"
-      x_chr <- as.character(x)
-      x_chr[is.na(x)] <- "(NA)"
-
-      if (is.null(weight_var)) {
-        # unweighted
-        dfv <- dplyr::tibble(Value = x_chr) |>
-          dplyr::count(Value, name = "Frequency", .drop = FALSE)
-      } else {
-        # weighted: sum weights within each category
-        dfv <- dplyr::tibble(Value = x_chr, w = w) |>
-          dplyr::group_by(Value, .drop = FALSE) |>
-          dplyr::summarise(Frequency = sum(w, na.rm = TRUE), .groups = "drop")
-      }
-
-      # keep ordering similar to table() (optional)
-      dfv <- dfv |>
-        dplyr::mutate(Variable = vmap[[v]] %||% v) |>
-        dplyr::select(Variable, Value, Frequency)
-
-      dfv
-    })
-
-    out <- Filter(Negate(is.null), out)
-    if (length(out) == 0) {
-      return(NULL)
-    }
-
-    dplyr::bind_rows(out)
-  }
-
-
   # build_crosstab --------------------------------------------------------------------
   build_crosstab <- function(ds, v1, v2, weight_var = NULL) {
     # variables exist -----------------------------------------------------------------
@@ -2614,28 +2561,7 @@ modalDialog(
     x1[is.na(ds_pretty[[v1]])] <- "(NA)"
     x2[is.na(ds_pretty[[v2]])] <- "(NA)"
 
-    # weights (optional) ----------------------------------------------------------------
-    w <- NULL
-    if (!is.null(weight_var)) {
-      weight_var <- as.character(weight_var)
-      weight_var <- stringr::str_trim(weight_var)
-
-      # treat blank as unweighted
-      if (!nzchar(weight_var)) {
-        weight_var <- NULL
-      } else {
-        if (!weight_var %in% names(ds)) stop("Weight variable not found: ", weight_var)
-
-        w <- ds[[weight_var]]
-        if (haven::is.labelled(w)) w <- haven::zap_labels(w)
-
-        w <- suppressWarnings(as.numeric(w))
-        if (all(is.na(w))) stop("Weight variable '", weight_var, "' is not numeric (or all missing).")
-
-        # NA weights contribute 0
-        w[is.na(w)] <- 0
-      }
-    }
+    w <- mics_explorer_weights(ds, weight_var)
 
     # build Frequency (unweighted or weighted) -----------------------------------------
     base <- dplyr::tibble(Value1 = x1, Value2 = x2)
@@ -2645,6 +2571,7 @@ modalDialog(
         dplyr::count(Value1, Value2, name = "Frequency", .drop = FALSE)
     } else {
       df <- dplyr::mutate(base, w = w) |>
+        dplyr::filter(w > 0) |>
         dplyr::group_by(Value1, Value2, .drop = FALSE) |>
         dplyr::summarise(Frequency = sum(w, na.rm = TRUE), .groups = "drop")
     }
@@ -2700,22 +2627,18 @@ modalDialog(
         mode <- analysis_mode_rv()
 
         if (identical(mode, "frequency")) {
-          ft <- build_freq_table(ds, vars, weight_var = weight_var_rv())
-
-
-          if (is.null(ft) || nrow(ft) == 0) {
-            freq_rv(data.frame(
-              Variable = character(0),
-              Value = character(0),
-              Frequency = integer(0),
-              stringsAsFactors = FALSE
-            ))
+          reports <- mics_explorer_frequency(ds, vars, weight_var = weight_var_rv(),
+            statistics = input$explorer_statistics %||% character())
+          freq_rv(NULL)
+          exploration_rv(list(reports = reports, dataset = input$select_data,
+                              weighted = !is.null(weight_var_rv())))
+          if (!length(reports) || nrow(ds) == 0) {
             showNotification("No results (check filters / selected variables).", type = "warning")
           } else {
-            freq_rv(ft)
-            showNotification("Frequency table created.", type = "message")
+            showNotification("Statistics and frequency tables created.", type = "message")
           }
         } else if (identical(mode, "cross-table")) { # crosstab
+          exploration_rv(NULL)
 
           if (length(vars) != 2) {
             freq_rv(NULL)
@@ -2729,6 +2652,7 @@ modalDialog(
         }
       },
       error = function(e) {
+        exploration_rv(NULL)
         freq_rv(NULL)
         showNotification(paste("Error:", e$message), type = "error")
       }
@@ -2736,69 +2660,36 @@ modalDialog(
   })
 
 
+  output$explorer_report <- renderUI({
+    result <- exploration_rv()
+    if (!is.null(freq_rv())) return(NULL)
+    if (is.null(result)) return(mics_explorer_report_ui(list()))
+    mics_explorer_report_ui(result$reports, result$dataset, result$weighted)
+  })
+
+  output$explorer_crosstab_output <- renderUI({
+    req(freq_rv())
+    tagList(tags$h3("Cross table", class = "px-4"), reactableOutput("freq_table_df"))
+  })
+
   output$freq_table_df <- renderReactable({
     df <- freq_rv()
     req(df)
-
-    # Detect which table we are showing
-    is_freq <- all(c("Variable", "Value", "Frequency") %in% names(df))
-    is_ct <- all(c("Variable1", "Variable2", "Value1", "Value2", "Frequency") %in% names(df))
-
-    if (is_freq) {
-      reactable::reactable(
-        df,
-        searchable = TRUE,
-        striped = TRUE,
-        highlight = TRUE,
-        bordered = TRUE,
-        defaultPageSize = 1000,
-        showPageSizeOptions = TRUE,
-        pageSizeOptions = c(100, 500, 1000),
-        columns = list(
-          Variable  = reactable::colDef(minWidth = 140),
-          Value     = reactable::colDef(minWidth = 180),
-          Frequency = reactable::colDef(minWidth = 110)
-        )
+    reactable::reactable(
+      df, searchable = TRUE, striped = FALSE, highlight = TRUE, bordered = FALSE,
+      defaultPageSize = 25, showPageSizeOptions = TRUE, pageSizeOptions = c(25, 50, 100),
+      defaultColDef = reactable::colDef(headerStyle = list(background = "#f0f4f7", color = "#476175")),
+      columns = list(
+        Variable1 = reactable::colDef(name = "Variable 1", minWidth = 120),
+        Variable2 = reactable::colDef(name = "Variable 2", minWidth = 120),
+        Value1 = reactable::colDef(name = "Value 1", minWidth = 160),
+        Value2 = reactable::colDef(name = "Value 2", minWidth = 160),
+        Frequency = reactable::colDef(minWidth = 100, format = reactable::colFormat(separators = TRUE)),
+        Percent_total = reactable::colDef(name = "% total", format = reactable::colFormat(digits = 1)),
+        Percent_row = reactable::colDef(name = "% row", format = reactable::colFormat(digits = 1)),
+        Percent_col = reactable::colDef(name = "% column", format = reactable::colFormat(digits = 1))
       )
-    } else if (is_ct) {
-      # optional: pretty rounding for perc columns if they exist
-      for (p in c("Percent_total", "Percent_row", "Percent_col")) {
-        if (p %in% names(df)) df[[p]] <- round(as.numeric(df[[p]]), 2)
-      }
-
-      reactable::reactable(
-        df,
-        searchable = TRUE,
-        striped = TRUE,
-        highlight = TRUE,
-        bordered = TRUE,
-        defaultPageSize = 1000,
-        showPageSizeOptions = TRUE,
-        pageSizeOptions = c(100, 500, 1000),
-        columns = list(
-          Variable1      = reactable::colDef(name = "Variable 1", minWidth = 120),
-          Variable2      = reactable::colDef(name = "Variable 2", minWidth = 120),
-          Value1         = reactable::colDef(name = "Value 1", minWidth = 160),
-          Value2         = reactable::colDef(name = "Value 2", minWidth = 160),
-          Frequency      = reactable::colDef(minWidth = 100),
-          Percent_total  = reactable::colDef(name = "% total", minWidth = 100),
-          Percent_row    = reactable::colDef(name = "% row", minWidth = 100),
-          Percent_col    = reactable::colDef(name = "% col", minWidth = 100)
-        )
-      )
-    } else {
-      # fallback if something unexpected was stored
-      reactable::reactable(
-        df,
-        searchable = TRUE,
-        striped = TRUE,
-        highlight = TRUE,
-        bordered = TRUE,
-        defaultPageSize = 1000,
-        showPageSizeOptions = TRUE,
-        pageSizeOptions = c(100, 500, 1000),
-      )
-    }
+    )
   })
 
   # DATA VIEW (reactive-safe) ---------------------------------------------------------

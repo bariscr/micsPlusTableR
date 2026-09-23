@@ -1,0 +1,32 @@
+.explorer-output { background: #f4f7fa; padding: 26px; border-radius: 12px; color: #243746; container-type: inline-size; }
+.explorer-output:has(.shiny-html-output:empty) { display: none; }
+.explorer-report-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 26px; }
+.explorer-eyebrow { color: #587387; font-size: 11px; font-weight: 700; letter-spacing: .12em; margin: 0 0 8px; }
+.explorer-report h2 { font-size: 28px; font-weight: 700; margin: 0 0 8px; letter-spacing: -.025em; }
+.explorer-description { color: #637787; margin: 0; font-size: 13px; }
+.explorer-badge { display: inline-block; background: #e5f0ef; color: #25665f; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.explorer-variable { background: white; border: 1px solid #dce5ec; border-radius: 10px; margin-bottom: 22px; padding: 24px; box-shadow: 0 2px 5px #24374605; }
+.explorer-variable-heading { border-bottom: 1px solid #e6edf2; padding-bottom: 18px; margin-bottom: 22px; }
+.explorer-variable-code { color: #537185; font-size: 11px; font-weight: 700; letter-spacing: .06em; overflow-wrap: anywhere; }
+.explorer-variable h3 { font-size: 19px; font-weight: 650; margin: 6px 0 0; overflow-wrap: anywhere; line-height: 1.4; }
+.explorer-tables { display: grid; grid-template-columns: minmax(215px, 280px) minmax(0, 1fr); gap: 30px; align-items: start; }
+.explorer-statistics, .explorer-frequencies { min-width: 0; }
+.explorer-table-scroll { overflow: auto; max-height: 560px; border-bottom: 2px solid #738a9b; }
+.explorer-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; line-height: 1.5; }
+.explorer-table caption { caption-side: top; padding: 0 0 13px; font-size: 14px; font-weight: 700; color: #243746; text-align: left; }
+.explorer-table th, .explorer-table td { padding: 9px 12px; border-bottom: 1px solid #dfe6ec; vertical-align: top; }
+.explorer-table thead th { position: sticky; top: 0; z-index: 1; background: #fff; color: #547083; font-size: 12px; font-weight: 600; border-bottom: 2px solid #738a9b; vertical-align: bottom; }
+.explorer-table .explorer-stub { background: #f0f4f7; color: #476175; font-weight: 400; text-align: left; min-width: 65px; overflow-wrap: anywhere; }
+.explorer-table .explorer-group { font-weight: 600; width: 64px; }
+.explorer-table .explorer-number { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.explorer-table tbody tr:hover td { background: #f7fafc; }
+.explorer-table .explorer-subtotal > * { border-top: 1px solid #c3d0da; font-weight: 600; }
+.explorer-table .explorer-total > * { border-top: 1px solid #a7b9c7; background: #eaf0f5; font-weight: 700; }
+.explorer-notes { color: #697d8c; font-size: 11px; line-height: 1.6; margin-top: 16px; }
+.explorer-notes p { margin: 3px 0; }
+.explorer-empty { text-align: center; padding: 70px 24px; color: #637787; }
+.explorer-empty h3 { color: #243746; font-size: 22px; }
+@media (max-width: 1150px) { .explorer-tables { grid-template-columns: 1fr; gap: 22px; } .explorer-statistics { max-width: 340px; } }
+@container (max-width: 850px) { .explorer-tables { grid-template-columns: 1fr; gap: 22px; } .explorer-statistics { max-width: 340px; } }
+@media (max-width: 600px) { .explorer-output { padding: 12px; } .explorer-variable { padding: 16px; } .explorer-report-heading { align-items: flex-start; } }
+@media print { .explorer-output { padding: 0; background: white; } .explorer-table-scroll { max-height: none; overflow: visible; } .explorer-variable { box-shadow: none; break-inside: avoid; } }

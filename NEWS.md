@@ -1,5 +1,11 @@
 # micsPlusTableR 0.3.2
 
+* Replace Data Exploration's flat frequency list with SPSS-style reports per
+  variable: selectable descriptive statistics, valid and missing counts,
+  frequency percentages, valid percentages, cumulative percentages, and totals.
+  Use labelled values, shaded stubs, aligned numbers, and responsive layouts.
+  Honor the Unweighted selection even if a weight variable was entered earlier.
+
 * Display missing (`NA`) medians as `-`, alongside the existing `NaN` rule,
   in table previews and Excel exports. Include the dash footnote once whenever
   these markers occur, including tables without small-sample suppression.

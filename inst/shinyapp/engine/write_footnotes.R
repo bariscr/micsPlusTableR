@@ -119,6 +119,13 @@ if (!sheet %in% current_sheets) {
   
   last_col_num2 <- last_col_num - 1
   last_col_let2    <- openxlsx2::int2col(last_col_num2)
+
+  # Existing notes may start in any visible table column below the data.
+  footnote_rows <- unique(existing$row[
+    existing$row >= last_table_row & existing$col <= last_col_num2 &
+      !is.na(existing$character) & nzchar(trimws(existing$character)) &
+      !existing$address %in% old_notes
+  ])
   
   # default: bottom border under last table row
   border_row <- last_table_row
@@ -151,18 +158,7 @@ if (!sheet %in% current_sheets) {
       dims = footnote_dims,
       wrap_text = FALSE
     )
-    # Keep taller template rows, but ensure each generated note is readable.
-    footnote_rows <- seq.int(start_row_foot_df, end_row_foot_df)
-    row_attrs <- worksheet$sheet_data$row_attr
-    heights <- as.numeric(row_attrs$ht[match(footnote_rows, row_attrs$r)])
-    sheet_attrs <- openxlsx2::xml_attr(worksheet$sheetFormatPr, "sheetFormatPr")
-    default_height <- as.numeric(sheet_attrs[[1]]["defaultRowHeight"])
-    heights[is.na(heights)] <- default_height
-    wb$set_row_heights(
-      sheet = sheet,
-      rows = footnote_rows,
-      heights = pmax(11.25, heights, na.rm = TRUE)
-    )
+    footnote_rows <- union(footnote_rows, seq.int(start_row_foot_df, end_row_foot_df))
     
     border_row <- end_row_foot
     
@@ -225,16 +221,25 @@ txt <- paste0(
 
 wb$add_data(sheet = sheet, x = data.frame(note = I(list(txt))), 
            startRow = xxx_cell$row, startCol = xxx_cell$col, colNames = FALSE)
+footnote_rows <- union(footnote_rows, xxx_cell$row)
 }
 
-
-
-
+  # Apply the minimum even when no conditional notes are needed.
+  # Preserve taller rows and the wrapping of existing authored notes.
+  if (length(footnote_rows) > 0L) {
+    row_attrs <- worksheet$sheet_data$row_attr
+    heights <- as.numeric(row_attrs$ht[match(footnote_rows, row_attrs$r)])
+    sheet_attrs <- openxlsx2::xml_attr(worksheet$sheetFormatPr, "sheetFormatPr")
+    default_height <- as.numeric(sheet_attrs[[1]]["defaultRowHeight"])
+    heights[is.na(heights)] <- default_height
+    short_rows <- footnote_rows[is.na(heights) | heights < 11.25]
+    if (length(short_rows) > 0L) {
+      wb$set_row_heights(sheet = sheet, rows = short_rows, heights = 11.25)
+    }
+  }
   openxlsx2::wb_save(wb, dest)
   invisible(NULL)
 }
-
-
 
 
 

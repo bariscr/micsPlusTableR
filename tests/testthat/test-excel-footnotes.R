@@ -118,6 +118,55 @@ test_that("rewriting an exempt table removes obsolete generated notes only", {
                    "Original explanatory footnote")
 })
 
+test_that("all footnotes have a minimum height without changing taller rows", {
+  for (enabled in c(FALSE, TRUE)) {
+    for (default_height in c(8, 16)) {
+      s <- small_plan_session()
+      cells <- tibble::tibble(row_index = 9:11, col_index = 3L, stat_type = "p",
+        value = c(42, 20, NaN), value_f = c("(42.0)", "(*)", "-"))
+      s$out_glob$tab <- s$out_glob$tab_org <- cells
+      s$out_glob$is_supp <- enabled
+      s$out_glob$a_cells <- tibble::tibble(row = 1L, col = 5L, character = "IDX")
+      path <- tempfile(fileext = ".xlsx")
+      on.exit(unlink(path), add = TRUE)
+      wb <- openxlsx2::wb_workbook()$add_worksheet("Example")
+      wb$worksheets[[1]]$sheetFormatPr <- sprintf(
+        '<sheetFormatPr defaultRowHeight="%s"/>', default_height)
+      wb$add_data("Example", "Existing note", dims = "A16")
+      wb$add_data("Example", "Wrapped\nexisting note", dims = "C17")
+      wb$add_cell_style("Example", dims = "C17", wrap_text = TRUE)
+      wb$add_data("Example", "Note with inherited height", dims = "A18")
+      wb$add_data("Example", "Note at the minimum", dims = "A19")
+      wb$set_row_heights("Example", rows = c(12:14, 16:17, 19:20),
+                        heights = c(1, 24, 11.25, 8, 30, 11.25, 2))
+      wb$save(path)
+      before <- openxlsx2::wb_load(path)$worksheets[[1]]$sheet_data$row_attr
+
+      write_mics_footnotes(s, path, table = cells)
+
+      after <- openxlsx2::wb_load(path)$worksheets[[1]]$sheet_data$row_attr
+      expect_equal(as.numeric(after$ht[match(c(16:17, 19), after$r)]),
+                   c(11.25, 30, 11.25))
+      if (enabled) {
+        expect_equal(as.numeric(after$ht[match(12:14, after$r)]), c(11.25, 24, 11.25))
+      }
+      if (default_height < 11.25) {
+        expect_equal(as.numeric(after$ht[match(18, after$r)]), 11.25)
+      }
+      unchanged <- c(13:14, 17, 19:20,
+                     if (!enabled) 12,
+                     if (default_height >= 11.25) 18)
+      expect_equal(after[match(unchanged, after$r), ],
+                   before[match(unchanged, before$r), ], ignore_attr = TRUE)
+      written <- tidyxl::xlsx_cells(path, sheets = "Example")
+      expect_identical(written$character[written$address == "C17"], "Wrapped\nexisting note")
+      formats <- tidyxl::xlsx_formats(path)
+      expect_true(formats$local$alignment$wrapText[
+        written$local_format_id[written$address == "C17"]])
+    }
+  }
+})
+
 test_that("both Excel tabs write identical cells and styles after another sheet runs", {
   output_dir <- tempfile("excel-parity-")
   dir.create(output_dir)

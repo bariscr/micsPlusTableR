@@ -970,17 +970,27 @@ ensure_current_workbook <- function() {
     output, cell_results_all_rv, long_format_metadata_rv
   )
 
+  # Match the initial UI choices. Rebuilding an unchanged dropdown can deliver
+  # a stale selection after the user has already picked another wave.
+  displayed_waves <- survey_choices$wave[
+    survey_choices$label == survey_choices$label[1L]
+  ]
   observeEvent(input$select_country, {
     waves <- survey_choices$wave[
       survey_choices$label == input$select_country
     ]
     req(length(waves))
+    if (identical(waves, displayed_waves) &&
+        (is.null(input$select_wave) || input$select_wave %in% waves)) {
+      return(invisible(NULL))
+    }
     selected <- if (length(input$select_wave) == 1L && input$select_wave %in% waves) {
       input$select_wave
     } else {
       waves[1L]
     }
     updateSelectInput(session, "select_wave", choices = waves, selected = selected)
+    displayed_waves <<- waves
   })
 
   survey_meta_rv <- reactive({

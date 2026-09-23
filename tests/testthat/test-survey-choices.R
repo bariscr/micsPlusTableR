@@ -60,7 +60,8 @@ test_that("CSV edits drive the app choices, allowed waves, and output metadata",
 
     # A country input may arrive before the wave input on first load.
     session$setInputs(select_country = "Jamaica (2023-24)")
-    expect_identical(wave_update$value, "Wave 1")
+    # The initial dropdown already supplies these choices and its default.
+    expect_null(wave_update)
     session$setInputs(select_wave = "Wave 1")
     expect_identical(survey_meta_rv()$country_abb, "JAM")
 
@@ -83,5 +84,59 @@ test_that("CSV edits drive the app choices, allowed waves, and output metadata",
     session$setInputs(select_country = "Jamaica (2023-24)")
     expect_identical(wave_update$value, "Wave 2")
     expect_identical(survey_meta_rv()$country_abb, "JAM")
+  })
+})
+
+test_that("Turkmenistan Wave 2 survives uploads without stale wave updates", {
+  output_dir <- tempfile("wave-upload-")
+  dir.create(output_dir)
+  on.exit(unlink(output_dir, recursive = TRUE), add = TRUE)
+  old_options <- options(micsPlusTableR.output_dir = output_dir)
+  on.exit(options(old_options), add = TRUE)
+  tab_path <- file.path(output_dir, "plan.xlsx")
+  openxlsx2::wb_workbook()$add_worksheet("IDX")$
+    add_data("IDX", c("Turkmenistan", "TKM", "2025-26", "Wave 2"))$
+    add_worksheet("Example")$save(tab_path)
+  prep_path <- file.path(output_dir, "prep.R")
+  writeLines("# Upload fixture", prep_path)
+  sav_path <- file.path(output_dir, "hh.sav")
+  haven::write_sav(data.frame(id = 1), sav_path)
+  upload <- function(path) data.frame(
+    name = basename(path), size = file.info(path)$size,
+    type = "application/octet-stream", datapath = path)
+  app_env <- new.env()
+  app <- source(system.file("shinyapp", "app.R", package = "micsPlusTableR"),
+                local = app_env)$value
+
+  shiny::testServer(app, {
+    wave_updates <- list()
+    session$sendInputMessage <- function(inputId, message) {
+      if (identical(inputId, "select_wave")) {
+        wave_updates[[length(wave_updates) + 1L]] <<- message
+      }
+    }
+    session$setInputs(select_country = "Jamaica (2023-24)", select_wave = "Wave 1")
+    session$setInputs(select_country = "Turkmenistan (2025-26)")
+    # A queued Wave 1 update could overwrite the user's next choice in the browser.
+    expect_length(wave_updates, 0L)
+    session$setInputs(select_wave = "Wave 2")
+    session$setInputs(hh_file = upload(sav_path))
+    session$setInputs(hl_file = upload(sav_path))
+    session$setInputs(tab_file = upload(tab_path))
+    session$setInputs(prep_folder = upload(prep_path),
+                      prep_folder_relative_paths = "preparation/prep.R")
+    session$flushReact()
+    expect_length(wave_updates, 0L)
+    expect_identical(input$select_wave, "Wave 2")
+    expect_identical(survey_meta_rv(), list(country = "Turkmenistan",
+      country_abb = "TKM", period = "2025-26", wave = "Wave 2"))
+    expect_identical(tab_path_rv(), tab_path)
+    expect_true(file.exists(prep_folder_selection()$prep_script))
+    # Replacing a plan must also preserve the wave.
+    replacement <- upload(tab_path)
+    replacement$name <- "replacement-plan.xlsx"
+    session$setInputs(tab_file = replacement)
+    expect_length(wave_updates, 0L)
+    expect_identical(survey_meta_rv()$wave, "Wave 2")
   })
 })

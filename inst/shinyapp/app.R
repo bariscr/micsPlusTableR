@@ -1833,6 +1833,7 @@ survey_info_msg_rv(
           formatted = TRUE,
           drop_n_unw = TRUE
         )
+        write_footnotes(dest = dest_f_rv(), sheet = sheet_rv(), df = cell_results_rv())
         showNotification(paste("Written to Formatted:", dest_f_rv()), type = "message")
       },
       error = function(e) {
@@ -2050,7 +2051,7 @@ modalDialog(
                 formatted = TRUE,
                 drop_n_unw = TRUE
               )
-              write_footnotes(df = cell_results, sheet = sheet)
+              write_footnotes(dest = destf, sheet = sheet, df = cell_results)
               wrote <- c(wrote, "formatted")
             }
 

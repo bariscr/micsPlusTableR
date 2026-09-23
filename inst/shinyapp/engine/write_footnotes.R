@@ -62,12 +62,14 @@ if (!sheet %in% current_sheets) {
     stop("Object 'tab' was not found (needed to find last table column).")
   }
   
-  # Only eligible tables use the suppression display in the formatted export.
+  # Parentheses and stars require suppression eligibility; missing-value
+  # dashes also occur in tables that do not use suppression.
   vec <- if (isTRUE(out_glob$is_supp)) trimws(df$value_f) else character()
   
   is_1 <- any(stringr::str_detect(vec, "^\\([^*]+\\)$"), na.rm = TRUE)
   is_2 <- any(vec == "(*)", na.rm = TRUE)
-  is_3 <- any(vec == "-", na.rm = TRUE)
+  is_3 <- any(trimws(df$value_f) == "-", na.rm = TRUE) ||
+    any(mics_missing_value_dash(df$value, df$stat_type), na.rm = TRUE)
   
   foot1 <- "( ) Figures that are based on 25-49 unweighted cases"
   foot2 <- "(*) Figures that are based on fewer than 25 unweighted cases"
@@ -132,12 +134,42 @@ if (!sheet %in% current_sheets) {
   
   # ---- write footnotes if any ----
   if (!is.null(txt) && length(txt) > 0) {
+    # Extend the existing footnote block, removing its old closing rule.
+    # Excel may store that rule below the note or above the following row.
+    for (row in footnote_rows) {
+      wb$add_border(
+        sheet = sheet,
+        dims = paste0("A", row, ":", last_col_let2, row),
+        bottom_border = "none", top_border = NULL,
+        left_border = NULL, right_border = NULL, update = TRUE
+      )
+      wb$add_border(
+        sheet = sheet,
+        dims = paste0("A", row + 1L, ":", last_col_let2, row + 1L),
+        top_border = "none", bottom_border = NULL,
+        left_border = NULL, right_border = NULL, update = TRUE
+      )
+    }
     
-    start_row_foot_df <- last_table_row 
+    start_row_foot_df <- max(c(last_table_row, footnote_rows + 1L))
     end_row_foot_df   <- start_row_foot_df + length(txt) - 1
     
-    start_row_foot <- last_table_row + 1
+    start_row_foot <- start_row_foot_df + 1
     end_row_foot   <- start_row_foot + length(txt) - 1
+
+    footnote_dims <- paste0("A", start_row_foot_df, ":A", end_row_foot_df)
+    # Reset template indentation before writing conditional notes.
+    wb$add_cell_style(
+      sheet = sheet,
+      dims = footnote_dims,
+      indent = 0,
+      wrap_text = FALSE
+    )
+    wb$set_row_heights(
+      sheet = sheet,
+      rows = seq.int(start_row_foot_df, end_row_foot_df),
+      heights = 11.25
+    )
     
     wb$add_data(
       sheet = sheet,
@@ -145,18 +177,12 @@ if (!sheet %in% current_sheets) {
       dims  = paste0("A", start_row_foot_df)
     )
     
-    footnote_dims <- paste0("A", start_row_foot_df, ":A", end_row_foot_df)
     # Style only the newly written conditional notes; preserve existing notes' wrapping.
     wb$add_font(
       sheet = sheet,
       dims  = footnote_dims,
       name  = "Arial",
       size  = 8
-    )
-    wb$add_cell_style(
-      sheet = sheet,
-      dims = footnote_dims,
-      wrap_text = FALSE
     )
     footnote_rows <- union(footnote_rows, seq.int(start_row_foot_df, end_row_foot_df))
     
@@ -240,9 +266,6 @@ footnote_rows <- union(footnote_rows, xxx_cell$row)
   openxlsx2::wb_save(wb, dest)
   invisible(NULL)
 }
-
-
-
 
 
 

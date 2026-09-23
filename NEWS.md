@@ -1,8 +1,14 @@
 # micsPlusTableR 0.3.2
 
+* Display missing (`NA`) medians as `-`, alongside the existing `NaN` rule,
+  in table previews and Excel exports. Include the dash footnote once whenever
+  these markers occur, including tables without small-sample suppression.
+
 * Apply an 11.25-point minimum row height to existing and generated conditional
-  footnotes in Excel exports. Leave rows already at or above the minimum
-  untouched, including taller rows inherited from the worksheet default.
+  footnotes in Excel exports. Force conditional footnote rows to exactly 11.25
+  points and clear their cell indentation. For existing authored footnotes,
+  preserve rows already at or above the minimum, including taller rows
+  inherited from the worksheet default.
 
 * Set the default Excel export zoom to 100% instead of 140%.
 

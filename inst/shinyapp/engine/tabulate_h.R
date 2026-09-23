@@ -278,7 +278,7 @@ count_col_ns <- tab |> distinct(col_index, stat_type) |> filter(stat_type == "n"
     results1 |> 
     dplyr::mutate(
       value_f_org = dplyr::case_when(
-        is.nan(value) ~ "-",
+        mics_missing_value_dash(value, stat_type) ~ "-",
         stat_type %in% c("n", "n1", "n_unw", "n2", "n_unw2", "hhmembers") ~ as.character(format(round(value, 0), big.mark = ",")),
         stat_type %in% c("p", "n1", "p_unw", "p(100)", "p_unw(100)", "mean", "mean_unw") ~ as.character(round(value, 1)),
         TRUE ~ as.character(value)
@@ -291,6 +291,7 @@ if (out_glob$is_supp) {
   out <- out |> 
     dplyr::mutate(
       value_f = dplyr::case_when(
+        mics_missing_value_dash(value, stat_type) ~ "-",
         (is.na(n_unw) | n_unw == 0) & stat_type == "100" ~ "0",
         stat_type %in% c("n", "n1", "n_unw", "100") ~ as.character(value),
         (is.na(n_unw) | n_unw == 0) & stat_type != "100" ~ "-",
@@ -302,6 +303,7 @@ if (out_glob$is_supp) {
     ) |> 
        dplyr::mutate(
       value_f_view = dplyr::case_when(
+        mics_missing_value_dash(value, stat_type) ~ "-",
         stat_type %in% c("n", "n1", "n_unw") ~ value_f_org,
         (is.na(n_unw) | n_unw == 0) & stat_type == "100" ~ "0",
         (is.na(n_unw) | n_unw == 0) & stat_type != "100" ~ "-",

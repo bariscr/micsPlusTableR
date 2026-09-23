@@ -94,7 +94,7 @@ if (!sheet %in% current_sheets) {
     
     # normalize empties
     if (is.factor(val)) val <- as.character(val)
-    if (is_nanish(val)) {
+    if (is_nanish(val) || mics_missing_value_dash(val, st)) {
       wb$add_data(sheet = sheet, x = "-", startRow = r, startCol = c, colNames = FALSE)
       next
     }
@@ -140,10 +140,10 @@ if (!sheet %in% current_sheets) {
     n_rows <- max(table$row_index, na.rm = TRUE)
     n_cols <- max(table$col_index, na.rm = TRUE)
     
-    # Column 2: blank + white + hide
+    # Column B: blank, white spacer.
     wb$add_data(sheet = sheet, x = rep("", n_rows), dims = sprintf("B1:B%d", n_rows), col_names = FALSE)
     wb$add_fill(sheet = sheet, dims = sprintf("B1:B%d", n_rows), color = white)
-    wb_set_col_widths(wb, sheet = sheet, cols = 2, widths = 0)
+    wb_set_col_widths(wb, sheet = sheet, cols = 2, widths = 0.5)
     
     # Specific row (condition_row_index): blank + white + hide
     r <- condition_row_index
@@ -158,7 +158,7 @@ if (!sheet %in% current_sheets) {
       col_names = FALSE
     )
     wb$add_fill(sheet = sheet, dims = row_range, color = white)
-    wb$set_row_heights(sheet = sheet, rows = r, heights = 1, hidden = TRUE)
+    wb$set_row_heights(sheet = sheet, rows = r, heights = 3, hidden = TRUE)
   }
   
   # ---- right-align all cells in the table extent (openxlsx2) ----

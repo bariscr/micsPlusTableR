@@ -273,10 +273,10 @@ out <-
     dplyr::left_join(indent_rows, by = c("row_index" = "row")) %>%
     dplyr::left_join(group_info, by = c("row_index" = "row")) %>%
     dplyr::mutate(
-      value_f = dplyr::if_else(is.nan(value), "-", as.character(value))
+      value_f = dplyr::if_else(mics_missing_value_dash(value, stat_type), "-", as.character(value))
     ) |>
     dplyr::mutate(value_f_view = dplyr::case_when(
-      is.nan(value) ~ "-",
+      mics_missing_value_dash(value, stat_type) ~ "-",
       # use thousand separators before changing to character
       stat_type %in% c("n", "n1", "n_unw", "n_unw1", "n2", "n_unw2", "hhmembers") ~ as.character(format(round(value, 0), big.mark = ",")),
       stat_type %in% c("p", "p1", "p_unw", "p(100)", "p_unw(100)", "mean", "mean_unw") ~ as.character(round(value, 1)),

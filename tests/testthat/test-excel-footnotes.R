@@ -69,9 +69,11 @@ test_that("single-sheet and multi-sheet formatted exports include the same footn
   expect_false(any(raw$character %in% notes))
 })
 
-test_that("footnotes require eligibility and the corresponding exact display marker", {
+test_that("only suppression footnotes require eligibility", {
   cases <- list(
-    list(enabled = FALSE, values = c("(42.0)", "(*)", "-"), notes = character()),
+    list(enabled = FALSE, values = c("(42.0)", "(*)", "-"),
+         notes = "- denotes 0 unweighted cases in the denominator"),
+    list(enabled = FALSE, values = c("(42.0)", "(*)", "100"), notes = character()),
     list(enabled = TRUE, values = c("-42.0", "50", "100"), notes = character()),
     list(enabled = TRUE, values = c("(42.0)", "50", "100"),
          notes = "( ) Figures that are based on 25-49 unweighted cases"),
@@ -113,17 +115,73 @@ test_that("rewriting an exempt table removes obsolete generated notes only", {
   s$out_glob$is_supp <- FALSE
   write_mics_footnotes(s, path, table = cells)
   written <- tidyxl::xlsx_cells(path, sheets = "Example")
-  expect_false(any(grepl("unweighted cases", written$character), na.rm = TRUE))
+  expect_identical(written$character[grepl("unweighted cases", written$character)],
+                   "- denotes 0 unweighted cases in the denominator")
   expect_identical(written$character[written$address == "A16"],
                    "Original explanatory footnote")
 })
 
-test_that("all footnotes have a minimum height without changing taller rows", {
+test_that("conditional footnotes extend authored notes without an intervening border", {
+  for (enabled in c(FALSE, TRUE)) {
+    s <- small_plan_session()
+    cells <- tibble::tibble(row_index = 9:11, col_index = 3L, stat_type = "p",
+      value = c(42, 20, NaN), value_f = c("(42.0)", "(*)", "-"))
+    if (!enabled) {
+      cells$value <- c(42, 20, 100)
+      cells$value_f <- as.character(cells$value)
+    }
+    s$out_glob$tab <- s$out_glob$tab_org <- cells
+    s$out_glob$is_supp <- enabled
+    s$out_glob$a_cells <- tibble::tibble(row = 1L, col = 5L, character = "IDX")
+    path <- tempfile(fileext = ".xlsx")
+    on.exit(unlink(path), add = TRUE)
+    wb <- openxlsx2::wb_workbook()$add_worksheet("Example")
+    wb$add_data("Example", "Original footnote", dims = "A12")
+    wb$add_data("Example", "Another footnote", dims = "B13")
+    wb$add_border("Example", "A13:C13", bottom_border = "thin",
+                  top_border = NULL, left_border = "double", right_border = NULL)
+    wb$add_border("Example", "A14:C14", top_border = "thin",
+                  bottom_border = NULL, left_border = NULL, right_border = NULL)
+    wb$save(path)
+
+    # A second write should keep the same placement and closing rule.
+    for (iteration in 1:2) {
+      write_mics_footnotes(s, path, table = cells)
+      written <- tidyxl::xlsx_cells(path, sheets = "Example")
+      borders <- tidyxl::xlsx_formats(path)$local$border
+      border_style <- function(addresses, side) {
+        borders[[side]]$style[written$local_format_id[match(addresses, written$address)]]
+      }
+      expect_identical(written$character[written$address == "A12"], "Original footnote")
+      expect_identical(written$character[written$address == "B13"], "Another footnote")
+      expect_identical(border_style("A13", "left"), "double")
+      for (edge in list(list(row = 13L, side = "bottom"), list(row = 14L, side = "top"))) {
+        styles <- border_style(paste0(LETTERS[1:3], edge$row), edge$side)
+        if (enabled) {
+          expect_true(all(is.na(styles) | styles == "none"))
+        } else {
+          expect_identical(styles, rep("thin", 3))
+        }
+      }
+      if (enabled) {
+        expect_identical(written$row[grepl("unweighted cases", written$character)], 14:16)
+        expect_identical(border_style(paste0(LETTERS[1:3], 17), "top"), rep("thin", 3))
+        expect_identical(border_style(paste0("D", 12:16), "left"), rep("thin", 5))
+      }
+    }
+  }
+})
+
+test_that("conditional notes reset indentation and height while authored notes retain taller rows", {
   for (enabled in c(FALSE, TRUE)) {
     for (default_height in c(8, 16)) {
       s <- small_plan_session()
       cells <- tibble::tibble(row_index = 9:11, col_index = 3L, stat_type = "p",
         value = c(42, 20, NaN), value_f = c("(42.0)", "(*)", "-"))
+      if (!enabled) {
+        cells$value <- c(42, 20, 100)
+        cells$value_f <- as.character(cells$value)
+      }
       s$out_glob$tab <- s$out_glob$tab_org <- cells
       s$out_glob$is_supp <- enabled
       s$out_glob$a_cells <- tibble::tibble(row = 1L, col = 5L, character = "IDX")
@@ -134,11 +192,12 @@ test_that("all footnotes have a minimum height without changing taller rows", {
         '<sheetFormatPr defaultRowHeight="%s"/>', default_height)
       wb$add_data("Example", "Existing note", dims = "A16")
       wb$add_data("Example", "Wrapped\nexisting note", dims = "C17")
-      wb$add_cell_style("Example", dims = "C17", wrap_text = TRUE)
+      wb$add_cell_style("Example", dims = "C17", wrap_text = TRUE, indent = 2)
+      wb$add_cell_style("Example", dims = "A20:A22", wrap_text = TRUE, indent = 3)
       wb$add_data("Example", "Note with inherited height", dims = "A18")
       wb$add_data("Example", "Note at the minimum", dims = "A19")
-      wb$set_row_heights("Example", rows = c(12:14, 16:17, 19:20),
-                        heights = c(1, 24, 11.25, 8, 30, 11.25, 2))
+      wb$set_row_heights("Example", rows = c(20:22, 16:17, 19, 23),
+                        heights = c(1, 15, 24, 8, 30, 11.25, 2))
       wb$save(path)
       before <- openxlsx2::wb_load(path)$worksheets[[1]]$sheet_data$row_attr
 
@@ -148,13 +207,13 @@ test_that("all footnotes have a minimum height without changing taller rows", {
       expect_equal(as.numeric(after$ht[match(c(16:17, 19), after$r)]),
                    c(11.25, 30, 11.25))
       if (enabled) {
-        expect_equal(as.numeric(after$ht[match(12:14, after$r)]), c(11.25, 24, 11.25))
+        expect_equal(as.numeric(after$ht[match(20:22, after$r)]), rep(11.25, 3))
       }
       if (default_height < 11.25) {
         expect_equal(as.numeric(after$ht[match(18, after$r)]), 11.25)
       }
-      unchanged <- c(13:14, 17, 19:20,
-                     if (!enabled) 12,
+      unchanged <- c(17, 19, 23,
+                     if (!enabled) 20:22,
                      if (default_height >= 11.25) 18)
       expect_equal(after[match(unchanged, after$r), ],
                    before[match(unchanged, before$r), ], ignore_attr = TRUE)
@@ -163,6 +222,13 @@ test_that("all footnotes have a minimum height without changing taller rows", {
       formats <- tidyxl::xlsx_formats(path)
       expect_true(formats$local$alignment$wrapText[
         written$local_format_id[written$address == "C17"]])
+      expect_equal(formats$local$alignment$indent[
+        written$local_format_id[written$address == "C17"]], 2)
+      conditional_formats <- written$local_format_id[match(paste0("A", 20:22), written$address)]
+      expect_equal(formats$local$alignment$indent[conditional_formats],
+                   rep(if (enabled) 0 else 3, 3))
+      expect_identical(formats$local$alignment$wrapText[conditional_formats],
+                       rep(!enabled, 3))
     }
   }
 })
@@ -248,7 +314,8 @@ test_that("both Excel tabs write identical cells and styles after another sheet 
   exempt <- read_written(paths[2], "Exempt")
   expect_equal(exempt$numeric[exempt$address == "C10"], 6)
   expect_identical(exempt$character[exempt$address == "C11"], "-")
-  expect_false(any(grepl("unweighted cases", exempt$character), na.rm = TRUE))
+  expect_identical(exempt$character[grepl("unweighted cases", exempt$character)],
+                   "- denotes 0 unweighted cases in the denominator")
   eligible <- read_written(paths[2], "Eligible")
   expect_identical(eligible$character[eligible$address == "C16"], "(*)")
   expect_identical(eligible$numfmt[eligible$address == "C15"], "(#,##0.0)")

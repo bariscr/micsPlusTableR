@@ -67,3 +67,32 @@ test_that("single-sheet and multi-sheet formatted exports include the same footn
   raw <- tidyxl::xlsx_cells(paths[3], sheets = "Example")
   expect_false(any(raw$character %in% notes))
 })
+
+test_that("footnotes require eligibility and the corresponding exact display marker", {
+  cases <- list(
+    list(enabled = FALSE, values = c("(42.0)", "(*)", "-"), notes = character()),
+    list(enabled = TRUE, values = c("-42.0", "50", "100"), notes = character()),
+    list(enabled = TRUE, values = c("(42.0)", "50", "100"),
+         notes = "( ) Figures that are based on 25-49 unweighted cases"),
+    list(enabled = TRUE, values = c("42.0", "(*)", "100"),
+         notes = "(*) Figures that are based on fewer than 25 unweighted cases"),
+    list(enabled = TRUE, values = c("42.0", "50", "-"),
+         notes = "- denotes 0 unweighted cases in the denominator")
+  )
+  for (case in cases) {
+    s <- small_plan_session()
+    cells <- tibble::tibble(row_index = 9:11, col_index = 3L, stat_type = "p",
+                           value = c(42, 50, 100), value_f = case$values)
+    s$out_glob$tab <- s$out_glob$tab_org <- cells
+    s$out_glob$is_supp <- case$enabled
+    s$out_glob$a_cells <- tibble::tibble(row = 1L, col = 5L, character = "IDX")
+    path <- tempfile(fileext = ".xlsx")
+    on.exit(unlink(path), add = TRUE)
+    openxlsx2::wb_workbook()$add_worksheet("Example")$save(path)
+    write_mics_footnotes(s, path, table = cells)
+    written <- tidyxl::xlsx_cells(path, sheets = "Example")
+    notes <- written$character[written$col == 1L & written$row >= 12L &
+                                !is.na(written$character)]
+    expect_identical(notes, case$notes)
+  }
+})

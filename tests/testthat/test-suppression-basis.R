@@ -136,6 +136,42 @@ test_that("supplied extra-table values use the same repaired display basis", {
   expect_equal(nrow(result), 24L)
 })
 
+test_that("ineligible regular and extra tables retain small-sample estimates", {
+  s <- expense_filter_session(TRUE)
+  s$out_glob$is_supp <- FALSE
+  supplied <- data.frame(label = paste("Group", 1:4), c = c(60, 30, 20, 0),
+    d = 100, e = 100, f = c(150, 150, 150, NaN),
+    g = c(60, 30, 20, 0), h = c(60, 30, 20, 0))
+  for (result in list(tabulate_h(s), tabulate_extra_table(s, supplied))) {
+    f <- result[result$col_index == 6L, ]
+    expect_equal(f$n_unw, c(60, 30, 20, 0))
+    expect_equal(f$value_f_view, c("150.0", "150.0", "150.0", "-"))
+    expect_identical(f$value_f, f$value_f_org)
+  }
+})
+
+test_that("plan suppression requires an unweighted statistic immediately before IDX", {
+  s <- small_plan_session()
+  cells <- matrix(NA_character_, 9, 7)
+  cells[1, 1] <- "Table 1 Example"
+  cells[3, ] <- c("Rows", "Conditions", "Percent", "Base", "Total", "Last", "IDX")
+  cells[4, 2] <- "hh.sav\nfilter(total == 1)\nweight by w"
+  cells[4, 3:6] <- "total == 1"
+  cells[9, 1:2] <- c("Total", "TRUE")
+  wb <- openxlsx2::wb_workbook()$add_worksheet("Example")$add_worksheet("IDX")
+  wb$add_data("IDX", "Table 1 Example", col_names = FALSE)
+  path <- tempfile(fileext = ".xlsx")
+  on.exit(unlink(path), add = TRUE)
+  for (last in c("n", "p", "n_unw", "n_unw2", "n_unw(d=2)")) {
+    cells[9, 3:6] <- c("p", "n_unw", "100", last)
+    wb$add_data("Example", cells, col_names = FALSE)
+    wb$add_cell_style("Example", dims = "A9", horizontal = "left", indent = 1)
+    wb$save(path, overwrite = TRUE)
+    plan <- read_mics_tabulation(s, path, "Example")
+    expect_identical(plan$is_supp, last %in% c("n_unw", "n_unw2", "n_unw(d=2)"))
+  }
+})
+
 test_that("count recovery respects rows, count groups, and existing matches", {
   repair <- mics_session()$restore_suppression_basis
   cells <- tibble::tibble(

@@ -37,19 +37,15 @@ test_that("clear_previous resets all table-specific outputs", {
 })
 
 test_that("extra tables without n_unw are not entirely suppressed", {
-  engine <- micsPlusTableR:::load_engine_environment()
-  apply_basis <- get(
-    "apply_extra_table_suppression_basis",
-    envir = engine,
-    inherits = FALSE
-  )
-
-  supplied <- data.frame(n_unw = NA_real_, value = c(33.8, 100, 82.8))
-  no_denominator <- data.frame(stat_type = c("p", "100", "mean"))
-  with_denominator <- data.frame(stat_type = c("p", "n_unw", "mean"))
-
-  expect_true(all(is.infinite(apply_basis(supplied, no_denominator)$n_unw)))
-  expect_true(all(is.na(apply_basis(supplied, with_denominator)$n_unw)))
+  for (stat in c("p", "100", "mean")) {
+    s <- small_plan_session("h")
+    s$out_glob$tab$stat_type <- stat
+    result <- tabulate_extra_table(s, data.frame(label = "Total", value = 33.8))
+    expect_equal(result$value, 33.8)
+    expect_identical(result$value_f, "33.8")
+    expect_identical(result$value_f_view, "33.8")
+    expect_true(is.na(result$n_unw))
+  }
 })
 
 test_that("Excel-authored row conditions are normalized", {

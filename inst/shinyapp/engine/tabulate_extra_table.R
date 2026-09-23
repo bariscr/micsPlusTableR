@@ -1,21 +1,3 @@
-apply_extra_table_suppression_basis <- function(results, tab) {
-  has_unweighted_denominator <- any(
-    tab$stat_type %in% c("n_unw", "n_unw2")
-  )
-
-  # Some approved extra tables, including JW2.6.1, contain only supplied
-  # percentages, totals, and means. With no unweighted-denominator column there
-  # is no suppression basis; treating the missing denominator as zero hides
-  # every valid value. Infinity makes those supplied cells pass through the
-  # existing display-formatting rules without changing tables that do provide
-  # an unweighted denominator.
-  if (!has_unweighted_denominator) {
-    results$n_unw <- Inf
-  }
-
-  results
-}
-
 tabulate_extra_table <- function(table = table_new) {
 
   mics_require_columns(table, character(), "table")
@@ -99,8 +81,7 @@ count_col_ns <- tab |> distinct(col_index, stat_type) |> filter(stat_type == "n"
         dplyr::between(col_index, col_start_1, col_end_1)
       )
     ) |>
-    restore_suppression_basis() |>
-    apply_extra_table_suppression_basis(tab)
+    restore_suppression_basis()
   
 
 
@@ -115,8 +96,12 @@ out <-
         TRUE ~ as.character(value)
       ),
       value_f_org = format_mean_display(value, stat_type, value_f_org)
-    ) |> 
+    )
 
+  # Supplied tables follow the same plan eligibility rule as calculated tables.
+  # A count elsewhere in the table does not enable suppression.
+  if (isTRUE(out_glob$is_supp)) {
+    out <- out |>
     dplyr::mutate(
       value_f = dplyr::case_when(
         (is.na(n_unw) | n_unw == 0) & stat_type == "100" ~ "0",
@@ -138,7 +123,11 @@ out <-
         n_unw >= 50                           ~ value_f_org,
         TRUE                                  ~ value_f_org
       )
-    ) 
+    )
+  } else {
+    out <- out |>
+      dplyr::mutate(value_f = value_f_org, value_f_view = value_f_org)
+  }
 
   
   # Add the variable names to the output

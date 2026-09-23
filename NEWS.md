@@ -1,5 +1,10 @@
 # micsPlusTableR 0.3.1
 
+* Make supplied extra tables honor the plan's suppression flag, which requires
+  `n_unw` or `n_unw2` immediately before `IDX`. Write conditional suppression
+  footnotes only for eligible tables with the corresponding display markers;
+  negative estimates no longer trigger the zero-denominator footnote.
+
 * Fix row-condition mutations in horizontal, vertical, and standalone cell calculations: support nested calls and separators, execute top to bottom, preserve earlier results, and retain repeated setup steps. Vertical shared column-B setup now executes before row mutations.
 
 - Restore condition-row mutations in column order within horizontal filter

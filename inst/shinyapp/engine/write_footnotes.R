@@ -62,11 +62,12 @@ if (!sheet %in% current_sheets) {
     stop("Object 'tab' was not found (needed to find last table column).")
   }
   
-  vec <- df$value_f
+  # Only eligible tables use the suppression display in the formatted export.
+  vec <- if (isTRUE(out_glob$is_supp)) trimws(df$value_f) else character()
   
-  is_1 <- any(stringr::str_detect(vec, "\\((?!\\*)"), na.rm = TRUE)
-  is_2 <- any(stringr::str_detect(vec, "\\(\\*\\)"), na.rm = TRUE)
-  is_3 <- any(stringr::str_detect(vec, "-"), na.rm = TRUE)
+  is_1 <- any(stringr::str_detect(vec, "^\\([^*]+\\)$"), na.rm = TRUE)
+  is_2 <- any(vec == "(*)", na.rm = TRUE)
+  is_3 <- any(vec == "-", na.rm = TRUE)
   
   foot1 <- "( ) Figures that are based on 25-49 unweighted cases"
   foot2 <- "(*) Figures that are based on fewer than 25 unweighted cases"
@@ -213,7 +214,6 @@ wb$add_data(sheet = sheet, x = data.frame(note = I(list(txt))),
   openxlsx2::wb_save(wb, dest)
   invisible(NULL)
 }
-
 
 
 

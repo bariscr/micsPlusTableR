@@ -132,8 +132,9 @@ if (!sheet %in% current_sheets) {
       !existing$address %in% old_notes
   ])
   
-  # default: bottom border under last table row
-  border_row <- last_table_row
+  # Close below authored notes even when no conditional notes are needed.
+  # Borders use the top of the following row, and the right edge ends above it.
+  border_row <- max(c(last_table_row, footnote_rows + 1L))
   
   # ---- write footnotes if any ----
   if (!is.null(txt) && length(txt) > 0) {
@@ -272,7 +273,6 @@ footnote_rows <- union(footnote_rows, xxx_cell$row)
   openxlsx2::wb_save(wb, dest)
   invisible(NULL)
 }
-
 
 
 

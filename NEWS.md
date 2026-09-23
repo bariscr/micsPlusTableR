@@ -1,5 +1,8 @@
 # micsPlusTableR 0.3.2
 
+* Close the bottom and right edges below existing tab-plan footnotes even when
+  no conditional footnotes are added.
+
 * Persist column B's width using Excel's saved value for an input of 0.5 and
   force the condition row to a visible height of 3 points, including when the
   template or a previous export had hidden it.

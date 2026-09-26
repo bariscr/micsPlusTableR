@@ -1697,7 +1697,7 @@ decimal place. For example, `mean(HCS8)` still displays `442,571.9`.
 
 **Use a whole number of decimal places.** `d=0` removes the decimal
 point; `d=1`, `d=2`, and `d=3` show one, two, and three decimal places,
-including trailing zeros. Spaces are allowed, so `mean(HCS8,   d=0)` is
+including trailing zeros. Spaces are allowed, so `mean(HCS8, d=0)` is
 valid. Give `d` only once, as a non-negative whole number, without
 quotation marks or a calculation. For example, `d=-1`, `d=1.5`, and
 `d="2"` are invalid.
@@ -1716,11 +1716,7 @@ keeps numeric estimates at full precision when you specify `d`.
 Parenthesized estimates follow the requested precision, such as
 `(442,572)` for `d=0`; `(*)` and `-` remain suppression markers.
 
-Changing only `d` never starts or stops a filter. A column using
-`n_unw(d=2)` still acts as an unweighted count for direction and
-suppression. Where the reader fills a blank statistic cell, it carries
-the decimal setting with that statistic. Save the plan and reload it in
-the app, then rerun the affected tables to apply your edits.
+A column using `n_unw(d=2)` still acts as an unweighted count for direction and suppression. Where the reader fills a blank statistic cell, it carries the decimal setting with that statistic. Save the plan and reload it in the app, then rerun the affected tables to apply your edits.
 
 {{< pagebreak >}}
 
@@ -1787,7 +1783,6 @@ application's address and file-retrieval steps.
 
 **Words used in this guide**
 
-- **Click:** press the left mouse button once. On a touchpad, tap once.
 - **Tab:** a section name across the top of the application.
 - **Browse:** open a window to find a file on your computer.
 - **Folder:** a place that holds files. A preparation folder may contain
@@ -1804,14 +1799,7 @@ application's address and file-retrieval steps.
 - **Sheet:** one page of an Excel workbook, such as `1.1a`.
 - **Wave:** one round of the survey. Use the wave your team gave you.
 
-**About the pictures.** The Data Preparation picture shows Mongolia
-2025-26 Wave 2. The Download Files picture shows the new tab in the
-0.3.0 development version, before loading the survey list. The remaining
-pictures are screenshots from version 0.2.7, using Mongolia Wave 1 as an
-example. Your file names and results will differ. Use the files for your
-own survey. Screenshots show example output folders; your project
-normally saves to **micsPlusTableR-output**. In the HTML guide, click a
-picture to enlarge it; press **Esc** to return.
+**About the pictures.** In the HTML guide, click a picture to enlarge it; press **Esc** to return.
 
 **Looking for package functions?** Use the [package reference
 manual](https://github.com/bariscr/micsPlusTableR/blob/HEAD/output/pdf/micsPlusTableR-manual.pdf)

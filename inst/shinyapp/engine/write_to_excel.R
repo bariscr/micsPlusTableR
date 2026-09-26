@@ -239,19 +239,6 @@ wb <- openxlsx2::wb_add_cell_style(
   
   any_issues_found <<- any_issues_found
 
-  # 3. Execute logic
-#  tab_hex <- if (isTRUE(any_issues_found)) "#FF0000" else "#00FF00"
-
-# Tab color ---------------------------------------------------------------  
-
-#try({
-#  wb$set_page_setup(
-#    sheet = sheet,
-#    orientation = "portrait",
-#    tab_color = wb_color(hex = tab_hex)
-#  )
-#})
-
 clean_sheet_name <- if (grepl("_$", sheet)) sub("_$", "", sheet) else sheet
 
 

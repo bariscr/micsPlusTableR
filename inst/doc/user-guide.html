@@ -3547,10 +3547,10 @@ total1 == 1</code></pre>
 </table>
 <p>These numbers illustrate the display, not survey results. The same rule works with other supported statistics, including <code>mean_unw</code>, legacy <code>Mean</code>, and <code>p_sum</code>. A constant can be written as <code>100(d=2)</code>. Keep the statistic appropriate to the table’s direction and intended calculation.</p>
 <p><strong>If you leave out <code>d</code>, nothing changes:</strong> the app keeps its established formatting for that statistic and output mode. Means default to one decimal place. For example, <code>mean(HCS8)</code> still displays <code>442,571.9</code>.</p>
-<p><strong>Use a whole number of decimal places.</strong> <code>d=0</code> removes the decimal point; <code>d=1</code>, <code>d=2</code>, and <code>d=3</code> show one, two, and three decimal places, including trailing zeros. Spaces are allowed, so <code>mean(HCS8,   d=0)</code> is valid. Give <code>d</code> only once, as a non-negative whole number, without quotation marks or a calculation. For example, <code>d=-1</code>, <code>d=1.5</code>, and <code>d=&quot;2&quot;</code> are invalid.</p>
+<p><strong>Use a whole number of decimal places.</strong> <code>d=0</code> removes the decimal point; <code>d=1</code>, <code>d=2</code>, and <code>d=3</code> show one, two, and three decimal places, including trailing zeros. Spaces are allowed, so <code>mean(HCS8, d=0)</code> is valid. Give <code>d</code> only once, as a non-negative whole number, without quotation marks or a calculation. For example, <code>d=-1</code>, <code>d=1.5</code>, and <code>d=&quot;2&quot;</code> are invalid.</p>
 <p><strong>Where it applies.</strong> The Formatted and Suppressed Tabulator views use the requested decimals for visible numbers. The Unformatted view retains the full numeric estimate. Both Excel output workbooks use the requested number format, including workbooks written by Multi-sheet Tabulator and values supplied by preparation scripts. Thousands separators remain in the Formatted preview and Excel. Long Format Data records the setting in <code>DECIMALS</code> and display values; <code>OBS_VALUE</code> retains full precision.</p>
 <p><strong>What stays the same.</strong> Display rounding does not change the calculated number, weights, filters, denominators, or consistency checks. Excel keeps numeric estimates at full precision when you specify <code>d</code>. Parenthesized estimates follow the requested precision, such as <code>(442,572)</code> for <code>d=0</code>; <code>(*)</code> and <code>-</code> remain suppression markers.</p>
-<p>Changing only <code>d</code> never starts or stops a filter. A column using <code>n_unw(d=2)</code> still acts as an unweighted count for direction and suppression. Where the reader fills a blank statistic cell, it carries the decimal setting with that statistic. Save the plan and reload it in the app, then rerun the affected tables to apply your edits.</p>
+<p>A column using <code>n_unw(d=2)</code> still acts as an unweighted count for direction and suppression. Where the reader fills a blank statistic cell, it carries the decimal setting with that statistic. Save the plan and reload it in the app, then rerun the affected tables to apply your edits.</p>
 <div style="page-break-after: always;"></div>
 </section>
 </section>
@@ -3578,7 +3578,6 @@ total1 == 1</code></pre>
 <h1>Terms and reference information</h1>
 <p><strong>Words used in this guide</strong></p>
 <ul>
-<li><strong>Click:</strong> press the left mouse button once. On a touchpad, tap once.</li>
 <li><strong>Tab:</strong> a section name across the top of the application.</li>
 <li><strong>Browse:</strong> open a window to find a file on your computer.</li>
 <li><strong>Folder:</strong> a place that holds files. A preparation folder may contain smaller folders.</li>
@@ -3590,7 +3589,7 @@ total1 == 1</code></pre>
 <li><strong>Sheet:</strong> one page of an Excel workbook, such as <code>1.1a</code>.</li>
 <li><strong>Wave:</strong> one round of the survey. Use the wave your team gave you.</li>
 </ul>
-<p><strong>About the pictures.</strong> The Data Preparation picture shows Mongolia 2025-26 Wave 2. The Download Files picture shows the new tab in the 0.3.0 development version, before loading the survey list. The remaining pictures are screenshots from version 0.2.7, using Mongolia Wave 1 as an example. Your file names and results will differ. Use the files for your own survey. Screenshots show example output folders; your project normally saves to <strong>micsPlusTableR-output</strong>. In the HTML guide, click a picture to enlarge it; press <strong>Esc</strong> to return.</p>
+<p><strong>About the pictures.</strong> In the HTML guide, click a picture to enlarge it; press <strong>Esc</strong> to return.</p>
 <p><strong>Looking for package functions?</strong> Use the <a href="https://github.com/bariscr/micsPlusTableR/blob/HEAD/output/pdf/micsPlusTableR-manual.pdf">package reference manual</a> and <a href="https://github.com/bariscr/micsPlusTableR#readme">package documentation</a>. Those documents cover programming and technical details.</p>
 </section>
 

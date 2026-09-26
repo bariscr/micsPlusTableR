@@ -99,7 +99,7 @@ row_condition_f <- function(tab_r) {
       nm <- stringr::str_replace_all(nm, "_{2,}", "_")
       nm
     } else if (identical(cleaned, "TRUE")) {
-      "ALL"  # nothing to filter; a friendly sentinel
+      "ALL"  # nothing to filter; 
     } else {
       cleaned |>
         stringr::str_replace_all("[^A-Za-z0-9._-]", "_") |>

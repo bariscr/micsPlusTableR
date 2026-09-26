@@ -2,7 +2,7 @@
 title: "MICS Plus Tabulation"
 subtitle: "A step-by-step guide to using the application"
 author: "MICS Team"
-date: "2026-09-17"
+date: "2026-09-26"
 format:
   html:
     lang: en

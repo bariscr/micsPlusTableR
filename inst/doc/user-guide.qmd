@@ -59,9 +59,9 @@ editor:
 
 micsPlusTableR is the R package behind the **MICS Plus Tabulation**
 application. It was created primarily to support this browser-based app
-for preparing, tabulating, reviewing, and exploring survey data. R
-performs the calculations; the app provides controls for selecting
-inputs, running analyses, and examining results.
+for preparing, tabulating, reviewing, and exploring MICS Plus survey
+data. R performs the calculations; the app provides controls for
+selecting inputs, running analyses, and examining results.
 
 Most other package functions perform background tasks for the app or
 expose its calculation engine. They are documented for understanding the
@@ -70,7 +70,7 @@ individually when using the app.
 
 **Purpose.** The system connects the tables you want to produce with the
 data and preparation steps needed to calculate them. A tabulation plan
-(Excel) records the table definitions, while a survey-specific R script
+in Excel records the table definitions, while a survey-specific R script
 prepares the data and variables. This makes it possible to apply a
 supplied plan or create and adapt a plan for your own reporting and
 analysis needs, then repeat the calculations when inputs or
@@ -189,7 +189,8 @@ choose the tools that serve your purpose.
 11. [**Look at prepared data**](#view-data) - inspect selected household
     or household-member variables in Data View.
 12. [**Download a data file**](#table-data) - combine calculated table
-    cells in Long Format Data and download them as Excel, CSV, or RDS.
+    cells in Long Format Data where each row corresponds to one cell in
+    the output table, and download them as Excel, CSV, or RDS.
 
 **Manage your session**
 
@@ -200,8 +201,9 @@ choose the tools that serve your purpose.
 
 - [**Understand the tabulation plan**](#worksheet-reference) - locate
   datasets, prepare conditions for the intended outputs, and choose
-  statistics and display settings. See [row and column conditions](#worksheet-conditions)
-  for total aliases and household-member bases.
+  statistics and display settings. See [row and column
+  conditions](#worksheet-conditions) for understanding how the row and\
+  column conditions are handled.
 - [**Other editors and code systems**](#other-environments) - use the
   package with an R environment other than RStudio.
 - [**Terms and reference information**](#guide-terms) - find
@@ -225,7 +227,7 @@ code. The package can run in an R session started from different editors
 and code systems. You only need one of these options:
 
 | Option | What you need to know |
-|----|----|
+|------------------------------------|------------------------------------|
 | **RStudio Desktop** | The route explained here, with an R Console and a project menu. Install R separately. |
 | **Positron** | An alternative with built-in R support. Install R, open your survey folder, and choose an R session. |
 | **Visual Studio Code (VS Code)** | Install R and configure the R extension; run the commands in an R terminal. |
@@ -491,9 +493,7 @@ require downloading the library again while that app page stays open.
 library in its cache and reuse it on later visits, avoiding another
 download. However, caching is **not a guarantee of offline access**: the
 copy can be cleared or expire, and another browser or a private window
-may not have it. Browser settings can also require a new request. See
-[how browser caching
-works](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching).
+may not have it. Browser settings can also require a new request.
 
 **Before working offline:** open the app while connected, upload the
 plan, and check that its workbook preview appears. Keep that app page
@@ -513,7 +513,7 @@ wave)**:
 
 - **Household and household-member data (`.sav`):** obtain them from the
   [MICS surveys page](https://mics.unicef.org/surveys) with the required
-  permission. These data are never distributed through this files
+  permission. These data are never distributed through the files
   repository or the package's download functions.
 - **Tabulation plans and preparation files:** use a compatible set you
   have created or adapted, or download supplied materials from
@@ -639,14 +639,15 @@ GitHub limits requests, retry later or use the ZIP link.
 
 Keep these **four items for the same country, period, and wave**
 together in your survey project's **inputs** folder, or another folder
-you can find again. The household and member files come from the MICS
-Plus website with permission. Use a tabulation plan and preparation
-folder supplied by your team or downloaded from `micsPlusTableR-Files`,
-or your own compatible versions. Once all four items are ready, continue
-to [Data Preparation](#data-preparation) in the app.
+you can find again. The household and household members data files come
+from the MICS Plus website with permission. Use a tabulation plan and
+preparation folder supplied by your team or downloaded from
+`micsPlusTableR-Files`, or your own compatible versions. Once all four
+items are ready, continue to [Data Preparation](#data-preparation) in
+the app.
 
 | Item to obtain | How to recognize it | Where it goes in the app |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | Household data | Name often ends in `hh.sav` | **Select household file** |
 | Household members data | Name often ends in `hl.sav` | **Select household members file** |
 | Tabulation plan | Excel file ending in `.xlsx` | **Select tabulation file** |
@@ -684,7 +685,8 @@ to check the survey choices and click **Set**.
 2.  Beside **Select preparation folder**, click **Browse...**.
 3.  Select the folder that contains the preparation file, then click
     **Upload**, **Select**, or **Open**, depending on your browser.
-    Select the folder itself, rather than an individual file inside it.
+    **Select the folder itself, rather than an individual file inside
+    it**.
 4.  If the browser asks to upload the folder's files, check its name and
     confirm.
 
@@ -699,9 +701,8 @@ which supporting files belong with it.
 
 ![Data Preparation: Mongolia Wave 2 inputs are selected on the left; the
 survey consistency result and IDX sheet of the tabulation plan appear on
-the
-right.](screenshots/01-data-preparation.png){fig-alt="Data Preparation screen with Mongolia 2025-26 Wave 2 selected, four inputs loaded, the Set button below the preparation folder, a successful survey consistency message, and the IDX sheet displayed in the tabulation plan preview."
-fig-pos="H" width="100%"}
+the right.](images/Data-Preparation.png){fig-pos="H"
+fig-alt="Data Preparation screen with Mongolia 2025-26 Wave 2 selected, four inputs loaded, the Set button below the preparation folder, a successful survey consistency message, and the IDX sheet displayed in the tabulation plan preview."}
 
 1.  Click **Data Preparation**. Under **Select country and period**,
     click the small arrow and choose your survey. Choose the matching
@@ -747,12 +748,12 @@ If viewing the result meets your need, you do not have to export it. Use
 itself does not save one.
 
 If you require plain numbers, choose **Unformatted**. Choose
-**Suppressed** to inspect the small-sample display rules.
+**Suppressed** to inspect the sampling display rules.
 
 **Choose the labels with Pivot type:**
 
 | Option | What it shows and when to use it |
-|----|----|
+|------------------------------------|------------------------------------|
 | **Header** | Descriptive row and column labels from the tabulation plan. Use this to read and interpret the table. |
 | **Index** | The worksheet's row and column numbers. Use this to locate a result in the tabulation plan; for example, row 9 and column 6 identify cell F9. |
 | **Logic** | The row and column conditions used for the table. Use this to inspect the expressions behind the groups being compared. |
@@ -780,7 +781,7 @@ the view you need, then click **Run** to refresh the preview.
 **Red:** a difference needs review.
 
 **No color or no rows:** the check may not apply; it does not mean it
-passed. Read the result as well as the color.
+passed.
 
 The **Difference** column shows zero where the compared values agree.
 **Sum of group values** is compared with the **Reference total**; in
@@ -861,8 +862,7 @@ run. The app does not automatically find previously saved workbooks.
 
 **Ready to continue:** every requested table has completed and its
 results have been reviewed. This action writes tables as it runs; it
-does not wait for your review of each table. A completed write is not
-approval of a flagged result.
+does not wait for your review of each table.
 
 If a table fails or has consistency issues, note its code and message.
 Investigate the error or difference before using the result. Start with
@@ -888,8 +888,8 @@ These analyses are separate from the tables defined in the plan.
     variable**. Check the preparation script or survey documentation if
     you are unsure which weight to use.
 4.  Choose **Frequency** to count categories of one variable, or **Cross
-    table** to compare two variables. Select the second variable if
-    needed.
+    table** to get a cross table of two variables. Select the second
+    variable if needed.
 5.  Leave the filter box blank for all prepared records, or enter the
     condition for the population you want to examine. Use filter
     function to define the condition. Click **Run Data Explorer** and
@@ -936,14 +936,14 @@ their worksheet layouts. Choose the output that serves your purpose.
     calculates the tables. This may take longer than running one table.
 4.  When the data preview appears without an error, find **Download
     output** in the left panel. Click **Excel (.xlsx)** for a
-    spreadsheet, or the format your recipient requested.
+    spreadsheet, or the format you require.
 5.  Find the file in your browser's **Downloads** list or your
     computer's **Downloads** folder. Some browsers ask you to choose a
     save location.
 
 **What you receive:** one combined file of calculated table cells. It is
 a different layout from the **Formatted** workbook. **CSV (.csv)** is a
-plain text table; **RDS (.rds)** is for someone working in R.
+plain text table; **RDS (.rds)** is mostly for someone working in R.
 
 The download contains all prepared rows, including rows hidden by
 preview filters or pages. Check the country, period, and wave in the
@@ -983,8 +983,7 @@ values.
 ## If something goes wrong
 
 | What you see | What to do next |
-|----|----|
-| Installation reports `setwd(startdir)` or a `00LOCK` folder | Follow [Installation cannot finish](#installation-cannot-finish). |
+|------------------------------------|------------------------------------|
 | Download list unavailable | Check internet access and that the files repository is public, then click **Load / refresh surveys**. |
 | Download says files already exist | Choose another download folder, or deliberately enable **Replace existing files**. |
 | Missing file or wrong filename | Return to **Data Preparation**, select the correct file, and click **Set** again. Rerun and recheck the table. |
@@ -1049,75 +1048,6 @@ changed, then calculate and check the table again.
 
 {{< pagebreak >}}
 
-## Installation cannot finish {#installation-cannot-finish}
-
-**Recognize the messages:**
-`Error in setwd(startdir) : cannot change working directory`, or
-`failed to lock directory` followed by a folder such as
-`00LOCK-micsPlusTableR`. Follow the recovery steps below.
-
-**What happened:** the first message means R's installer could not
-return to its starting folder. If that also prevents recovery, an
-unfinished installation can leave a lock folder that blocks later
-attempts. A lock error can also mean another installation is still
-running. These messages alone do not show why the starting folder became
-unavailable or prove a fault in the application.
-
-### Recover the installation
-
-1.  Save your work and the complete Console error. Close the app and
-    other R sessions after any active installations finish.
-2.  Open your survey's **.Rproj** file from its normal, existing project
-    folder. Keep that folder available throughout installation. Do not
-    install from inside R's installed `micsPlusTableR` folder.
-3.  **Only if a lock error remains:** check the library path printed in
-    the error and confirm no installer is running. Move only the
-    reported stale lock folder to a separate backup location outside the
-    library. It may contain the previous package needed for recovery. Do
-    not delete the library or remove locks belonging to active
-    installations.
-4.  Retry the original command in the Console:
-
-``` r
-remotes::install_github("bariscr/micsPlusTableR")
-```
-
-5.  After installation reports `DONE (micsPlusTableR)`, verify that it
-    loads:
-
-``` r
-library(micsPlusTableR)
-packageVersion("micsPlusTableR")
-```
-
-No manual `setwd()` command or special installation options are required
-for this recovery route. If it fails again, keep the new error and stop
-repeating the installation until support has investigated it.
-
-### Prevent repeated working-directory failures
-
-**For support staff:** run installation in a separate R process with an
-explicit temporary working directory outside the package library. Keep
-that directory alive until installation and cleanup finish, and pass the
-intended library paths to the process. This avoids relying on the user's
-current folder without changing their session's working directory. It
-requires a separate installation launcher; the standard GitHub command
-does not acquire this behavior from a change to `micsPlusTableR` alone.
-
-Keep R's staged installation, loading checks, and locking enabled.
-Clearing a stale lock repairs a failed attempt; it does not fix the
-original cause. Maintainers should require successful installation and
-reinstallation checks before release and report a reproducible installer
-failure to R or `remotes`. This addresses the known failure mode, not
-every possible installation error.
-
-For investigation, record `getwd()`, `.libPaths()`, and `sessionInfo()`
-before retrying. These commands only report information. Review paths
-for personal details before sharing the report. See the [R installation
-documentation](https://search.r-project.org/R/refmans/utils/html/install.packages.html).
-
-{{< pagebreak >}}
-
 # Understand the tabulation plan {#worksheet-reference}
 
 The tabulation plan (Excel) describes the tables the app will calculate
@@ -1132,7 +1062,7 @@ plus worksheets for individual tables. A table worksheet brings together
 these parts:
 
 | Part | Where to look and what it tells you |
-|----|----|
+|------------------------------------|------------------------------------|
 | Table title and column headings | At the top of the worksheet: what the table and each column describe. |
 | Row labels and groups | In column A: the categories shown in the output. Indentation marks nested groups. |
 | Dataset, filters, and weight | In the instruction row near the top: the source population and weight used in calculations. |
@@ -1196,28 +1126,29 @@ filter cannot bring excluded records back into the table.
 **Additional filters apply to horizontal blocks.** In a horizontal
 table, a `filter(...)` in C or a later column combines with B. It
 applies to its own column and extends to the right. Its position
-relative to B makes no difference: it always combines with B. Changes
-from `p` to `n` or `n_unw` keep the filter, so percentages and their
-counts use the same population.
+relative to B makes no difference: it always combines with B. For
+example, changes from `p` to `n` or `n_unw` keep the filter, so
+percentages and their counts use the same population.
 
 There are two ways an additional filter stops:
 
 - **Another explicit filter starts.** The new `filter(...)` replaces the
-  previous additional filter and combines with B, starting at its own column.
-- **An `unfilter()` instruction appears.** Write `unfilter()` in the condition
-  row in place of `filter(...)`. That column and following columns use B alone
-  until a new explicit filter starts. Row and column predicates still apply.
+  previous additional filter and combines with B, starting at its own
+  column.
+- **An `unfilter()` instruction appears.** Write `unfilter()` in the
+  condition row in place of `filter(...)`. That column and following
+  columns use B alone until a new explicit filter starts. Row and column
+  predicates still apply.
 
 All statistic changes preserve the active filter, including changes from
-counts or percentages to means, between mean variables, and back to counts.
-Changing only `d=` and moving to a new table row also preserve it.
+counts or percentages to means, between mean variables, and back to
+counts.
 
-Blank filter cells do not cancel an active filter. Use `unfilter()` to remove
-an additional restriction explicitly; B still applies. The existing
-`filter(TRUE)` instruction also continues to select all records allowed by B.
-For a column with its own predicate, write for example:
+Blank filter cells do not cancel an active filter. Use `unfilter()` to
+remove an additional restriction explicitly; B still applies. For a
+column with its own predicate, write for example:
 
-```r
+``` r
 unfilter()
 - - -
 total == 1
@@ -1227,8 +1158,7 @@ total == 1
 mode when the plan has `n_unw` immediately before `IDX`, or a
 `100`/`100.0` statistic. Other plans use vertical mode. In vertical
 tables, the first filter in B still restricts the common dataset;
-additional horizontal filter blocks are not processed. Check with the
-plan author before adding such blocks to a vertical table.
+additional horizontal filter blocks are not processed.
 
 {{< pagebreak >}}
 
@@ -1237,30 +1167,28 @@ plan author before adding such blocks to a vertical table.
 Suppose B contains `filter(age >= 18)`. In one horizontal table row, the
 instructions are:
 
-| Column | Statistic | Filter instruction here | Records available to this cell |
-|----|----|----|----|
-| C | `p` | None | All adults |
-| D | `p` | `filter(sex == 2)` | Adults with sex code 2 |
-| E | `n` | None | Adults with sex code 2 |
-| F | `n_unw` | None | Adults with sex code 2 |
-| G | `mean` | None | Adults with sex code 2 |
-| H | `n` | `unfilter()` | All adults |
-| I | `mean` | `filter(region == 1)` | Adults in region 1 |
-| J | `mean(age)` | None | Adults in region 1 |
-| K | `n_unw` | None | Adults in region 1 |
+| Column | Statistic   | Filter instruction here | Records available to this cell |
+|------------------|------------------|------------------|------------------|
+| C      | `p`         | None                    | All adults                     |
+| D      | `p`         | `filter(sex == 2)`      | Adults with sex code 2         |
+| E      | `n`         | None                    | Adults with sex code 2         |
+| F      | `n_unw`     | None                    | Adults with sex code 2         |
+| G      | `mean`      | None                    | Adults with sex code 2         |
+| H      | `n`         | `unfilter()`            | All adults                     |
+| I      | `mean`      | `filter(region == 1)`   | Adults in region 1             |
+| J      | `mean(age)` | None                    | Adults in region 1             |
+| K      | `n_unw`     | None                    | Adults in region 1             |
 
 No cell includes people under 18. D's filter applies to D-G, including
 the percentage, its counts, and the mean. It stops at H's `unfilter()`.
-I starts a new filter,
-which applies to I-K, including the change from `mean` to `mean(age)`,
-and does not include D's sex restriction. Other row and column
-conditions still determine what is measured within these populations.
+I starts a new filter, which applies to I-K, including the change from
+`mean` to `mean(age)`, and does not include D's sex restriction. Other
+row and column conditions still determine what is measured within these
+populations.
 
-**Statistic changes do not stop filters.** This includes bare `mean`,
-`mean(variable)`, their `mean_unw` variants, and the legacy `Mean` form,
-with or without `d=`. A blank statistic cell also preserves the filter.
-Only a new `filter(...)` or `unfilter()` ends the previous additional
-filter's scope.
+**Statistic changes do not stop filters.** A blank statistic cell also
+preserves the filter. Only a new `filter(...)` or `unfilter()` ends the
+previous additional filter's scope.
 
 **When filters run.** For each required population, the engine loads the
 selected source, applies B, applies any active additional filter, and
@@ -1269,10 +1197,11 @@ data. The filters therefore affect both the numerator and denominator of
 a percentage. A filter variable must already exist before those
 calculations.
 
-Within each filter block, calculations run in column order. A `mutate(...)`
-instruction applies to its own column and later columns; a later recode does
-not change earlier cells. Column B's calculation runs once per block. A
-calculation-only instruction does not end the filter's column range.
+Within each filter block, calculations run in column order. A
+`mutate(...)` instruction, which creates a new variable, applies to its
+own column and later columns; a later recode does not change earlier
+cells. Column B's calculation runs once per block. A calculation-only
+instruction does not end the filter's column range.
 
 **Filters do not reach left.** Adding a filter in G does not change F's
 calculated mean. Display suppression still needs an unweighted count: if
@@ -1280,13 +1209,6 @@ a new filter separates a cell from its count, the engine uses the next
 `n_unw` to its right on the same row and data source when no count is
 already linked. Existing count links and the small-sample thresholds
 remain in effect.
-
-**Review after upgrading.** Earlier versions stopped additional filters
-at statistic changes, most recently when entering a mean. Filters now
-continue across all statistic changes. Add `unfilter()` above any column
-that should return to B's population, then recalculate affected tables and
-review denominators and suppression. B remains global, including in later
-blocks.
 
 {{< pagebreak >}}
 
@@ -1300,23 +1222,24 @@ records or change the calculation by itself.
 
 ### Start with the intended population and result
 
-1. **Choose the unit.** Are you describing households, individual
-   members, or people living in households with a particular
-   characteristic? Use the matching prepared dataset and weight. The
-   member-count convention described below lets a household table count
-   the people represented by its household records.
-2. **Set eligibility with filters.** Apply the table-wide eligibility
-   rule in B, and any additional population restrictions in the relevant
-   horizontal block. For example, a table about healthcare users might
-   include only households reporting that a member received care.
-3. **Decide which groups and outcomes belong on each axis.** In a
-   horizontal percentage table, rows select comparison groups and columns
-   select outcomes. In a vertical percentage table, columns select
-   comparison groups and rows select outcomes.
-4. **Choose the statistic and its base.** Use `p` for a weighted
-   percentage, `n` for a weighted count, `n_unw` for an unweighted base,
-   or `mean(variable)` for a numeric average. Conditions select records;
-   the statistic determines the calculation.
+1.  **Choose the unit.** Are you describing households, individual
+    members, or people living in households with a particular
+    characteristic? Use the matching prepared dataset and weight. The
+    member-count convention described below lets a household table count
+    the people represented by its household records.
+2.  **Set eligibility with filters.** Apply the table-wide eligibility
+    rule in B, and any additional population restrictions in the
+    relevant horizontal block. For example, a table about healthcare
+    users might include only households reporting that a member received
+    care.
+3.  **Decide which groups and outcomes belong on each axis.** In a
+    horizontal percentage table, rows select comparison groups and
+    columns select outcomes. In a vertical percentage table, columns
+    select comparison groups and rows select outcomes.
+4.  **Choose the statistic and its base.** Use `p` for a weighted
+    percentage, `n` for a weighted count, `n_unw` for an unweighted
+    base, or `mean(variable)` for a numeric average. Conditions select
+    records; the statistic determines the calculation.
 
 The worksheet layout determines the calculation direction. An `n_unw`
 statistic immediately before the `IDX` column, or a constant `100`
@@ -1324,13 +1247,6 @@ statistic in the table, selects horizontal mode; otherwise the reader
 selects vertical mode. Start from a working plan with the required
 direction and retain its base-count and `IDX` structure. Merely moving
 headings between rows and columns does not transpose the calculation.
-
-**Write out the denominator before writing a percentage.** For example,
-"Among eligible urban households, what percentage reported healthcare
-expenses?" needs the eligible urban households in the base and the
-expense response as the outcome. Putting the expense response in a
-filter instead would exclude households without that response from the
-denominator.
 
 {{< pagebreak >}}
 
@@ -1354,23 +1270,23 @@ prefix. Names and letter case must match the prepared data. Numeric
 codes use numbers; text values use quotes. These examples are patterns
 to adapt to your survey:
 
-| Intended selection | Condition |
-|---|---|
-| One category | `area == 1` |
-| Either of two response codes | `response %in% c(1, 2)` |
-| Age 15 through 49 | `age >= 15 & age <= 49` |
+| Intended selection                  | Condition               |
+|-------------------------------------|-------------------------|
+| One category                        | `area == 1`             |
+| Either of two response codes        | `response %in% c(1, 2)` |
+| Age 15 through 49                   | `age >= 15 & age <= 49` |
 | Urban households meeting an outcome | `area == 1 & HCS7 == 1` |
-| A text category | `status == "Complete"` |
-| A recorded numeric value | `!is.na(expense)` |
+| A text category                     | `status == "Complete"`  |
+| A recorded numeric value            | `!is.na(expense)`       |
 
 Use `==` for equality, `!=` for inequality, `&` for both conditions, and
 `|` for either condition. For example, `(HCS7 == 1) | (HCS9 == 1)`
-selects records meeting either criterion. Use parentheses to make combinations clear.
-Avoid `&&` and `||`, which do not express record-by-record selection.
-Unknown-response codes such as 98 or 99 are ordinary values unless the
-preparation script recodes them. Explicitly decide whether they belong
-in the base. Excluding them only from the outcome is different from
-excluding them with a filter.
+selects records meeting either criterion. Use parentheses to make
+combinations clear. Avoid `&&` and `||`, which do not express
+record-by-record selection. Unknown-response codes such as 98 or 99 are
+ordinary values unless the preparation script recodes them. Explicitly
+decide whether they belong in the base. Excluding them only from the
+outcome is different from excluding them with a filter.
 
 A combined instruction cell can place the filter above a separator and
 the column condition below it:
@@ -1383,10 +1299,10 @@ HCS7 == 1
 
 This restricts the block to the listed response codes, then measures
 code 1 within that base. Write setup instructions above `- - -` and the
-complete column condition below it. The condition can span multiple lines.
-A blank column instruction can inherit the preceding instruction, so write
-changed conditions explicitly. See [worksheet filters](#worksheet-filters)
-for how far an additional filter extends.
+complete column condition below it. The condition can span multiple
+lines. A blank column instruction can inherit the preceding instruction,
+so write changed conditions explicitly. See [worksheet
+filters](#worksheet-filters) for how far an additional filter extends.
 
 You can create a variable for the conditions with `mutate(...)`:
 
@@ -1398,16 +1314,17 @@ between(WS4, 1, 30)
 ```
 
 Within a horizontal filter block, mutations run left to right; later
-redefinitions leave earlier results unchanged. Multiple and multiline calls
-are supported. Filters run first, so create variables needed by filters or
-across blocks in the preparation script. Mutations use temporary data and
-do not change prepared `hh`/`hl`.
+redefinitions leave earlier results unchanged. Multiple and multiline
+calls are supported. Filters run first, so create variables needed by
+filters or across blocks in the preparation script. Mutations use
+temporary data and do not change prepared `hh`/`hl`.
 
-In row-condition cells in column B, both table directions apply mutations
-top to bottom, before each row's condition. Variables remain available to
-following rows; later redefinitions leave earlier results unchanged. Repeated
-mutations run again. Mutation-only cells mean `TRUE`, and setup also runs on
-rows without a statistic. Row conditions do not restrict subsequent rows.
+In row-condition cells in column B, both table directions apply
+mutations top to bottom, before each row's condition. Variables remain
+available to following rows; later redefinitions leave earlier results
+unchanged. Repeated mutations run again. Mutation-only cells mean
+`TRUE`, and setup also runs on rows without a statistic. Row conditions
+do not restrict subsequent rows.
 
 {{< pagebreak >}}
 
@@ -1415,11 +1332,11 @@ rows without a statistic. Row conditions do not restrict subsequent rows.
 
 The maintained preparation scripts create `total = 1` in both `hh` and
 `hl`. Thus `total == 1` includes every record still eligible after the
-applicable filters. In a horizontal table it also remains subject to
-the row condition: an Urban row still counts only urban records.
+applicable filters. In a horizontal table it also remains subject to the
+row condition: an Urban row still counts only urban records.
 
 | Condition written in a column instruction | Purpose |
-|---|---|
+|------------------------------------|------------------------------------|
 | `total == 1` | Include all eligible records for that row and block. With `n`, sum their weights; with `n_unw`, count their records. |
 | `total1 == 1` through `total5 == 1` | Numbered aliases for `total == 1`, used for repeated total/base columns in different blocks. The number does not select a subgroup. |
 | `totalHL == 1`, or `totalHL1 == 1` through `totalHL4 == 1` | Aliases for the special `hhmembers` condition. In a horizontal `n_unw` cell, sum household sizes rather than count household records. |
@@ -1439,9 +1356,9 @@ the complete forms exactly as shown, including `== 1` and its spacing;
 `total1` alone is not the alias. Use `total == 1` for an ordinary Total
 row. Numbered names in row conditions or inside `filter(...)` are not
 converted and would require real variables with those names. Likewise,
-do not combine an alias into `total1 == 1 & area == 1`; place the
-group restriction in the row condition or a filter and keep the column
-alias on its own. Higher suffixes are not automatically supported.
+do not combine an alias into `total1 == 1 & area == 1`; place the group
+restriction in the row condition or a filter and keep the column alias
+on its own. Higher suffixes are not automatically supported.
 
 `TRUE` is an unrestricted logical condition, but use `total == 1` for
 ordinary totals in a plan: consistency checks also recognize the total
@@ -1490,46 +1407,46 @@ weight by hhmemwt
 ```
 
 Its weighted member-count column uses `total == 1` with `n`; its
-unweighted member-count column uses `totalHL == 1` with `n_unw`. Its
-`p` cells use `hhmemwt` to estimate the share of people living in
-households with each characteristic. Use the household weight approved
-for your survey; `hhweightA` is the name in this example plan.
+unweighted member-count column uses `totalHL == 1` with `n_unw`. Its `p`
+cells use `hhmemwt` to estimate the share of people living in households
+with each characteristic. Use the household weight approved for your
+survey; `hhweightA` is the name in this example plan.
 
 For an illustration, let the two household sizes be 2 and 4, with
 household weights 1 and 3. The ordinary weighted household count is
-**1 + 3 = 4**. The weighted member count is **1 × 2 + 3 × 4 = 14**;
-the unweighted member base remains **2 + 4 = 6**. If only the first
-household meets an outcome, its share is **25% of households** but
-about **14.3% of members**. Choose the weight to match the output's
-unit, and label both estimates and bases accordingly.
+**1 + 3 = 4**. The weighted member count is **1 × 2 + 3 × 4 = 14**; the
+unweighted member base remains **2 + 4 = 6**. If only the first
+household meets an outcome, its share is **25% of households** but about
+**14.3% of members**. Choose the weight to match the output's unit, and
+label both estimates and bases accordingly.
 
-**Use the convention only for its supported calculation.** It is
-special handling for horizontal `n_unw` (also the existing `n_unw1`
-variant), not a general condition for `n`, `p`, means, or vertical
-tables. On an `hl` dataset with one record per member, use ordinary
-conditions and `n_unw` to count qualifying members. Summing `HLnum`
-again on member records would repeat household sizes and overcount.
-To count a subset of members, such as children under five, use the
-member dataset and the relevant age condition; `hhmembers` always sums
-the supplied household size and does not inspect individual ages.
+**Use the convention only for its supported calculation.** It is special
+handling for horizontal `n_unw` (also the existing `n_unw1` variant),
+not a general condition for `n`, `p`, means, or vertical tables. On an
+`hl` dataset with one record per member, use ordinary conditions and
+`n_unw` to count qualifying members. Summing `HLnum` again on member
+records would repeat household sizes and overcount. To count a subset of
+members, such as children under five, use the member dataset and the
+relevant age condition; `hhmembers` always sums the supplied household
+size and does not inspect individual ages.
 
 {{< pagebreak >}}
 
 ### Build a horizontal table around the intended output
 
-Suppose your prepared `hh` data have `total = 1`, `area`, `HCS7`
-(1 = healthcare expenses reported, 2 = no expenses), and `HCS8` (expense
+Suppose your prepared `hh` data have `total = 1`, `area`, `HCS7` (1 =
+healthcare expenses reported, 2 = no expenses), and `HCS8` (expense
 amount). First select the eligible households with the table's global
 filter and choose its household weight. Use `total == 1` for the Total
 row, `area == 1` for Urban, and `area == 2` for Rural.
 
 For a percentage and its base, prepare these columns:
 
-| Output heading | Column condition | Statistic |
-|---|---|---|
-| Percentage reporting expenses | `HCS7 == 1` | `p` |
-| Weighted number of eligible households | `total == 1` | `n` |
-| Unweighted number of eligible households | `total == 1` | `n_unw` |
+| Output heading                           | Column condition | Statistic |
+|------------------------------------------|------------------|-----------|
+| Percentage reporting expenses            | `HCS7 == 1`      | `p`       |
+| Weighted number of eligible households   | `total == 1`     | `n`       |
+| Unweighted number of eligible households | `total == 1`     | `n_unw`   |
 
 The percentage denominator includes all eligible households in the row.
 Changing the count columns to `HCS7 == 1` would count households
@@ -1551,8 +1468,9 @@ condition `total1 == 1` and statistics `n` and `n_unw`. Those count
 columns describe the same filtered population as the mean. This follows
 the pattern in Mongolia Wave 2 table 6.2a. Its threshold excludes that
 survey's special amount codes; substitute the valid range for your
-survey. Put the filter on the mean column itself to start this restricted
-population there. It continues until a new filter or `unfilter()` appears.
+survey. Put the filter on the mean column itself to start this
+restricted population there. It continues until a new filter or
+`unfilter()` appears.
 
 An average **across all eligible households**, including those with no
 expenses, is a different output. It needs an appropriately prepared
@@ -1564,38 +1482,39 @@ amounts as zero or by retaining the expense-only filter.
 
 ### Prepare a vertical distribution and check the result
 
-For a vertical distribution of households by area, put `area == 1`
-and `area == 2` in the row conditions. A column condition
-`total == 1` defines all eligible households; another column condition
-`HCS7 == 1` defines households reporting expenses. Use `p` for the
-category cells. Each column's denominator is its own eligible
-population, so its area categories can sum to 100 when they cover all
-records without overlap. Retain the vertical layout of the source
-plan; adding the horizontal `n_unw`/`IDX` arrangement changes direction.
+For a vertical distribution of households by area, put `area == 1` and
+`area == 2` in the row conditions. A column condition `total == 1`
+defines all eligible households; another column condition `HCS7 == 1`
+defines households reporting expenses. Use `p` for the category cells.
+Each column's denominator is its own eligible population, so its area
+categories can sum to 100 when they cover all records without overlap.
+Retain the vertical layout of the source plan; adding the horizontal
+`n_unw`/`IDX` arrangement changes direction.
 
 For an explicit first Total row, use row condition `total == 1`.
-Existing vertical plans may use `p(100)` to set the first calculated
-row to 100; see [statistic types](#worksheet-statistics) before adapting
+Existing vertical plans may use `p(100)` to set the first calculated row
+to 100; see [statistic types](#worksheet-statistics) before adapting
 that convention. Keep group-heading rows separate from calculated rows.
 
 Before using a new or changed plan:
 
-1. Read one result aloud as "[statistic] of [outcome] among [base],
-   grouped by [row/column characteristic]." Check that the dataset,
-   filters, conditions, and weight implement that sentence.
-2. Check the Total row and one subgroup in **Tabulator**, using
-   **Header**, **Index**, and **Logic** to match labels to instructions.
-   Seeing `total == 1` in place of `total1 == 1`, or `hhmembers` in
-   place of `totalHL == 1`, is expected after alias conversion.
-3. Confirm whether each count represents household records, member
-   records, or summed household sizes, and whether it is weighted.
-   Inspect the unformatted base before interpreting suppression.
-4. For a distribution, make categories exhaustive and non-overlapping,
-   with an explicit decision about missing responses. Overlapping
-   multiple-response outcomes need not sum to 100.
-5. Save and upload the plan again, rerun the affected tables, and review
-   **Consistency Checks**. Checks can reveal discrepancies; they cannot
-   decide whether you chose the intended population or unit.
+1.  Read one result aloud as "\[statistic\] of \[outcome\] among
+    \[base\], grouped by \[row/column characteristic\]." Check that the
+    dataset, filters, conditions, and weight implement that sentence.
+2.  Check the Total row and one subgroup in **Tabulator**, using
+    **Header**, **Index**, and **Logic** to match labels to
+    instructions. Seeing `total == 1` in place of `total1 == 1`, or
+    `hhmembers` in place of `totalHL == 1`, is expected after alias
+    conversion.
+3.  Confirm whether each count represents household records, member
+    records, or summed household sizes, and whether it is weighted.
+    Inspect the unformatted base before interpreting suppression.
+4.  For a distribution, make categories exhaustive and non-overlapping,
+    with an explicit decision about missing responses. Overlapping
+    multiple-response outcomes need not sum to 100.
+5.  Save and upload the plan again, rerun the affected tables, and
+    review **Consistency Checks**. Checks can reveal discrepancies; they
+    cannot decide whether you chose the intended population or unit.
 
 {{< pagebreak >}}
 
@@ -1620,7 +1539,7 @@ records are available. The table's direction then determines the base
 population and the outcome being counted:
 
 | Table direction | Base population for a percentage | Outcome counted in the numerator |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | **Horizontal** | Available records satisfying the row condition. | Records within that base satisfying the column condition. |
 | **Vertical** | Available records satisfying the column condition. | Records within that base satisfying the row condition. |
 
@@ -1641,7 +1560,7 @@ The directions in the final column refer to the calculation modes
 explained under [worksheet filters](#worksheet-filters).
 
 | Write in the cell | What it calculates and applies to | Direction |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | `n` | Sum of weights for records satisfying both row and column conditions. Use for a weighted number of households, members, or other units in the selected dataset. | Both |
 | `n_unw` | Number of qualifying records, without survey weights. Also supplies sample-size bases used by supported suppression rules. | Both |
 | `p` | Weighted percentage meeting the outcome condition within the base population defined above. The result is on a 0-100 scale. | Both |
@@ -1652,8 +1571,9 @@ explained under [worksheet filters](#worksheet-filters).
 For a horizontal `n_unw` column using `totalHL == 1` (converted to
 `hhmembers`), the app sums `HLnum` for qualifying household records with
 `total == 1`. This gives a member count rather than a household-record
-count. See [household-member bases](#worksheet-conditions) for the paired
-weighted count, required variables, and limits of this convention.
+count. See [household-member bases](#worksheet-conditions) for the
+paired weighted count, required variables, and limits of this
+convention.
 
 {{< pagebreak >}}
 
@@ -1663,7 +1583,7 @@ Here, `variable` is a numeric variable in the prepared dataset, such as
 `HCS8` or `age`. Its name must appear inside the parentheses.
 
 | Write in the cell | What it calculates and applies to | Direction |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | `mean(variable)` | Weighted average of the named variable among records satisfying both conditions: sum of value × weight divided by sum of weights for non-missing values. | Both |
 | `mean_unw(variable)` | Ordinary arithmetic average of the named variable among records satisfying both conditions, without survey weights. | Both |
 | `median(variable)` | Unweighted median of the named variable among records satisfying both conditions. It is the middle value after sorting, or the average of the two middle values. | Both |
@@ -1704,14 +1624,14 @@ adding a decimal argument does not make an unsupported form available in
 another direction.
 
 | Instruction | Meaning and where it applies |
-|----|----|
+|------------------------------------|------------------------------------|
 | `100` or `100.0` | Supplies a constant 100, rather than estimating a percentage from records. In a worksheet, its presence selects horizontal mode and can mark a percentage-distribution total. Existing zero-base and suppression rules may alter its displayed value. |
 | `p(100)` | Vertical: supplies 100 on the first calculated row; subsequent rows calculate weighted percentages as `p`. Used for a distribution with a 100-percent total. |
 | `p_unw(100)` | Vertical: supplies 100 on the first calculated row; subsequent rows calculate unweighted percentages as `p_unw`. |
 | `n_unw(100)` | Vertical: supplies 100 on the first calculated row; subsequent rows calculate unweighted counts. It does not turn those counts into percentages. |
 | `n(100)` | The current vertical calculator recognizes this only on the first calculated row and returns 100. Use `n` for later weighted-count rows; repeating `n(100)` there is unsupported. |
 | `p_sum(variable)` | Horizontal: among records satisfying both conditions, calculates **100 × sum(variable) / sum(weight)**. It does not multiply the numerator variable by the weight. Use only with a prepared variable whose definition makes this calculation appropriate. |
-| `n1`, `n_unw1`, `p1` | Calculate like `n`, `n_unw`, and `p`, respectively, in both directions. These are existing-plan variants, not requests for one decimal place. |
+| `n1`, `n_unw1`, `p1` | Calculate like `n`, `n_unw`, and `p`, respectively, in both directions. These are existing-plan variants, not requests for one decimal place. They intend to distinguish columns to be included in a consistency check group. |
 | `n2`, `n_unw2` | Vertical count variants, calculated like `n` and `n_unw`. The suffix is not a decimal setting. |
 | Legacy `Mean` | Capitalized form for an unweighted condition-based percentage. Prefer the explicit `mean_unw` spelling when interpreting or adapting this calculation. Lowercase `mean` uses weights. |
 
@@ -1756,7 +1676,7 @@ statistic type. If the statistic already has an argument, add a comma
 before `d=`.
 
 | What you want | What to write in the statistic cell | Example display |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | Whole-number average expenses in table 6.2a | `mean(HCS8, d=0)` | `442,572` |
 | Average expenses with two decimals | `mean(HCS8, d=2)` | `442,571.91` |
 | Mean indicator with one decimal | `mean(d=1)` | `73.3` |

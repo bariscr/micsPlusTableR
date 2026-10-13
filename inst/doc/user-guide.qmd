@@ -1328,6 +1328,16 @@ do not restrict subsequent rows.
 
 {{< pagebreak >}}
 
+### Dealing with missing values
+
+Use `!is.na(variable)` to exclude missing values from a condition. For example, `!is.na(age)` selects rows with a recorded age.
+
+In case there is need for a condition with multiple cases, use `%in%` to select them. For example, `variable %in% c(1, 2, 3, NA)` selects records where `variable` is 1, 2, 3, or missing.
+
+Make sure to check the distributions of variables in **Data View** to understand how missing values are coded and whether they should be included or excluded in the analysis.
+
+{{< pagebreak >}}
+
 ### Use total conditions for the correct base
 
 The maintained preparation scripts create `total = 1` in both `hh` and
@@ -1565,8 +1575,16 @@ explained under [worksheet filters](#worksheet-filters).
 | `n_unw` | Number of qualifying records, without survey weights. Also supplies sample-size bases used by supported suppression rules. | Both |
 | `p` | Weighted percentage meeting the outcome condition within the base population defined above. The result is on a 0-100 scale. | Both |
 | `p_unw` | Unweighted percentage meeting the row condition among records selected by the column condition. | Vertical |
-| `mean` | The same weighted indicator-percentage calculation as `p`, on a 0-100 scale. It does not average an unnamed numeric variable. It is treated as a mean for filter inheritance. | Both |
+| `mean` | The same weighted indicator-percentage calculation as `p`, on a 0-100 scale. Mainly used for a standalone indicator column, rather than categories forming a percentage distribution. For an average of a numeric variable, use `mean(variable)`. | Both |
 | `mean_unw` | Unweighted indicator percentage, on a 0-100 scale. The outcome is the column condition in horizontal tables and the row condition in vertical tables. | Both |
+
+**Choosing between `p` and bare `mean`.** In our tabulation plans, `p`
+is generally used for categories in a percentage distribution, while bare
+`mean` is mainly used for an individual indicator column. They calculate
+the same percentage for the same data, conditions, and weights. This is a
+worksheet convention, not a restriction on the number of columns. The
+horizontal percentage-total check includes eligible `p` columns but
+excludes bare `mean` and `p1`.
 
 For a horizontal `n_unw` column using `totalHL == 1` (converted to
 `hhmembers`), the app sums `HLnum` for qualifying household records with
@@ -1631,9 +1649,9 @@ another direction.
 | `n_unw(100)` | Vertical: supplies 100 on the first calculated row; subsequent rows calculate unweighted counts. It does not turn those counts into percentages. |
 | `n(100)` | The current vertical calculator recognizes this only on the first calculated row and returns 100. Use `n` for later weighted-count rows; repeating `n(100)` there is unsupported. |
 | `p_sum(variable)` | Horizontal: among records satisfying both conditions, calculates **100 × sum(variable) / sum(weight)**. It does not multiply the numerator variable by the weight. Use only with a prepared variable whose definition makes this calculation appropriate. |
-| `n1`, `n_unw1`, `p1` | Calculate like `n`, `n_unw`, and `p`, respectively, in both directions. These are existing-plan variants, not requests for one decimal place. They intend to distinguish columns to be included in a consistency check group. |
-| `n2`, `n_unw2` | Vertical count variants, calculated like `n` and `n_unw`. The suffix is not a decimal setting. |
-| Legacy `Mean` | Capitalized form for an unweighted condition-based percentage. Prefer the explicit `mean_unw` spelling when interpreting or adapting this calculation. Lowercase `mean` uses weights. |
+| `n1` | Calculates like `n` in both directions but is excluded from count-total consistency checks. It does not define a separate check group. The suffix is not a decimal setting. |
+| `n_unw1` | Calculates like `n_unw` in both directions. This is an existing-plan variant, not a request for one decimal place. |
+| `p1` | Calculates the same weighted percentage as `p` in both directions but is excluded from percentage-total consistency checks. Use it for an indicator that should not contribute to a distribution total. It does not define a separate check group, and the suffix does not specify decimal places. |
 
 The `(100)` forms refer to the **first calculated row**, not any row
 whose visible label happens to say "Total". Their later-row behavior is
@@ -1687,8 +1705,7 @@ before `d=`.
 | Total/distribution statistic with two decimals | `p(100, d=2)` | `100.00` |
 
 These numbers illustrate the display, not survey results. The same rule
-works with other supported statistics, including `mean_unw`, legacy
-`Mean`, and `p_sum`. A constant can be written as `100(d=2)`. Keep the
+works with other supported statistics, including `mean_unw` and `p_sum`. A constant can be written as `100(d=2)`. Keep the
 statistic appropriate to the table's direction and intended calculation.
 
 **If you leave out `d`, nothing changes:** the app keeps its established
@@ -1798,8 +1815,6 @@ application's address and file-retrieval steps.
   for the tabulation plan.
 - **Sheet:** one page of an Excel workbook, such as `1.1a`.
 - **Wave:** one round of the survey. Use the wave your team gave you.
-
-**About the pictures.** In the HTML guide, click a picture to enlarge it; press **Esc** to return.
 
 **Looking for package functions?** Use the [package reference
 manual](https://github.com/bariscr/micsPlusTableR/blob/HEAD/output/pdf/micsPlusTableR-manual.pdf)

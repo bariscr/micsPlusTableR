@@ -112,8 +112,8 @@ tabulate_extra_table <- function(session, table) {
 #'   by [read_mics_tabulation()], not this helper; see [worksheet-conditions].
 #'
 #'   Bare `mean` is an indicator percentage; `mean(variable)` averages the named
-#'   variable. Median and `mean_unw` forms are unweighted, as are legacy
-#'   capitalized `Mean` indicators. The `p_sum` statistic divides the variable
+#'   variable. Median and `mean_unw` forms are unweighted.
+#'   The `p_sum` statistic divides the variable
 #'   sum by the weight sum within both conditions, then multiplies by 100.
 #'
 #'   Missing statistic cells return NA. An empty denominator can produce NaN.

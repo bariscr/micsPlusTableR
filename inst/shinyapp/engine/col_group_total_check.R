@@ -1,3 +1,14 @@
+#' Check column count totals
+#'
+#' Compares grouped column counts with total or household-member columns using
+#' out_glob$is_total_col. Stores comparisons in totals_col_df and the issue
+#' count in totals_col_df_issue_n in the engine environment when the check runs.
+#'
+#' @param cell_results Long cell-result tibble with values, statistics, logic,
+#'   and grouping metadata.
+#' @param diff Absolute tolerance for flagging a difference; defaults to 1e-11.
+#' @return A tibble of discrepancies when checked. When no check applies, the
+#'   return is incidental; use the engine check state.
 col_group_total_check <- function(cell_results, diff = 1e-11) {
   
   is_total_col <- out_glob$is_total_col

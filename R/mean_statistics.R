@@ -16,8 +16,6 @@ mics_mean_spec <- function(stat_type) {
     out$calculation <- name
     return(out)
   }
-  # Keep legacy `Mean ...` indicator instructions intact.
-  if (identical(prefix, "Mean") && !startsWith(tail, "(")) return(out)
   invalid <- function() stop("Invalid mean statistic '", stat_type,
     "': supply a variable, a supported named expression, or a bare mean indicator.", call. = FALSE)
   expr <- tryCatch(parse(text = paste0(name, tail), keep.source = FALSE),
@@ -34,7 +32,6 @@ mics_mean_spec <- function(stat_type) {
     out$argument_name <- arg_names[[1L]]
     call <- as.call(c(list(as.name(name)), args))
     out$calculation <- paste(deparse(call, width.cutoff = 500L), collapse = " ")
-    if (startsWith(text, "Mean ")) out$calculation <- sub("^Mean", "Mean ", out$calculation)
   } else {
     out$calculation <- name
   }

@@ -299,7 +299,7 @@ read_tabulation <- function(path_tab_excel, sheet) {
 # Whether this has an n_unw before IDX, if so it will be suppressed
   is_supp <- any(
   tab_base$col_index == (idx_col - 1) &
-    tab_base$stat_type %in% c("n_unw", "n_unw2"),
+    tab_base$stat_type %in% c("n_unw", "n_unw1"),
   na.rm = TRUE
 )
   
@@ -344,6 +344,19 @@ condition_write <-
   out_glob$condition_write <- condition_write
 
 # Build headers ------------------------------------------------------------
+#' Build hierarchical column headers
+#'
+#' Fills header cells above the condition row, removes repeated adjacent labels,
+#' and derives leaf labels and group spans.
+#'
+#' @param tab_org Wide worksheet tibble with row_index and numbered column
+#'   names.
+#' @param condition_row_index Worksheet row containing conditions; headers end
+#'   immediately above it.
+#' @param start_row First worksheet header row; defaults to 3.
+#' @param drop_cols Worksheet column names to exclude; defaults to c("1", "2").
+#' @return A list with header_leaf and header_groups, plus header_wide when
+#'   header levels exist.
 build_headers <- function(tab_org,
                           condition_row_index,
                           start_row = 3,
@@ -442,6 +455,13 @@ hdr <- build_headers(
   drop_cols = c("1", "2")
 )
 
+#' Read an optional list element
+#'
+#' Allows missing header-group levels to be represented by NULL.
+#'
+#' @param x List or other indexable object, possibly NULL.
+#' @param i Positive integer element position.
+#' @return The selected element, or NULL if x is NULL or shorter than i.
 pluck_or_null <- function(x, i) {
   if (is.null(x) || length(x) < i) return(NULL)
   x[[i]]

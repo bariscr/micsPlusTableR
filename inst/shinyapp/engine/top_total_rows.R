@@ -1,5 +1,13 @@
 # Identify the leading Total rows from their labels or explicit total logic.
 # Use worksheet coordinates so header/logic/index previews share the same style.
+#' Find leading total rows
+#'
+#' Recognizes total labels or explicit total logic and stops at the first
+#' non-total worksheet row.
+#'
+#' @param table Cell-result data frame with row_index and optional row_header
+#'   and row_logic.
+#' @return Sorted leading total row indices, or an empty integer vector.
 top_total_rows <- function(table) {
   if (!is.data.frame(table) || !"row_index" %in% names(table) || !nrow(table)) {
     return(integer())

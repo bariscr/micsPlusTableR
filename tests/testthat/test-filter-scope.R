@@ -141,8 +141,8 @@ test_that("an explicit filter on a mean replaces the preceding filter", {
   expect_equal(result$filt2, c(rep("filter(sex == 2)", 2), rep("filter(sex == 1)", 4)))
 })
 
-test_that("bare, unweighted and legacy mean statistics preserve inherited local filters", {
-  for (stat in c("mean", "Mean", "mean_unw", "mean_unw(age)")) {
+test_that("bare and unweighted mean statistics preserve inherited local filters", {
+  for (stat in c("mean", "mean_unw", "mean_unw(age)")) {
     s <- filter_scope_session(c("n", stat, "n", "n_unw"), local_cols = 3L)
     s$out_glob$tab_c$col_lgc <- "yes == 1"
     result <- tabulate_h(s)

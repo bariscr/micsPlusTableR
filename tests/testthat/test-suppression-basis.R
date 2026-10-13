@@ -162,13 +162,13 @@ test_that("plan suppression requires an unweighted statistic immediately before 
   wb$add_data("IDX", "Table 1 Example", col_names = FALSE)
   path <- tempfile(fileext = ".xlsx")
   on.exit(unlink(path), add = TRUE)
-  for (last in c("n", "p", "n_unw", "n_unw2", "n_unw(d=2)")) {
+  for (last in c("n", "p", "n_unw", "n_unw1", "n_unw(d=2)")) {
     cells[9, 3:6] <- c("p", "n_unw", "100", last)
     wb$add_data("Example", cells, col_names = FALSE)
     wb$add_cell_style("Example", dims = "A9", horizontal = "left", indent = 1)
     wb$save(path, overwrite = TRUE)
     plan <- read_mics_tabulation(s, path, "Example")
-    expect_identical(plan$is_supp, last %in% c("n_unw", "n_unw2", "n_unw(d=2)"))
+    expect_identical(plan$is_supp, last %in% c("n_unw", "n_unw1", "n_unw(d=2)"))
   }
 })
 

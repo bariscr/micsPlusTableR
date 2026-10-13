@@ -1,6 +1,21 @@
+#' Parse column conditions
+#'
+#' Extracts column predicates and generates sanitized variable names from their
+#' clauses.
+#'
+#' @param tab_c Column-plan tibble with col_index and col_lgc.
+#' @return A tibble with col_index, col_condition0, col_condition, and
+#'   col_var_name.
 col_condition_f <- function(tab_c) {
   
   # --- helpers ---------------------------------------------------------------
+  #' Create a variable-name token from a clause
+  #'
+  #' Recognizes common comparisons and membership tests, otherwise sanitizes the
+  #' clause text.
+  #'
+  #' @param clause Single character condition clause.
+  #' @return A sanitized token, or NA_character_ when no token remains.
   normalize_clause <- function(clause) {
     cl <- str_trim(clause)
     
@@ -59,6 +74,12 @@ col_condition_f <- function(tab_c) {
     if (nzchar(fallback)) fallback else NA_character_
   }
   
+  #' Split logical condition clauses
+  #'
+  #' Splits on ampersand and pipe operators and trims the resulting text.
+  #'
+  #' @param cond Single character condition expression.
+  #' @return A character vector of trimmed clauses.
   split_clauses <- function(cond) {
     if (is.na(cond) || !nzchar(cond)) return(character())
     str_split(cond, "\\|\\|?|&&?", simplify = FALSE)[[1]] |> str_trim()

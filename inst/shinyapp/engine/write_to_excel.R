@@ -1,3 +1,20 @@
+#' Write calculated cells to an Excel workbook
+#'
+#' Updates values and formatting using out_glob layout metadata and engine
+#' consistency-check results. Assigns any_issues_found, updates issue-marked
+#' sheet names and IDX entries, and overwrites dest.
+#'
+#' @param dest Path to an existing Excel workbook to update.
+#' @param table Long cell-result tibble containing row_index, col_index, value,
+#'   and display metadata.
+#' @param sheet Target worksheet name.
+#' @param drop_n_unw Logical; blank n_unw and n_unw1 cells in formatted
+#'   horizontal tables.
+#' @param formatted Logical; use suppression display values when enabled,
+#'   otherwise include plan conditions.
+#' @param zoom_level Worksheet zoom percentage; defaults to 100.
+#' @return The result of openxlsx2::wb_save(); the main output is the workbook
+#'   saved to dest.
 write_to_excel <- function(dest, 
                            table, 
                            sheet, 
@@ -43,15 +60,49 @@ if (!sheet %in% current_sheets) {
   }
   
   # helpers ---------------------------------------------------------------
+  #' Build an Excel cell reference
+  #'
+  #' Converts worksheet coordinates into workbook dimensions.
+  #'
+  #' @param r Worksheet row index.
+  #' @param c Worksheet column index.
+  #' @return The cell reference returned by wb_dims().
   cell_ref     <- function(r, c) wb_dims(rows = r, cols = c)
+  #' Apply an optional Excel number format
+  #'
+  #' Updates the enclosing workbook and worksheet when a format is supplied.
+  #'
+  #' @param fmt Excel number-format string, or NULL to skip.
+  #' @param dims Target cell dimensions.
+  #' @return The result of the workbook formatting method, or NULL when skipped.
   apply_numfmt <- function(fmt, dims) if (!is.null(fmt)) wb$add_numfmt(sheet = sheet, dims = dims, numfmt = fmt)
+  #' Detect a single NaN display token
+  #'
+  #' Checks text after trimming whitespace and converting to lowercase.
+  #'
+  #' @param x Value to inspect.
+  #' @return TRUE for a single nonmissing "nan" token; otherwise FALSE.
   is_nanish    <- function(x) {
     s <- tolower(trimws(as.character(x)))
     length(s) == 1L && !is.na(s) && identical(s, "nan")
   }
+  #' Detect missing-value display tokens
+  #'
+  #' Recognizes missing values and common textual NA or NaN representations.
+  #'
+  #' @param x Vector of values to inspect.
+  #' @return A logical vector marking missing-value entries.
   is_naish     <- function(x) { s <- tolower(trimws(as.character(x))); is.na(x) | s %in% c("na","nan","n/a","n.a.","#n/a") }
   
   # Preserve existing defaults; any statistic may override decimals with d.
+  #' Choose an Excel number format
+  #'
+  #' Builds a number format for the requested precision and suppression marker
+  #' style.
+  #'
+  #' @param decimals Number of decimal places; defaults to 1.
+  #' @param kind Format style: "base", "star", or "paren".
+  #' @return An Excel number-format string.
   pick_fmt_by_dec <- function(decimals = 1L, kind = c("base","star","paren")) {
     kind <- match.arg(kind)
     if (decimals == 0L) {
@@ -86,7 +137,7 @@ if (!sheet %in% current_sheets) {
                 scheme = "", update = c("name", "size", "scheme"))
     
     # if stat_type == "n_unw" and we want to drop (formatted mode), blank out and continue
-    if (!is.na(st) && st %in% c("n_unw", "n_unw2") && isTRUE(formatted) && tab_direction == "h" && isTRUE(drop_n_unw)) {
+    if (!is.na(st) && st %in% c("n_unw", "n_unw1") && isTRUE(formatted) && tab_direction == "h" && isTRUE(drop_n_unw)) {
       wb$add_data(sheet = sheet, x = "", startRow = r, startCol = c, colNames = FALSE)
       wb$add_fill(sheet = sheet, dims = dims, color = white)
       next
@@ -104,7 +155,7 @@ if (!sheet %in% current_sheets) {
     }
     
     # decide decimal places from stat_type: n or n_unw => 0; else => 1
-    decimals <- if (!is.na(st) && st %in% c("n","n_unw", "n2", "n_unw2")) 0L else 1L
+    decimals <- if (!is.na(st) && st %in% c("n","n_unw", "n1", "n_unw1")) 0L else 1L
     if (!is.na(table$display_digits[i])) decimals <- table$display_digits[i]
     
     # parse adornments and numeric

@@ -1,3 +1,10 @@
+#' Normalize worksheet condition text
+#'
+#' Replaces nonbreaking spaces, typographic quotes, and Unicode comparison and
+#' logical operators with R-compatible text.
+#'
+#' @param x Vector of condition text, coerced to character.
+#' @return A trimmed character vector with normalized punctuation and operators.
 normalize_condition_text <- function(x) {
   x <- as.character(x)
   x <- stringr::str_replace_all(x, "\u00a0", " ")
@@ -13,12 +20,33 @@ normalize_condition_text <- function(x) {
   stringr::str_trim(x)
 }
 
+#' Parse row conditions and calculations
+#'
+#' Separates setup calculations from row predicates and creates sanitized
+#' variable names for the predicates.
+#'
+#' @param tab_r Row-plan tibble with row_index and row_lgc.
+#' @return A tibble with row_index, row_condition0, row_condition, row_var_name,
+#'   and calculation.
 row_condition_f <- function(tab_r) {
+  #' Split logical condition clauses
+  #'
+  #' Splits on ampersand and pipe operators and trims the resulting text.
+  #'
+  #' @param cond Single character condition expression.
+  #' @return A character vector of trimmed clauses.
   split_clauses <- function(cond) {
     stringr::str_split(cond, "\\|\\|?|&&?", simplify = FALSE)[[1]] |>
       stringr::str_trim()
   }
   
+  #' Create a variable-name token from a clause
+  #'
+  #' Recognizes common comparisons and membership tests, otherwise sanitizes the
+  #' clause text.
+  #'
+  #' @param clause Single character condition clause.
+  #' @return A sanitized token, or NA_character_ when no token remains.
   normalize_clause <- function(clause) {
     cl <- stringr::str_trim(clause)
     

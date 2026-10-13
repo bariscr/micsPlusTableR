@@ -1,3 +1,9 @@
+#' Build a wide table for comparison
+#'
+#' Uses session cell_results, excluding n_unw cells and retaining formatted
+#' values.
+#'
+#' @return A wide tibble with row_index and one column per worksheet column.
 comparison_table <- function() {
   cell_results |> 
     filter(stat_type != "n_unw") |> 

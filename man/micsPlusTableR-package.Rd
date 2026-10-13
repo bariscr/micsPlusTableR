@@ -25,103 +25,12 @@ understanding a tabulation plan. Use this reference manual for exact
 function arguments, return values, examples, and engine behavior.
 }
 
-\section{Two routes to producing tables}{
+\section{Running the application}{
 
-Use supplied plans, preparation files, and matching survey data, or create
-and adapt a tabulation plan with a compatible preparation script and data.
-Both routes can use the application. Creating a plan does not require
-replacing the app with a scripted workflow. Results can be reviewed in the
-app without exporting; Excel workbooks and combined table-data downloads
-are available when files are needed.
-}
+Launch the Shiny application with \code{\link[=run_app]{run_app()}}:
 
-\section{Inputs}{
-
-Supply an Excel tabulation plan with an \code{IDX} worksheet and a worksheet for
-each table, household and household-member SPSS files, and a survey-specific
-preparation folder containing one main R script that reads \code{hh_path} and
-\code{hl_path} and creates data frames named \code{hh} and \code{hl}. Include its supporting
-files; a \code{FIES-inputs} subfolder is needed when the selected script uses it.
-}
-
-\section{User setup}{
-
-Install R and an editor such as RStudio Desktop. Before installing this
-package or starting the app, create or open your own survey project.
-In RStudio, use File > New Project for a new or existing folder, or
-File > Open Project or double-click an existing \code{.Rproj} file. Install
-\code{remotes} only if it is not already available; once installed, it need not
-be installed again for ordinary use. Then install this package with
-\code{remotes::install_github("bariscr/micsPlusTableR")} and restart the R session
-before launching the app. Restart R after package updates too. The bundled
-\code{doc/user-guide.pdf} and \code{doc/user-guide.html}
-explain computer setup, project creation, installation, and file uploads
-for beginners. The app's User's Guide tab opens the guide after launch.
-
-Positron, VS Code, Cursor, Jupyter with an R kernel, and R's own console
-can also run the package. Configure R support and start R in the survey
-folder. Check \code{getwd()} and \code{here::here()} or set \code{output_dir} explicitly;
-use \code{launch.browser = TRUE} if needed. Remote sessions need browser routing
-and access to server files. Users do not need the maintainer's project.
-}
-
-\section{Application tabs and outputs}{
-
-Reopen the survey project on each visit and start \code{\link[=run_app]{run_app()}}. Select inputs
-again for each app session. The app opens on Data Preparation; its tabs are
-arranged in this order:
-\enumerate{
-\item User's Guide: read the embedded instructions, open the full guide in
-a separate browser tab, or download the PDF.
-\item Download Files: obtain plans and preparation materials for one,
-several, or all surveys. Readable names include
-\verb{Jamaica (2023-24) Wave 1}. Downloads default to the current project.
-Household/member microdata are obtained separately from
-the \href{https://mics.unicef.org/surveys}{MICS surveys page} with permission.
-\item Data Preparation: choose the country, period, and wave; select the
-data, plan, and complete preparation folder; click Set.
-\item Tabulator: calculate one sheet and inspect its values. Header shows
-descriptive labels, Index shows worksheet positions, and Logic shows
-conditions. These views do not change the calculations.
-\item Consistency Checks: compare counts and percentages across groups.
-Checks and their results remain visible in the app without console output.
-A check that does not apply is not a passing validation.
-\item Write to Excel: create or select workbooks and write the current
-table. Keep the same destinations when adding more tables.
-\item Multi-Sheet Tabulator: calculate and write selected sheets together.
-It creates required workbooks automatically for unset destinations and
-reuses destinations already created or selected in Write to Excel.
-\item Data Exploration: investigate frequencies and cross-tabulations.
-\item Data View: inspect selected variables in the prepared survey data.
-\item Long Format Data: combine calculated table cells and download the
-complete result as Excel, CSV, or RDS, irrespective of preview filters.
-}
-Choose the tools needed for the task; using every tab or exporting is not
-required. Generated workbooks default to \code{micsPlusTableR-output} in the
-project root; \code{\link[=run_app]{run_app()}} accepts another \code{output_dir}. Previously saved
-workbook destinations are not restored after restarting the app: select
-them explicitly to continue writing to those files.
-}
-
-\section{Understanding a tabulation plan}{
-
-The User's Guide explains the worksheet layout, dataset name in B4:B7,
-filters, row/column conditions, and cell statistics, for readers as well as
-plan authors. \link{worksheet-conditions} explains output-oriented condition
-design, total aliases, and household-member bases.
-\link{statistic-types} documents each statistic's population,
-weighting, and supported direction. \link{statistic-precision} explains optional
-\verb{d=} display settings. \code{\link[=tabulate_h]{tabulate_h()}} documents global and additional filters,
-including inheritance across means and clearing a filter with \code{unfilter()}.
-}
-
-\section{Internet access}{
-
-Installing packages and downloading survey materials require internet.
-The app's workbook preview loads the SheetJS browser library externally;
-a browser may cache it, but availability after closing or clearing the browser
-is not guaranteed. Once packages and inputs are local, table calculations and
-Excel output do not require that library or an external download.
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{micsPlusTableR::run_app()
+}\if{html}{\out{</div>}}
 }
 
 \section{Scripting workflow}{

@@ -51,6 +51,13 @@ compare_tables <- function(df1, df2,
   mics_tolerance(show_diff_over, "show_diff_over")
   if (!ncol(df1) || !ncol(df2)) stop("Both comparison tables must contain at least one column.", call. = FALSE)
   # helper for paratheses
+  #' Normalize parenthesized numeric displays
+  #'
+  #' Parses numeric values inside parentheses and rewrites them with one decimal
+  #' place.
+  #'
+  #' @param s Vector of cell values, coerced to character.
+  #' @return A character vector with parseable parenthesized values normalized.
   normalize_paren_1dp <- function(s) {
     s <- as.character(s)
     ix <- grepl("^\\s*\\([^)]*\\)\\s*$", s)                 # only pure "( ... )" cells
@@ -99,6 +106,13 @@ compare_tables <- function(df1, df2,
     dplyr::mutate(value_df2 = normalize_paren_1dp(value_df2))   
   
   # helper -------
+  #' Parse displayed numbers for comparison
+  #'
+  #' Removes parentheses and percent signs and normalizes decimal commas or
+  #' thousands separators.
+  #'
+  #' @param x Vector of displayed cell values.
+  #' @return A numeric vector with NA for unparseable values.
   pparse <- function(x) {
     x <- as.character(x)
     x <- sub("^\\s*\\((.*)\\)\\s*$", "\\1", x)              

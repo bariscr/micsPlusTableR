@@ -46,8 +46,7 @@ Vertical tables only.}
 \item{\code{mean}}{Bare mean: the same weighted indicator-percentage calculation
 as \code{p}, on a 0-100 scale. It does not select a numeric variable. Both directions.}
 \item{\code{mean_unw}}{Unweighted indicator percentage, on a 0-100 scale.
-Both directions. Legacy capitalized \code{Mean} also calculates this unweighted
-indicator percentage; it is distinct from lowercase weighted \code{mean}.}
+Both directions.}
 }
 }
 
@@ -86,7 +85,6 @@ The numerator is not multiplied by the weight; the prepared variable
 must be defined appropriately for this calculation.}
 \item{\code{n1}, \code{n_unw1}, \code{p1}}{Calculation variants of \code{n}, \code{n_unw}, and \code{p}
 in both directions. Suffixes do not set decimal places.}
-\item{\code{n2}, \code{n_unw2}}{Vertical-only count variants of \code{n} and \code{n_unw}.}
 }
 The \code{(100)} forms are not supported by the horizontal calculator. They refer
 to the first calculated row, not any row whose label says Total. Prefer the

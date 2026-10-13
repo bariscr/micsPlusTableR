@@ -1,6 +1,21 @@
 
 ## Stat function ----
 
+#' Calculate statistics for planned cells
+#'
+#' Applies row calculations in order, filters data by row and column predicates,
+#' and calculates the statistic requested by each plan cell.
+#'
+#' @param df Input survey data frame.
+#' @param tab_r Row plan containing row_index and row_lgc.
+#' @param tab_c3 Column plan containing col_index, col_condition, and
+#'   col_var_name.
+#' @param tab Cell plan containing row_index, col_index, and stat_type.
+#' @param weight_var Name of the survey weight column.
+#' @param weighted FALSE for unweighted, TRUE for weighted, or "both" for
+#'   statistic-specific weighting.
+#' @return A long tibble of cell coordinates, logic, statistic identifiers,
+#'   display digits, and numeric values.
 calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
   context <- mics_sheet_context(environment(sys.function()))
   tryCatch({
@@ -111,7 +126,7 @@ calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
           
           
           
-          # ---------- "Mean " (binary % * 100) ----------
+          # ---------- unweighted count ----------
         } else if (stat_type %in% c("n_unw", "n_unw1") & tab_c3$col_condition[c] != "hhmembers") {
           col_condition <- tab_c3$col_condition[c]
           col_var_name  <- tab_c3$col_var_name[c]
@@ -131,8 +146,8 @@ calc_cells <- function(df, tab_r, tab_c3, tab, weight_var, weighted = FALSE) {
           
           
           
-          # ---------- "Mean " (binary % * 100) ----------
-        } else if (grepl("^Mean\\b", stat_type) || stat_type == "mean_unw") {
+          # ---------- unweighted indicator percentage ----------
+        } else if (stat_type == "mean_unw") {
           col_condition <- tab_c3$col_condition[c]
           col_var_name  <- tab_c3$col_var_name[c]
           

@@ -55,7 +55,7 @@ test_that("derived and unweighted means keep their calculation semantics", {
     s$out_glob$tab$stat_type <- stat
     expect_identical(tabulate_v(s)$value_f_view, "100.00")
   }
-  s$out_glob$tab$stat_type <- "Mean (sex, d=2)"
+  s$out_glob$tab$stat_type <- "mean_unw(d=2)"
   expect_identical(tabulate_v(s)$value_f_view, "100.00")
 })
 

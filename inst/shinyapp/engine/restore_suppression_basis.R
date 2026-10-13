@@ -1,6 +1,15 @@
 # A filter boundary controls record selection, not the placement of a table's
 # unweighted count. Preserve existing matches, but let an unmatched cell use
 # the next n_unw on the same row even when another filter starts in between.
+#' Restore unmatched suppression counts
+#'
+#' Uses the next n_unw cell on the same row for cells without a count range.
+#' Preserves existing matches and avoids borrowing across data sources.
+#'
+#' @param results Cell-result data frame with row_index, col_index, stat_type,
+#'   value, n_unw, col_start_1, and col_end_1; optionally df.
+#' @return The input results with unmatched count values and ranges filled where
+#'   possible.
 restore_suppression_basis <- function(results) {
   unmatched <- which(is.na(results$col_start_1))
   counts <- results[which(results$stat_type == "n_unw"), , drop = FALSE]

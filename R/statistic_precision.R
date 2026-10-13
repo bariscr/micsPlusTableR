@@ -34,6 +34,23 @@ NULL
 
 # Keep display metadata separate from statistic names used by the engine.
 mics_stat_spec <- function(stat_type) {
+  if (!is.na(stat_type) && grepl("^n_unw2($|[[:space:](])", trimws(stat_type))) {
+    stop("Unsupported statistic '", stat_type,
+         "': n_unw2 was removed in 0.4.0. Use n_unw1 instead, retaining any d= setting.",
+         call. = FALSE)
+  }
+  if (!is.na(stat_type) && grepl("^n2($|[[:space:](])", trimws(stat_type))) {
+    stop("Unsupported statistic '", stat_type,
+         "': n2 was removed in 0.4.0. Use n1 instead, retaining any d= setting.",
+         call. = FALSE)
+  }
+  if (!is.na(stat_type) && grepl("^Mean($|[[:space:](])", trimws(stat_type))) {
+    stop("Unsupported statistic '", stat_type,
+         "': the legacy capitalized indicator was removed in 0.4.0. ",
+         "Use mean_unw (or mean_unw(d=...) for display precision). ",
+         "Use mean_unw(variable) only when a numeric average is intended.",
+         call. = FALSE)
+  }
   out <- list(calculation = stat_type, digits = NA_integer_)
   if (is.na(stat_type) || !grepl("\\bd\\s*=", stat_type, perl = TRUE)) return(out)
   text <- trimws(stat_type)
@@ -60,7 +77,7 @@ mics_stat_spec <- function(stat_type) {
   if (length(args)) {
     call <- as.call(c(list(as.name(".stat")), args))
     remainder <- sub("^\\.stat", "", paste(deparse(call, width.cutoff = 500L), collapse = " "))
-    out$calculation <- paste0(name, if (startsWith(text, "Mean ")) " " else "", remainder)
+    out$calculation <- paste0(name, remainder)
   } else out$calculation <- name
   out
 }

@@ -1,4 +1,16 @@
 
+#' Check indented row count totals
+#'
+#' Uses out_glob$indent_rows to compare level-two count rows with their
+#' level-one parent totals. Stores comparisons in totals_indent_row_df and the
+#' issue count in totals_indent_row_df_issue_n in the engine environment when
+#' the check runs.
+#'
+#' @param cell_results Long cell-result tibble with values, statistics, logic,
+#'   and grouping metadata.
+#' @param diff Absolute tolerance for flagging a difference; defaults to 1e-11.
+#' @return A tibble of discrepancies when checked. When no check applies, the
+#'   return is incidental; use the engine check state.
 row_indent_group_total_check <- function(cell_results, diff = 1e-11) {
   
   indent_rows <- out_glob$indent_rows

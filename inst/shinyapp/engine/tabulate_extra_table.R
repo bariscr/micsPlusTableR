@@ -1,3 +1,13 @@
+#' Apply plan metadata to a supplied extra table
+#'
+#' Validates dimensions against out_glob, builds layout metadata without
+#' evaluating row instructions, and applies display formatting and eligible
+#' suppression.
+#'
+#' @param table Data frame with a label column followed by numeric values in
+#'   plan order; defaults to table_new.
+#' @return A long cell-result tibble containing supplied values, display values,
+#'   and plan metadata.
 tabulate_extra_table <- function(table = table_new) {
 
   mics_require_columns(table, character(), "table")
@@ -91,7 +101,7 @@ out <-
     dplyr::mutate(
       value_f_org = dplyr::case_when(
         mics_missing_value_dash(value, stat_type) ~ "-",
-        stat_type %in% c("n", "n_unw", "n2", "n_unw2", "hhmembers") ~ as.character(format(round(value, 0), big.mark = ",")),
+        stat_type %in% c("n", "n_unw", "n1", "n_unw1", "hhmembers") ~ as.character(format(round(value, 0), big.mark = ",")),
         stat_type %in% c("p", "p_unw", "p(100)", "p_unw(100)", "mean", "mean_unw") ~ as.character(round(value, 1)),
         TRUE ~ as.character(value)
       ),

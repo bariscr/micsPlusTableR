@@ -1,3 +1,11 @@
+#' Extract the variable from a simple condition
+#'
+#' Parses between(), membership, and comparison expressions without evaluating
+#' them.
+#'
+#' @param x A single character condition expression.
+#' @return The first variable on the left-hand side, or NA_character_ if
+#'   unsupported or invalid.
 extract_var <- function(x) {
   e <- tryCatch(parse_expr(x), error = function(e) NULL)
   if (is.null(e)) return(NA_character_)

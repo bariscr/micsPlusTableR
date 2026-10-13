@@ -15,13 +15,13 @@ test_that("mean previews use grouping and one decimal without rounding estimates
   }
 })
 
-test_that("unweighted and legacy mean displays also use fixed decimals", {
+test_that("unweighted and bare mean displays also use fixed decimals", {
   s <- small_plan_session("v")
   s$hh$expense <- 442571.905044384
   s$out_glob$tab$stat_type <- "mean_unw(expense)"
   expect_identical(tabulate_v(s)$value_f_view, "442,571.9")
 
-  for (stat in c("mean", "Mean")) {
+  for (stat in c("mean", "mean_unw")) {
     s <- small_plan_session("h")
     s$out_glob$tab$stat_type <- stat
     expect_identical(tabulate_h(s)$value_f_view, "100.0")

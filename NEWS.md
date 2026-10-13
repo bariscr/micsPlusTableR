@@ -1,3 +1,19 @@
+# micsPlusTableR 0.4.0
+
+* Remove `n2` and `n_unw2`; use `n1` and `n_unw1`, respectively, preserving
+  any `d=` setting. Retain whole-number formatting in Excel exports and supplied
+  extra tables. Transfer suppression eligibility and optional unweighted-count
+  blanking from `n_unw2` to `n_unw1`. Survey plans require manual updates.
+
+* Remove the legacy capitalized `Mean` indicator instruction. Older plans must
+  use bare `mean_unw`, optionally with `d=` for display precision. Do not
+  translate legacy parenthesized text into a numeric-average argument: those
+  instructions calculated indicator percentages. Numeric averages continue to
+  use `mean_unw(variable)`. Ordinary "Mean" headings and labels are unchanged.
+
+* Add roxygen-style documentation for undocumented engine functions and local
+  helpers, including parameters, return values, and session-state side effects.
+
 # micsPlusTableR 0.3.2
 
 * Close the bottom and right edges below existing tab-plan footnotes even when

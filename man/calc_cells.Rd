@@ -42,8 +42,8 @@ Worksheet aliases such as \code{total1 == 1} and \code{totalHL == 1} are convert
 by \code{\link[=read_mics_tabulation]{read_mics_tabulation()}}, not this helper; see \link{worksheet-conditions}.
 
 Bare \code{mean} is an indicator percentage; \code{mean(variable)} averages the named
-variable. Median and \code{mean_unw} forms are unweighted, as are legacy
-capitalized \code{Mean} indicators. The \code{p_sum} statistic divides the variable
+variable. Median and \code{mean_unw} forms are unweighted.
+The \code{p_sum} statistic divides the variable
 sum by the weight sum within both conditions, then multiplies by 100.
 
 Missing statistic cells return NA. An empty denominator can produce NaN.

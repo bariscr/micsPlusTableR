@@ -1,4 +1,15 @@
 
+#' Check column percentage totals
+#'
+#' Checks percentage blocks ending in a 100 column against 100 within each
+#' condition. Stores comparisons in totals_col_perc_df and the issue count in
+#' totals_col_perc_df_issue_n in the engine environment when the check runs.
+#'
+#' @param cell_results Long cell-result tibble with values, statistics, logic,
+#'   and grouping metadata.
+#' @param diff Absolute tolerance for flagging a difference; defaults to 1e-11.
+#' @return A tibble of discrepancies when checked. When no check applies, the
+#'   return is incidental; use the engine check state.
 col_group_perc_total_check <-
   
   function(cell_results, diff = 1e-11) {

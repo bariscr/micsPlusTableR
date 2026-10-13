@@ -1,3 +1,12 @@
+#' Tabulate a plan in the vertical direction
+#'
+#' Uses the loaded out_glob plan and session data sources to calculate cells and
+#' attach layout and display metadata.
+#'
+#' @param skip_row_conditions Logical; replace row instructions with TRUE when
+#'   preparing metadata for supplied extra tables.
+#' @return A long tibble of calculated cells with numeric values, formatted
+#'   values, and plan metadata.
 tabulate_v <- function(skip_row_conditions = FALSE) {
   context <- mics_sheet_context(environment(sys.function()))
   tryCatch({
@@ -55,11 +64,26 @@ tabulate_v <- function(skip_row_conditions = FALSE) {
   weight_var <- filter_row$weight[[1]]
   
   # helpers
+  #' Check for usable instruction text
+  #'
+  #' Examines the first element for nonmissing, nonblank text.
+  #'
+  #' @param x An optional instruction value.
+  #' @return TRUE if the first element contains text; otherwise FALSE.
   is_present <- function(x) {
     if (is.null(x) || length(x) == 0) return(FALSE)
     x1 <- as.character(x[[1]])
     !(is.na(x1) || !nzchar(trimws(x1)))
   }
+  #' Apply an instruction chain to data
+  #'
+  #' Evaluates a pipe chain in the local calculation environment when
+  #' instruction text is present.
+  #'
+  #' @param df_obj Data frame to transform.
+  #' @param chain Character pipe-chain expression, or missing instruction text.
+  #' @return The transformed data, or the original data when no chain is
+  #'   supplied.
   apply_chain_df <- function(df_obj, chain) {
     if (!is_present(chain)) return(df_obj)
     df <- df_obj
@@ -84,11 +108,28 @@ tabulate_v <- function(skip_row_conditions = FALSE) {
   base_context <- context
   
   # ---------- helpers used during cell computation ----------
+  #' Extract an argument using a capture group
+  #'
+  #' Matches a statistic specification with a case-insensitive regular
+  #' expression.
+  #'
+  #' @param x Single character statistic specification.
+  #' @param pattern Regular expression with a capture group for the argument.
+  #' @return The first captured argument, or NA_character_ if unmatched.
   extract_paren_arg <- function(x, pattern) {
     m <- regexec(pattern, x, ignore.case = TRUE)
     regmatches(x, m)[[1]][2]
   }
   
+  #' Create a row-condition indicator
+  #'
+  #' Evaluates the predicate as a binary indicator, using one for every record
+  #' when the predicate is TRUE.
+  #'
+  #' @param d Input data frame.
+  #' @param row_condition Character R predicate.
+  #' @param row_var_name Name for the indicator column.
+  #' @return The data frame with the indicator column added or replaced.
   make_ind <- function(d, row_condition, row_var_name) {
     if (identical(row_condition, "TRUE")) {
       d %>% dplyr::mutate(!!row_var_name := 1L)
@@ -142,7 +183,7 @@ tabulate_v <- function(skip_row_conditions = FALSE) {
       original_stat_type <- st
       mean_spec <- mics_mean_spec(st)
       st <- mean_spec$calculation
-      if (st %in% c("n", "n1", "n2", "p", "p1", "p(100)", "mean") ||
+      if (st %in% c("n", "n1", "p", "p1", "p(100)", "mean") ||
           grepl("^mean\\s*\\(", st)) mics_weight(df_c, weight_var)
       
       # ---- UNWEIGHTED ----
@@ -159,13 +200,13 @@ tabulate_v <- function(skip_row_conditions = FALSE) {
       
       
       
-      else if (st %in% c("n_unw", "n_unw1", "n_unw(100)", "n_unw2")) {
+      else if (st %in% c("n_unw", "n_unw1", "n_unw(100)")) {
         value <- make_ind(df_c, row_condition, row_var_name) %>%
           dplyr::summarise(value = sum(.data[[row_var_name]], na.rm = TRUE)) %>%
           dplyr::pull(value)
        
         
-      } else if (st %in% c("p_unw", "p_unw(100)", "Mean") || startsWith(st, "Mean ")) {
+      } else if (st %in% c("p_unw", "p_unw(100)")) {
         value <- make_ind(df_c, row_condition, row_var_name) %>%
           dplyr::summarise(value = mean(.data[[row_var_name]], na.rm = TRUE) * 100) %>%
           dplyr::pull(value)
@@ -180,7 +221,7 @@ tabulate_v <- function(skip_row_conditions = FALSE) {
           dplyr::pull(value)
         
         # ---- WEIGHTED ----
-      } else if (st %in% c("n", "n1", "n2")) {
+      } else if (st %in% c("n", "n1")) {
         value <- make_ind(df_c, row_condition, row_var_name) %>%
           dplyr::summarise(value = sum(.data[[row_var_name]] * .data[[weight_var]], na.rm = TRUE)) %>%
           dplyr::pull(value)
@@ -278,7 +319,7 @@ out <-
     dplyr::mutate(value_f_view = dplyr::case_when(
       mics_missing_value_dash(value, stat_type) ~ "-",
       # use thousand separators before changing to character
-      stat_type %in% c("n", "n1", "n_unw", "n_unw1", "n2", "n_unw2", "hhmembers") ~ as.character(format(round(value, 0), big.mark = ",")),
+      stat_type %in% c("n", "n1", "n_unw", "n_unw1", "hhmembers") ~ as.character(format(round(value, 0), big.mark = ",")),
       stat_type %in% c("p", "p1", "p_unw", "p(100)", "p_unw(100)", "mean", "mean_unw") ~ as.character(round(value, 1)),
       startsWith(stat_type, "mean") ~ as.character(round(value, 1)),
       TRUE ~ as.character(value)

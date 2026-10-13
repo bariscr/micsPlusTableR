@@ -1,3 +1,13 @@
+#' Reshape cell results for display
+#'
+#' Pivots long cell results using worksheet indices, headers, or logic. Header
+#' mode also uses session cell_results and out_glob$header_1.
+#'
+#' @param table Long cell-result tibble; defaults to session cell_results.
+#' @param formatted FALSE for value, TRUE for value_f, or "view" for
+#'   value_f_view.
+#' @param type Label mode: "index", "header", or "logic".
+#' @return A wide tibble with row_index followed by the selected value columns.
 pivot_table <- function(table = cell_results, formatted = FALSE, type = "index") {
   
   if (formatted == TRUE) {

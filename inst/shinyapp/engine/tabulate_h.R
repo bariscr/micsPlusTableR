@@ -1,3 +1,12 @@
+#' Tabulate a plan in the horizontal direction
+#'
+#' Uses the loaded out_glob plan and session data sources to calculate cells and
+#' attach layout and display metadata.
+#'
+#' @param skip_row_conditions Logical; replace row instructions with TRUE when
+#'   preparing metadata for supplied extra tables.
+#' @return A long tibble of calculated cells with numeric values, formatted
+#'   values, and plan metadata.
 tabulate_h <- function(skip_row_conditions = FALSE) {
   sheet_context <- mics_sheet_context(environment(sys.function()))
   context <- sheet_context
@@ -23,12 +32,25 @@ tabulate_h <- function(skip_row_conditions = FALSE) {
   }
 
   # ---------- helpers ----------
+  #' Check for usable instruction text
+  #'
+  #' Examines the first element for nonmissing, nonblank text.
+  #'
+  #' @param x An optional instruction value.
+  #' @return TRUE if the first element contains text; otherwise FALSE.
   is_present <- function(x) {
     if (is.null(x) || length(x) == 0) return(FALSE)
     x1 <- as.character(x[[1]])
     !(is.na(x1) || !nzchar(trimws(x1)))
   }
   
+  #' Normalize calculation instructions
+  #'
+  #' Drops blank entries, collapses newlines, and wraps bare assignments in
+  #' mutate().
+  #'
+  #' @param x Character vector of calculation instructions.
+  #' @return Normalized instructions, or NA_character_ if none remain.
   wrap_into_mutate_vec <- function(x) {
     x <- as.character(x)
     x <- x[!is.na(x) & nzchar(trimws(x))]
@@ -47,6 +69,13 @@ tabulate_h <- function(skip_row_conditions = FALSE) {
   
   
   
+  #' Join calculation steps into a pipe chain
+  #'
+  #' Retains instruction order and repeated steps while omitting missing or
+  #' blank entries.
+  #'
+  #' @param ... Vectors or lists of calculation instructions.
+  #' @return A single pipe-chain string, or NA_character_ if empty.
   build_chain <- function(...) {
     parts <- unlist(list(...), recursive = FALSE, use.names = FALSE)
     parts <- as.character(parts)
@@ -56,6 +85,13 @@ tabulate_h <- function(skip_row_conditions = FALSE) {
     paste(parts, collapse = " |> ")
   }
   
+  #' Extract a weight variable name
+  #'
+  #' Removes separators and an optional weight-by prefix before selecting the
+  #' first variable-like token.
+  #'
+  #' @param w Single character weight instruction.
+  #' @return A weight variable name, or NA_character_ if unavailable.
   normalize_weight <- function(w) {
     if (is.na(w) || !nzchar(trimws(w))) return(NA_character_)
     # remove separators and newlines
@@ -70,6 +106,13 @@ tabulate_h <- function(skip_row_conditions = FALSE) {
       NA_character_
   }
   
+  #' Resolve the latest block weight
+  #'
+  #' Searches weight cells in reverse order for the last usable weight
+  #' instruction.
+  #'
+  #' @param weight_cells Weight instructions in worksheet column order.
+  #' @return A weight variable name, or NA_character_ if none is usable.
   resolve_block_weight <- function(weight_cells) {
     vals <- rev(as.character(weight_cells))
     for (s in vals) {
@@ -83,6 +126,15 @@ tabulate_h <- function(skip_row_conditions = FALSE) {
   }
   
   
+  #' Apply an instruction chain to data
+  #'
+  #' Evaluates a pipe chain in the local calculation environment when
+  #' instruction text is present.
+  #'
+  #' @param df_obj Data frame to transform.
+  #' @param chain Character pipe-chain expression, or missing instruction text.
+  #' @return The transformed data, or the original data when no chain is
+  #'   supplied.
   apply_chain_df <- function(df_obj, chain) {
     if (!is_present(chain)) return(df_obj)
     df <- df_obj
@@ -129,6 +181,15 @@ tabulate_h <- function(skip_row_conditions = FALSE) {
   global_filter <- if (length(global_filter)) global_filter[[1L]] else NA_character_
 
   # ---------- block processor ----------
+  #' Calculate one horizontal filter block
+  #'
+  #' Uses enclosing plan and filter state, applies calculation stages in column
+  #' order, and updates diagnostic context.
+  #'
+  #' @param b One-row block tibble containing source, filter, boundaries, and
+  #'   events.
+  #' @param i_block Integer block identifier.
+  #' @return A tibble of calculated cells with block and calculation metadata.
   .process_block <- function(b, i_block) {
     local_filter <- if (b$col_start_raw[[1]] == 2L ||
                          grepl("^unfilter\\s*\\(\\s*\\)$", trimws(b$filt[[1]]))) {
@@ -192,6 +253,15 @@ tabulate_h <- function(skip_row_conditions = FALSE) {
   }
 
   # Keep filter boundaries independent of the calculation stages within them.
+  #' Build horizontal filter block metadata
+  #'
+  #' Groups condition-row entries by block and retains calculation and weight
+  #' events in each block.
+  #'
+  #' @param fr Condition-row tibble with block, df, filter_condition, col_index,
+  #'   calculation, and weight.
+  #' @return A tibble of block sources, filters, events, and start/end column
+  #'   boundaries.
   build_blocks <- function(fr) {
     fr %>%
       dplyr::group_by(block) %>%
@@ -279,7 +349,7 @@ count_col_ns <- tab |> distinct(col_index, stat_type) |> filter(stat_type == "n"
     dplyr::mutate(
       value_f_org = dplyr::case_when(
         mics_missing_value_dash(value, stat_type) ~ "-",
-        stat_type %in% c("n", "n1", "n_unw", "n2", "n_unw2", "hhmembers") ~ as.character(format(round(value, 0), big.mark = ",")),
+        stat_type %in% c("n", "n1", "n_unw", "n_unw1", "hhmembers") ~ as.character(format(round(value, 0), big.mark = ",")),
         stat_type %in% c("p", "n1", "p_unw", "p(100)", "p_unw(100)", "mean", "mean_unw") ~ as.character(round(value, 1)),
         TRUE ~ as.character(value)
       ),

@@ -1,3 +1,13 @@
+#' Tabulate a plan in the configured direction
+#'
+#' Uses the loaded out_glob plan and session data sources to calculate cells and
+#' attach layout and display metadata. Dispatches to the horizontal or vertical
+#' engine and adds variable explanations.
+#'
+#' @param skip_row_conditions Logical; replace row instructions with TRUE when
+#'   preparing metadata for supplied extra tables.
+#' @return A long tibble of calculated cells with numeric values, formatted
+#'   values, and plan metadata.
 tabulate_mics <- function(skip_row_conditions = FALSE) {
 
   mics_require_plan(environment(sys.function()))

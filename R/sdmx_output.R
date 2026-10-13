@@ -130,8 +130,7 @@ mics_public_statistic <- function(stat_type) {
       lower == "hhmembers" ~ "Count",
     grepl("^p(_?unw)?[0-9]*(\\(100\\))?$", lower) |
       startsWith(lower, "p_sum(") |
-      lower %in% c("100", "100.0") |
-      grepl("^Mean\\s+", raw) ~ "Percent",
+      lower %in% c("100", "100.0") ~ "Percent",
     startsWith(lower, "median") ~ "Median",
     startsWith(lower, "sd") | startsWith(lower, "standard deviation") ~
       "Standard deviation",

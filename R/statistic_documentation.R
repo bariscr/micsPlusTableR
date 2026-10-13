@@ -39,8 +39,7 @@
 #'   \item{`mean`}{Bare mean: the same weighted indicator-percentage calculation
 #'     as `p`, on a 0-100 scale. It does not select a numeric variable. Both directions.}
 #'   \item{`mean_unw`}{Unweighted indicator percentage, on a 0-100 scale.
-#'     Both directions. Legacy capitalized `Mean` also calculates this unweighted
-#'     indicator percentage; it is distinct from lowercase weighted `mean`.}
+#'     Both directions.}
 #' }
 #'
 #' @section Numeric summaries:
@@ -75,7 +74,6 @@
 #'     must be defined appropriately for this calculation.}
 #'   \item{`n1`, `n_unw1`, `p1`}{Calculation variants of `n`, `n_unw`, and `p`
 #'     in both directions. Suffixes do not set decimal places.}
-#'   \item{`n2`, `n_unw2`}{Vertical-only count variants of `n` and `n_unw`.}
 #' }
 #' The `(100)` forms are not supported by the horizontal calculator. They refer
 #' to the first calculated row, not any row whose label says Total. Prefer the

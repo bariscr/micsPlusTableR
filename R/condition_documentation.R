@@ -55,6 +55,24 @@
 #' mutations run after the primary filter and shared B setup, before column
 #' predicates. Row predicates do not restrict the data passed to later rows.
 #'
+#' @section Reusing mutations with Define:
+#' An optional worksheet named `Define` stores reusable mutations. Put `id`
+#' in A1 and `code` in B1, then one unique ID and its R code on each following
+#' row. Header capitalization is ignored; IDs are case-sensitive. Blank rows
+#' are ignored. Call `define(hhc)` on its own line wherever a mutation is
+#' allowed, before the predicate. Quoted IDs such as `define("hhc")` also work.
+#' The code can contain multiple `mutate()` calls, including multiline
+#' pipelines using `|>` or `%>%`; later calls can use earlier variables.
+#' Start with `mutate(...)`, not a dataset name or an assignment to `hh`.
+#' Other top-level operations and calls to another definition are unsupported.
+#' Keep filters in the table cell and call dependencies explicitly in order.
+#' Each call recreates the variables on the current filtered data and follows
+#' the same persistence rules as inline mutations. Definitions are read from
+#' the workbook on each table read; there is no cross-table variable cache.
+#' Errors identify the table cell and the definition cell. `Define` stays
+#' available in the plan preview and raw output workbook, but is excluded
+#' from table selectors and formatted output.
+#'
 #' @section Total aliases in worksheet columns:
 #' Maintained preparation scripts set `total = 1` in household and member data.
 #' `total == 1` therefore selects the records remaining under the applicable

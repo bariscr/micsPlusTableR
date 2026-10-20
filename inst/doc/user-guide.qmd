@@ -1338,6 +1338,56 @@ do not restrict subsequent rows.
 
 {{< pagebreak >}}
 
+### Reuse mutations with a Define sheet
+
+Create an optional sheet named **Define**. Put **id** in A1 and **code**
+in B1, with one definition per row. Each ID must be unique; IDs are
+case-sensitive, while header capitalization does not matter. Blank rows
+are ignored. The ID names a reusable block and need not be a variable name.
+
+For example, put `chore_hours` in A2 and this complete code in B2:
+
+``` text
+mutate(across(c(CL8, CL10, CL13),
+  ~ if_else(is.na(.x) | .x %in% c(97, 98, 99), 0, .x))) |>
+mutate(hhc_hours = CL8 + CL10 + CL13)
+```
+
+Replace missing values or special codes with zero only when that matches
+the questionnaire's meaning. A definition can contain several mutations,
+with or without pipes. Both `|>` and `%>%` are supported, and later steps
+can use variables created earlier in the same block. Begin with
+`mutate(...)`; do not include `hh <-` or `hh |>`.
+
+In a table condition cell, call each definition on its own line:
+
+``` text
+filter(RS2B <= 11)
+- - -
+define(chore_hours)
+- - -
+hhc_hours < 21
+```
+
+You can mix `define(id)` with inline `mutate(...)` instructions, including
+in row-condition cells in column B. Each call recreates the variables on
+the current filtered data and follows the same persistence rules as an
+inline mutation. In horizontal columns, this includes continuation across
+`unfilter()` and replacement by a later mutation of the same variable.
+
+Keep `filter()` and `unfilter()` visible in the table cell. Definition
+code supports mutation blocks only and cannot call other definitions. If
+one definition depends on another, call them explicitly in the correct
+order in the table cell. `define("chore_hours")` is also accepted.
+
+Definitions are read from the uploaded workbook whenever a table is read.
+After editing the workbook in Excel, save and upload it again. An error
+identifies the calling table cell and the corresponding **Define** code
+cell. The **Define** sheet remains in the plan preview and raw Output
+Tables workbook; table selectors and Formatted Tables omit it.
+
+{{< pagebreak >}}
+
 ### Dealing with missing values
 
 Use `!is.na(variable)` to exclude missing values from a condition. For example, `!is.na(age)` selects rows with a recorded age.

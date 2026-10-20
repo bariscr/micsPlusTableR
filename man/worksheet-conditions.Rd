@@ -64,6 +64,26 @@ mutations run after the primary filter and shared B setup, before column
 predicates. Row predicates do not restrict the data passed to later rows.
 }
 
+\section{Reusing mutations with Define}{
+
+An optional worksheet named \code{Define} stores reusable mutations. Put \code{id}
+in A1 and \code{code} in B1, then one unique ID and its R code on each following
+row. Header capitalization is ignored; IDs are case-sensitive. Blank rows
+are ignored. Call \code{define(hhc)} on its own line wherever a mutation is
+allowed, before the predicate. Quoted IDs such as \code{define("hhc")} also work.
+The code can contain multiple \code{mutate()} calls, including multiline
+pipelines using \verb{|>} or \verb{\%>\%}; later calls can use earlier variables.
+Start with \code{mutate(...)}, not a dataset name or an assignment to \code{hh}.
+Other top-level operations and calls to another definition are unsupported.
+Keep filters in the table cell and call dependencies explicitly in order.
+Each call recreates the variables on the current filtered data and follows
+the same persistence rules as inline mutations. Definitions are read from
+the workbook on each table read; there is no cross-table variable cache.
+Errors identify the table cell and the definition cell. \code{Define} stays
+available in the plan preview and raw output workbook, but is excluded
+from table selectors and formatted output.
+}
+
 \section{Total aliases in worksheet columns}{
 
 Maintained preparation scripts set \code{total = 1} in household and member data.

@@ -1,5 +1,11 @@
 # micsPlusTableR 0.5.0
 
+* Add an optional `Define` sheet with `id` and `code` columns. Use `define(id)`
+  in table condition cells to reuse mutations, including multiline pipelines
+  with `|>` or `%>%`. Calls follow the existing mutation persistence rules;
+  errors identify the calling cell and the definition. Keep the sheet in raw
+  output and plan previews, and omit it from table selectors and formatted output.
+
 * Show the underlying error in app notifications and batch results. Invalid
   condition-row instructions identify the worksheet and Excel cell, with a
   specific explanation for a missing closing parenthesis.

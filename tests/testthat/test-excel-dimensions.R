@@ -14,6 +14,8 @@ test_that("formatted exports persist exact spacer dimensions over template setti
     wb$add_data("Example", "condition", dims = "C4")
     wb$add_worksheet("Preparation File")
     wb$add_data("Preparation File", "hh <- data.frame()", col_names = FALSE)
+    wb$add_worksheet("Define")
+    wb$add_data("Define", data.frame(id = "x", code = "mutate(x = 1)"))
     wb$save(path)
     before <- openxlsx2::wb_load(path)$worksheets[[1]]
     before_cols <- before$unfold_cols()
@@ -23,6 +25,7 @@ test_that("formatted exports persist exact spacer dimensions over template setti
       write_mics_table(s, path, table = cells, formatted = TRUE)
       write_mics_footnotes(s, path, table = cells)
       expect_false("Preparation File" %in% readxl::excel_sheets(path))
+      expect_false("Define" %in% readxl::excel_sheets(path))
       sheet <- openxlsx2::wb_load(path)$worksheets[[1]]
       columns <- sheet$unfold_cols()
       spacer <- columns[columns$min == "2", ]

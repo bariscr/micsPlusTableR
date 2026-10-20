@@ -1460,7 +1460,7 @@ observeEvent(input$tab_file, {
     selected = if (length(sheets)) sheets[1] else character(0)
   )
 
-  sheets_local <- setdiff(sheets, c("IDX", "Preparation File"))
+  sheets_local <- setdiff(sheets, c("IDX", "Preparation File", "Define"))
   sheets_all_rv(sheets_local)
 
   updateSelectInput(

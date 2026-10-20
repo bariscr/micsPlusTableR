@@ -3125,6 +3125,25 @@ between(WS4, 1, 30)</code></pre>
 <p>In row-condition cells in column B, both table directions apply mutations top to bottom, before each row’s condition. Variables remain available to following rows; later redefinitions leave earlier results unchanged. Repeated mutations run again. Mutation-only cells mean <code>TRUE</code>, and setup also runs on rows without a statistic. Row conditions do not restrict subsequent rows.</p>
 <div style="page-break-after: always;"></div>
 </section>
+<section id="reuse-mutations-with-a-define-sheet" class="level3">
+<h3 class="anchored" data-anchor-id="reuse-mutations-with-a-define-sheet">Reuse mutations with a Define sheet</h3>
+<p>Create an optional sheet named <strong>Define</strong>. Put <strong>id</strong> in A1 and <strong>code</strong> in B1, with one definition per row. Each ID must be unique; IDs are case-sensitive, while header capitalization does not matter. Blank rows are ignored. The ID names a reusable block and need not be a variable name.</p>
+<p>For example, put <code>chore_hours</code> in A2 and this complete code in B2:</p>
+<pre class="text"><code>mutate(across(c(CL8, CL10, CL13),
+  ~ if_else(is.na(.x) | .x %in% c(97, 98, 99), 0, .x))) |&gt;
+mutate(hhc_hours = CL8 + CL10 + CL13)</code></pre>
+<p>Replace missing values or special codes with zero only when that matches the questionnaire’s meaning. A definition can contain several mutations, with or without pipes. Both <code>|&gt;</code> and <code>%&gt;%</code> are supported, and later steps can use variables created earlier in the same block. Begin with <code>mutate(...)</code>; do not include <code>hh &lt;-</code> or <code>hh |&gt;</code>.</p>
+<p>In a table condition cell, call each definition on its own line:</p>
+<pre class="text"><code>filter(RS2B &lt;= 11)
+- - -
+define(chore_hours)
+- - -
+hhc_hours &lt; 21</code></pre>
+<p>You can mix <code>define(id)</code> with inline <code>mutate(...)</code> instructions, including in row-condition cells in column B. Each call recreates the variables on the current filtered data and follows the same persistence rules as an inline mutation. In horizontal columns, this includes continuation across <code>unfilter()</code> and replacement by a later mutation of the same variable.</p>
+<p>Keep <code>filter()</code> and <code>unfilter()</code> visible in the table cell. Definition code supports mutation blocks only and cannot call other definitions. If one definition depends on another, call them explicitly in the correct order in the table cell. <code>define(&quot;chore_hours&quot;)</code> is also accepted.</p>
+<p>Definitions are read from the uploaded workbook whenever a table is read. After editing the workbook in Excel, save and upload it again. An error identifies the calling table cell and the corresponding <strong>Define</strong> code cell. The <strong>Define</strong> sheet remains in the plan preview and raw Output Tables workbook; table selectors and Formatted Tables omit it.</p>
+<div style="page-break-after: always;"></div>
+</section>
 <section id="dealing-with-missing-values" class="level3">
 <h3 class="anchored" data-anchor-id="dealing-with-missing-values">Dealing with missing values</h3>
 <p>Use <code>!is.na(variable)</code> to exclude missing values from a condition. For example, <code>!is.na(age)</code> selects rows with a recorded age.</p>
@@ -3575,12 +3594,12 @@ total1 == 1</code></pre>
 <li><strong>Install the package</strong> using the <a href="#package-setup">installation commands</a> in that R session. Then check <code>here::here()</code> after installation: it shows the project root used for the default Excel output. If it selects a parent folder, supply your intended output directory explicitly when launching.</li>
 <li><strong>Launch in a browser</strong> with the command below, then <a href="#survey-files">gather your inputs</a> and choose the <a href="#guide-contents">app tasks</a> you need:</li>
 </ol>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>micsPlusTableR<span class="sc">::</span><span class="fu">run_app</span>(<span class="at">launch.browser =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>micsPlusTableR<span class="sc">::</span><span class="fu">run_app</span>(<span class="at">launch.browser =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>To choose the results folder explicitly, replace the example path below with an existing location on your computer. On Windows, use forward slashes, for example <code>C:/Users/YourName/Documents/MySurvey/results</code>:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>micsPlusTableR<span class="sc">::</span><span class="fu">run_app</span>(</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">launch.browser =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">output_dir =</span> <span class="st">&quot;/full/path/to/MySurvey/results&quot;</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>micsPlusTableR<span class="sc">::</span><span class="fu">run_app</span>(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">launch.browser =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">output_dir =</span> <span class="st">&quot;/full/path/to/MySurvey/results&quot;</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><strong>Keep R running:</strong> the session or notebook cell stays busy while the app is open. Use its interrupt/stop control after saving your results. A terminal running R can usually be interrupted with <strong>Ctrl+C</strong>.</p>
 <p><strong>Remote or hosted environments:</strong> RStudio Server, Posit Workbench, and remote editor or notebook sessions need server-side package installation, access to the inputs, and a browser connection arranged by the administrator (often a proxy or port forwarding). Their output paths are on the server. The local <code>127.0.0.1</code> browser instructions assume R runs on your own computer; ask your support person for the hosted application’s address and file-retrieval steps.</p>
 <div style="page-break-after: always;"></div>

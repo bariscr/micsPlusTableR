@@ -40,6 +40,7 @@ read_tabulation <- function(path_tab_excel, sheet) {
   
   mics_file(path_tab_excel, "path_tab_excel")
   mics_sheet(path_tab_excel, sheet)
+  definitions <- mics_read_definitions(path_tab_excel)
   # tab_org --------------------------------------------------
   # We get the original table, nothing is changed except for column 3 is filled
   tab_org <- 
@@ -132,7 +133,7 @@ read_tabulation <- function(path_tab_excel, sheet) {
     mutate(
       col_index = as.numeric(str_replace(col_index, "...", "")),
       instructions = purrr::map2(conditions, col_index,
-        ~ mics_parse_condition_cell(.x, condition_row_index, .y, sheet)),
+        ~ mics_parse_condition_cell(.x, condition_row_index, .y, sheet, definitions)),
       df = purrr::map_chr(instructions, "df"),
       filter_condition = purrr::map_chr(instructions, "filter_condition"),
       calculation = purrr::map_chr(instructions, "calculation"),
@@ -156,7 +157,9 @@ read_tabulation <- function(path_tab_excel, sheet) {
     mutate(row_index = row_number()) |> 
     filter(row_index > condition_row_index) |> 
     filter(!is.na(row_lgc)) |>
-    mutate(row_lgc = normalize_condition_text(row_lgc))
+    mutate(row_lgc = normalize_condition_text(row_lgc),
+      row_lgc = purrr::map2_chr(row_lgc, row_index,
+        ~ mics_expand_row_definitions(.x, .y, sheet, definitions)))
 
   out_glob$tab_r <- tab_r
   ## ---------------------------------------------------------------
@@ -174,7 +177,7 @@ read_tabulation <- function(path_tab_excel, sheet) {
     filter(!col_index %in% empty_cols) |> 
     fill(col_lgc) |> 
     mutate(col_lgc = purrr::map2_chr(col_lgc, col_index,
-      ~ mics_parse_condition_cell(.x, condition_row_index, .y, sheet)$condition))
+      ~ mics_parse_condition_cell(.x, condition_row_index, .y, sheet, definitions)$condition))
 
   # Enabling tatal1 == 1 alike logic in cell
   tab_c0 <-

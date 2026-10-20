@@ -8,8 +8,8 @@
 #' Multi-Sheet Tabulator calls it automatically for unset required destinations.
 #' In R workflows, call it before [write_mics_table()] unless using an existing
 #' workbook. Unrequested entries in the returned list are NULL.
-#' Formatted workbooks omit the `Preparation File` sheet. Output workbooks
-#' retain it for reproducibility.
+#' Formatted workbooks omit the `Preparation File` and `Define` sheets. Output
+#' workbooks retain them for reproducibility.
 #'
 #' @param path_tab_excel Existing `.xls` or `.xlsx` tabulation plan.
 #' @param output_dir Directory where workbooks will be created.
@@ -71,8 +71,8 @@ create_excel_workbooks <- function(path_tab_excel,
     }
     if (identical(label, "Formatted Tables")) {
       wb <- openxlsx2::wb_load(path)
-      if ("Preparation File" %in% openxlsx2::wb_get_sheet_names(wb)) {
-        remove_preparation_sheet(wb)
+      if (any(c("Preparation File", "Define") %in% openxlsx2::wb_get_sheet_names(wb))) {
+        remove_code_sheets(wb)
         wb$save(path, overwrite = TRUE)
       }
     }
@@ -89,7 +89,16 @@ create_excel_workbooks <- function(path_tab_excel,
 # openxlsx2 1.29 can corrupt definedNames during removal when the workbook
 # contains existing #REF! names; handle these scoped XML entries explicitly.
 remove_preparation_sheet <- function(wb) {
-  index <- match("Preparation File", openxlsx2::wb_get_sheet_names(wb))
+  remove_code_sheet(wb, "Preparation File")
+}
+
+remove_code_sheets <- function(wb) {
+  for (sheet in c("Preparation File", "Define")) remove_code_sheet(wb, sheet)
+  invisible(wb)
+}
+
+remove_code_sheet <- function(wb, sheet) {
+  index <- match(sheet, openxlsx2::wb_get_sheet_names(wb))
   if (is.na(index)) return(invisible(wb))
   original <- wb$workbook$definedNames
   definitions <- original
@@ -98,7 +107,8 @@ remove_preparation_sheet <- function(wb) {
     ids <- rep(NA_integer_, length(definitions))
     ids[scoped] <- as.integer(sub('.*localSheetId="([0-9]+)".*', "\\1", definitions[scoped]))
     keep <- (is.na(ids) | ids != index - 1L) &
-      !grepl("'Preparation File'!", definitions, fixed = TRUE)
+      !grepl(paste0("'", sheet, "'!"), definitions, fixed = TRUE) &
+      !grepl(paste0(">", sheet, "!"), definitions, fixed = TRUE)
     definitions <- definitions[keep]
     ids <- ids[keep]
     for (i in which(!is.na(ids) & ids > index - 1L)) {
@@ -107,7 +117,7 @@ remove_preparation_sheet <- function(wb) {
     }
   }
   wb$workbook$definedNames <- character()
-  tryCatch(wb$remove_worksheet("Preparation File"), error = function(e) {
+  tryCatch(wb$remove_worksheet(sheet), error = function(e) {
     wb$workbook$definedNames <- original
     stop(e)
   })

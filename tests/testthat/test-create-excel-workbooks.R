@@ -53,3 +53,18 @@ test_that("removing preparation preserves named ranges and shifts later sheet sc
   expect_no_error(wb$save(path))
   expect_identical(openxlsx2::wb_load(path)$workbook$definedNames, wb$workbook$definedNames)
 })
+
+test_that("removing both code sheets preserves names for remaining tables", {
+  wb <- openxlsx2::wb_workbook()$add_worksheet("Before")$add_worksheet("Define")$
+    add_worksheet("Preparation File")$add_worksheet("After")
+  wb$workbook$definedNames <- c(
+    '<definedName name="keep" localSheetId="0">Before!$A$1</definedName>',
+    '<definedName name="definitions">Define!$A$1:$B$2</definedName>',
+    '<definedName name="preparation">\'Preparation File\'!$A$1</definedName>',
+    '<definedName name="later" localSheetId="3">After!$A$1</definedName>')
+  micsPlusTableR:::remove_code_sheets(wb)
+  expect_identical(unname(openxlsx2::wb_get_sheet_names(wb)), c("Before", "After"))
+  expect_identical(wb$workbook$definedNames, c(
+    '<definedName name="keep" localSheetId="0">Before!$A$1</definedName>',
+    '<definedName name="later" localSheetId="1">After!$A$1</definedName>'))
+})

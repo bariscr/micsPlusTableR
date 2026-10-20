@@ -28,7 +28,8 @@ existing file. A numeric suffix is added after a filename collision.
 }
 
 \details{
-Formatted workbooks omit the \code{Preparation File} sheet; Output workbooks retain it.
+Formatted workbooks omit the \code{Preparation File} and \code{Define} sheets;
+Output workbooks retain them.
 
 Creates copies of the tabulation plan; it does not calculate or populate table
 results. In the app, Write to Excel calls it on request, and Multi-Sheet

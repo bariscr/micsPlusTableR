@@ -49,8 +49,8 @@ write_to_excel <- function(dest,
   if (!"display_digits" %in% names(table)) table$display_digits <- NA_integer_
   
 wb <- wb_load(dest)
-if (isTRUE(formatted) && "Preparation File" %in% openxlsx2::wb_get_sheet_names(wb)) {
-  remove_preparation_sheet(wb)
+if (isTRUE(formatted)) {
+  remove_code_sheets(wb)
 }
 current_sheets <- openxlsx2::wb_get_sheet_names(wb)
 

@@ -51,11 +51,12 @@ tabulate_v <- function(session, skip_row_conditions = FALSE) {
 #' from that column onward and use only B's global filter until a new filter
 #' starts. Row and column predicates still apply. Blank filter cells, changes
 #' of statistic or `d=`, and changes down rows do not stop a filter.
-#' Filters run before calculations. Within each filter block, condition-row
-#' `mutate(...)` instructions run in column order. Each mutation is available
-#' to its own column and following columns in that block; a later redefinition
-#' never changes earlier cells. Column B's calculation runs once at the start
-#' of each block. Mutations do not start or stop a secondary filter or change
+#' Filters run before calculations. Condition-row `mutate(...)` instructions
+#' run in column order and remain available from their own column onward,
+#' including across `filter(...)` and `unfilter()` instructions. A later
+#' redefinition never changes earlier cells. At each filter boundary, earlier
+#' calculations, including column B's, replay once on the restored population
+#' in column order. Mutations do not start or stop a secondary filter or change
 #' its count-linking boundaries. They use temporary data and do not modify
 #' the session's prepared `hh` or `hl`. Vertical tabulation keeps its separate
 #' primary-filter behavior; see [tabulate_v()]. Row mutations run top to bottom

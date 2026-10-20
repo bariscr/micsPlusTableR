@@ -1,6 +1,9 @@
 test_that("create_excel_workbooks copies requested targets without overwriting", {
   source <- tempfile(fileext = ".xlsx")
-  writeBin(charToRaw("placeholder"), source)
+  wb <- openxlsx2::wb_workbook()$add_worksheet("Example")$add_worksheet("Preparation File")
+  wb$add_data("Example", "placeholder", col_names = FALSE)
+  wb$add_data("Preparation File", "hh <- data.frame()", col_names = FALSE)
+  wb$save(source)
   out_dir <- tempfile("workbooks-")
 
   created <- create_excel_workbooks(
@@ -15,7 +18,9 @@ test_that("create_excel_workbooks copies requested targets without overwriting",
 
   expect_true(file.exists(created$output))
   expect_true(file.exists(created$formatted))
-  expect_identical(readBin(created$output, "raw", n = 20), charToRaw("placeholder"))
+  expect_identical(unname(tools::md5sum(created$output)), unname(tools::md5sum(source)))
+  expect_identical(readxl::excel_sheets(created$formatted), "Example")
+  expect_true("Preparation File" %in% readxl::excel_sheets(source))
 
   created_again <- create_excel_workbooks(
     source, out_dir, "TST", "2026", "Wave 1", "both", "20260827010101"
@@ -31,3 +36,20 @@ test_that("create_excel_workbooks validates inputs", {
   )
 })
 
+test_that("removing preparation preserves named ranges and shifts later sheet scopes", {
+  wb <- openxlsx2::wb_workbook()$add_worksheet("Before")$
+    add_worksheet("Preparation File")$add_worksheet("After")
+  names_before <- c(
+    '<definedName name="keep" localSheetId="0">Before!$A$1</definedName>',
+    '<definedName name="_xlnm.Print_Area" localSheetId="0">Before!#REF!</definedName>',
+    '<definedName name="code" localSheetId="1">\'Preparation File\'!$A$1</definedName>',
+    '<definedName name="later" localSheetId="2">After!$A$1</definedName>')
+  wb$workbook$definedNames <- names_before
+  micsPlusTableR:::remove_preparation_sheet(wb)
+  expect_identical(unname(openxlsx2::wb_get_sheet_names(wb)), c("Before", "After"))
+  expect_identical(wb$workbook$definedNames,
+    c(names_before[1:2], sub('localSheetId="2"', 'localSheetId="1"', names_before[4])))
+  path <- tempfile(fileext = ".xlsx")
+  expect_no_error(wb$save(path))
+  expect_identical(openxlsx2::wb_load(path)$workbook$definedNames, wb$workbook$definedNames)
+})

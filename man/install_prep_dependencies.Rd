@@ -7,16 +7,20 @@
 install_prep_dependencies(
   prep_script,
   repos = "https://cloud.r-project.org",
-  lib = .libPaths()[[1L]]
+  lib = .libPaths()[[1L]],
+  prep_folder = NULL
 )
 }
 \arguments{
-\item{prep_script}{Path to a preparation R script.}
+\item{prep_script}{Path to a tabulation plan with a \verb{Preparation File}
+sheet, or a standalone R script for dependency inspection.}
 
 \item{repos}{Package repository URL, defaulting to the CRAN cloud mirror.}
 
 \item{lib}{Installation library. Defaults to the first active library.
 It must be listed in \code{.libPaths()}.}
+
+\item{prep_folder}{Optional FIES helper folder for an embedded script.}
 }
 \value{
 The dependency check data frame, invisibly, after installation.

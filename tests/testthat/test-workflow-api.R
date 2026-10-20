@@ -30,7 +30,7 @@ test_that("prepare_mics_data loads required and extra-table objects", {
   ), prep_file)
 
   session <- mics_session()
-  expect_invisible(prepare_mics_data(session, hh_file, hl_file, prep_file))
+  expect_invisible(prepare_mics_data(session, hh_file, hl_file, preparation_plan(prep_file)))
   expect_equal(nrow(session$hh), 2)
   expect_equal(session$tables_extra, "X1")
   expect_true(is.data.frame(session$tb_x1))
@@ -39,13 +39,13 @@ test_that("prepare_mics_data loads required and extra-table objects", {
     "hh <- data.frame(id = 10, total = 1)",
     "hl <- data.frame(id = 20, total = 1)"
   ), prep_file)
-  prepare_mics_data(session, hh_file, hl_file, prep_file)
+  prepare_mics_data(session, hh_file, hl_file, preparation_plan(prep_file))
   expect_identical(session$tables_extra, character(0))
   expect_identical(session$extra_tables_dict, list())
   expect_false(exists("tb_x1", envir = session, inherits = FALSE))
 })
 
-test_that("a selected prep script discovers sibling FIES helpers", {
+test_that("an embedded prep script uses the selected FIES helpers", {
   prep_dir <- tempfile("prep-folder-")
   fies_dir <- file.path(prep_dir, "FIES-inputs")
   output_dir <- tempfile("mics-output-")
@@ -76,7 +76,8 @@ test_that("a selected prep script discovers sibling FIES helpers", {
     session,
     hh_path = hh_file,
     hl_path = hl_file,
-    prep_script = prep_file,
+    tab_plan = preparation_plan(prep_file),
+    prep_folder = prep_dir,
     output_dir = output_dir
   ))
 
@@ -107,7 +108,7 @@ test_that("FIES-outputs is not created without FIES-inputs", {
     mics_session(),
     hh_path = hh_file,
     hl_path = hl_file,
-    prep_script = file.path(prep_dir, "prep.R"),
+    tab_plan = preparation_plan(file.path(prep_dir, "prep.R")),
     output_dir = output_dir
   )
 
@@ -149,51 +150,22 @@ test_that("a native preparation-folder upload is staged with FIES helpers", {
   )
 
   expect_identical(staged$folder_name, "survey-preparation")
-  expect_identical(basename(staged$prep_script), "country_prep.R")
+  expect_null(staged$prep_script)
   expect_identical(basename(staged$fies_inputs_dir), "FIES-inputs")
   expect_true(file.exists(file.path(staged$fies_inputs_dir, "fies-helper.R")))
   expect_identical(staged$uploaded_file_count, 3L)
 })
 
-test_that("folder upload chooses the only prep-like top-level R file", {
-  upload_dir <- tempfile("browser-upload-")
-  dir.create(upload_dir)
-  uploaded_paths <- file.path(upload_dir, c("notes", "main"))
-  writeLines("notes <- TRUE", uploaded_paths[[1L]])
-  writeLines("hh <- data.frame(); hl <- data.frame()", uploaded_paths[[2L]])
-
-  staged <- micsPlusTableR:::stage_preparation_upload(
-    data.frame(
-      name = c("notes.R", "wave-preparation.R"),
-      datapath = uploaded_paths,
-      stringsAsFactors = FALSE
-    ),
-    c("prep-folder/notes.R", "prep-folder/wave-preparation.R"),
-    stage_dir = tempfile("staged-prep-")
-  )
-
-  expect_identical(basename(staged$prep_script), "wave-preparation.R")
-})
-
-test_that("folder upload rejects ambiguous main preparation scripts", {
-  upload_dir <- tempfile("browser-upload-")
-  dir.create(upload_dir)
-  uploaded_paths <- file.path(upload_dir, c("one", "two"))
-  writeLines("x <- 1", uploaded_paths[[1L]])
-  writeLines("x <- 2", uploaded_paths[[2L]])
-
-  expect_error(
-    micsPlusTableR:::stage_preparation_upload(
-      data.frame(
-        name = c("first-prep.R", "second-prep.R"),
-        datapath = uploaded_paths,
-        stringsAsFactors = FALSE
-      ),
-      c("prep-folder/first-prep.R", "prep-folder/second-prep.R"),
-      stage_dir = tempfile("staged-prep-")
-    ),
-    "multiple possible preparation R files"
-  )
+test_that("folder upload supports FIES helpers without a main preparation script", {
+  helper <- tempfile()
+  writeLines("helper_value <- 1", helper)
+  for (relative in c("prep-folder/FIES-inputs/helper.R", "FIES-inputs/helper.R")) {
+    staged <- micsPlusTableR:::stage_preparation_upload(
+      data.frame(name = "helper.R", datapath = helper), relative)
+    expect_null(staged$prep_script)
+    expect_true(file.exists(file.path(staged$fies_inputs_dir, "helper.R")))
+    expect_identical(micsPlusTableR:::resolve_fies_folder(staged$prep_dir), staged$fies_inputs_dir)
+  }
 })
 
 test_that("compare_mics_tables exposes the pure comparison helper", {

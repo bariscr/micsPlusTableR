@@ -4,13 +4,20 @@
 \alias{check_prep_dependencies}
 \title{Check dependencies of a preparation script and its helpers}
 \usage{
-check_prep_dependencies(prep_script, stop_on_missing = FALSE)
+check_prep_dependencies(
+  prep_script,
+  stop_on_missing = FALSE,
+  prep_folder = NULL
+)
 }
 \arguments{
-\item{prep_script}{Path to a preparation R script.}
+\item{prep_script}{Path to a tabulation plan with a \verb{Preparation File}
+sheet, or a standalone R script for dependency inspection.}
 
 \item{stop_on_missing}{Stop with an installation command if a required
 package is missing or cannot be loaded. Defaults to FALSE for inspection.}
+
+\item{prep_folder}{Optional FIES helper folder for an embedded script.}
 }
 \value{
 A data frame with \code{package}, \code{required_by} (script basenames),

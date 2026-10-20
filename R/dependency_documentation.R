@@ -43,13 +43,14 @@
 #' Wave 2 additionally uses purrr. These are already package Imports.
 #'
 #' Keep declarations current when editing scripts or adding helpers. The checker
-#' scans the main script, all R files in its sibling FIES-inputs directory, and
+#' scans the embedded script and, when required, all R files in the selected
+#' FIES-inputs directory, and
 #' literal source paths. Declare packages used through dynamically constructed
 #' names or source paths explicitly. The checker does not execute preparation
 #' code and does not certify statistical results or package-version compatibility.
 #' @examples
 #' \dontrun{
-#' prep_script <- "survey-preparation/survey_prep.R"
+#' prep_script <- "TabulationPlan.xlsx"
 #' check_prep_dependencies(prep_script)
 #' # For repair or additional dependencies in a custom script only:
 #' install_prep_dependencies(prep_script)

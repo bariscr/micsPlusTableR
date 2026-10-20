@@ -43,7 +43,7 @@ download_files_ui <- function(id, project_dir) {
       ),
       bslib::card(
         bslib::card_header("After downloading"),
-        shiny::tags$p("Open Data Preparation and select the downloaded tabulation plan (Excel) and complete preparation folder, together with your separately obtained household and household-member data."),
+        shiny::tags$p("Open Data Preparation and select the downloaded tabulation plan (Excel), which includes its Preparation File sheet, together with your separately obtained household and household-member data. Select a preparation folder only when FIES helpers are needed."),
         shiny::tags$a("Alternative: download all plans and preparation files as a ZIP",
                       href = "https://github.com/bariscr/micsPlusTableR-Files/archive/refs/heads/main.zip",
                       target = "_blank", rel = "noopener")

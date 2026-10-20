@@ -61,7 +61,7 @@ test_that("missing dependencies stop preparation before the script runs", {
   expect_error(check_prep_dependencies(script, TRUE), "missingPkg.*prep.R")
   files <- file.path(dirname(script), c("hh.sav", "hl.sav"))
   file.create(files)
-  expect_error(prepare_mics_data(mics_session(), files[1], files[2], script),
+  expect_error(prepare_mics_data(mics_session(), files[1], files[2], preparation_plan(script)),
     "install_prep_dependencies")
 })
 
@@ -77,7 +77,7 @@ test_that("preparation functions are available privately during preparation", {
   file.create(files)
   search_before <- search()
   session <- mics_session()
-  prepare_mics_data(session, files[1], files[2], script)
+  prepare_mics_data(session, files[1], files[2], preparation_plan(script))
   expect_identical(attr(session$hh$value, "label"), "Example label")
   expect_identical(search(), search_before)
 })

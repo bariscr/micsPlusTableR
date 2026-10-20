@@ -86,6 +86,25 @@ test_that("unfilter is harmless without an active secondary filter or when repea
   expect_true(all(is.na(result$filt2)))
 })
 
+test_that("column mutations survive unfilter and replacement filters until overwritten", {
+  s <- filter_scope_session(rep("mean(aa)", 6), c(3L, 5L, 7L),
+    c("filter(sex == 2)", "unfilter()", "filter(sex == 1)"))
+  s$hh$aa <- s$hh$age
+  original <- s$hh
+  s$out_glob$filter_row$calculation[2] <-
+    "mutate(aa = aa + 1) |> mutate(bb = aa * 2)"
+  s$out_glob$filter_row <- dplyr::bind_rows(s$out_glob$filter_row,
+    tibble::tibble(row_index = 4L, col_index = 8L, df = "hh",
+      filter_condition = NA_character_, calculation = "mutate(aa = aa * 2)", weight = "w"))
+  s$out_glob$tab_c$col_lgc <- "bb == (age + 1) * 2"
+  result <- tabulate_h(s) |> dplyr::arrange(row_index, col_index)
+  expect_equal(result$value, c(251/7, 251/7, 34.4, 34.4, 31, 62))
+  expect_true(all(grepl("mutate(aa = aa + 1)", result$calc_chain, fixed = TRUE)))
+  expect_false(any(grepl("mutate(aa = aa * 2)", result$calc_chain[1:5], fixed = TRUE)))
+  expect_identical(s$hh, original)
+  expect_equal((tabulate_h(s) |> dplyr::arrange(row_index, col_index))$value, result$value)
+})
+
 test_that("unfilter blocks retain source, calculation, weight and predicate rules", {
   s <- filter_scope_session(c("n", "n", "mean(derived)", "n", "n_unw", "p"),
                             c(3L, 5L), c("filter(sex == 2)", "unfilter()"))

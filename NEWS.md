@@ -1,4 +1,17 @@
+# micsPlusTableR 0.5.0
+
+* Read preparation R code from the tabulation plan's `Preparation File`
+  sheet, in A1 or down column A. `prepare_mics_data()` now takes `tab_plan`
+  instead of `prep_script`. Plans must include the embedded preparation sheet.
+* Make the preparation folder optional and use it only for FIES helpers.
+  Plans without helper calls ignore the folder. Exclude `Preparation File`
+  from table selectors and formatted Excel workbooks.
+
 # micsPlusTableR 0.4.0
+
+* Carry horizontal condition-row mutations across `filter()` and `unfilter()`
+  boundaries. Earlier mutations replay in column order on each restored
+  population; later redefinitions affect only their own and following columns.
 
 * Remove `n2` and `n_unw2`; use `n1` and `n_unw1`, respectively, preserving
   any `d=` setting. Retain whole-number formatting in Excel exports and supplied

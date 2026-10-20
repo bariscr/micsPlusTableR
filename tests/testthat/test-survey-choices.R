@@ -131,7 +131,7 @@ test_that("Turkmenistan Wave 2 survives uploads without stale wave updates", {
     expect_identical(survey_meta_rv(), list(country = "Turkmenistan",
       country_abb = "TKM", period = "2025-26", wave = "Wave 2"))
     expect_identical(tab_path_rv(), tab_path)
-    expect_true(file.exists(prep_folder_selection()$prep_script))
+    expect_true(dir.exists(prep_folder_selection()$prep_dir))
     # Replacing a plan must also preserve the wave.
     replacement <- upload(tab_path)
     replacement$name <- "replacement-plan.xlsx"

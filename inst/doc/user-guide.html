@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="MICS Team">
-<meta name="dcterms.date" content="2026-09-26">
+<meta name="dcterms.date" content="2026-10-20">
 
 <title>MICS Plus Tabulation</title>
 <style>
@@ -2274,7 +2274,7 @@ html { scroll-padding-top: 6rem; }
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 26, 2026</p>
+      <p class="date">October 20, 2026</p>
     </div>
   </div>
   
@@ -2292,12 +2292,12 @@ html { scroll-padding-top: 6rem; }
 <p>micsPlusTableR is the R package behind the <strong>MICS Plus Tabulation</strong> application. It was created primarily to support this browser-based app for preparing, tabulating, reviewing, and exploring MICS Plus survey data. R performs the calculations; the app provides controls for selecting inputs, running analyses, and examining results.</p>
 <p>Most other package functions perform background tasks for the app or expose its calculation engine. They are documented for understanding the system, testing, and working directly in R. You do not need to call them individually when using the app.</p>
 <p><strong>Purpose.</strong> The system connects the tables you want to produce with the data and preparation steps needed to calculate them. A tabulation plan in Excel records the table definitions, while a survey-specific R script prepares the data and variables. This makes it possible to apply a supplied plan or create and adapt a plan for your own reporting and analysis needs, then repeat the calculations when inputs or specifications change.</p>
-<p><strong>Inputs.</strong> The application uses four matching inputs for a survey:</p>
+<p><strong>Inputs.</strong> The application uses three matching files for a survey, plus an optional FIES helper folder:</p>
 <ul>
 <li><strong>Household data</strong>, supplied as an SPSS <code>.sav</code> file.</li>
 <li><strong>Household-member data</strong>, supplied as a separate SPSS <code>.sav</code> file.</li>
-<li><strong>A tabulation plan (Excel)</strong>, specifying table layouts, row and column groups, conditions, statistics, and display settings.</li>
-<li><strong>A preparation folder</strong>, containing the R script and any supporting files needed to prepare the data used by the plan.</li>
+<li><strong>A tabulation plan (Excel)</strong>, specifying table layouts, row and column groups, conditions, statistics, and display settings. Its <strong>Preparation File</strong> sheet holds the preparation R code.</li>
+<li><strong>A preparation folder (optional)</strong>, containing <strong>FIES-inputs</strong> helper files. Used only when the embedded preparation code needs these helpers.</li>
 </ul>
 <p><strong>Features.</strong> You can obtain supplied plans and preparation materials, prepare survey data, calculate a selected table, review consistency checks, and run several tables together. The application also lets you inspect prepared data, explore frequencies and cross-tabulations, and combine calculated table cells into a data file for further use. Worksheet filters, weights, statistics, and display settings control the tables you define.</p>
 <p><strong>Results and outputs.</strong> Choose the form that serves your task:</p>
@@ -2459,7 +2459,7 @@ column conditions are handled.</li>
 </ol>
 <p>These routes follow the <a href="https://docs.posit.co/ide/user/ide/guide/code/projects.html">RStudio project instructions</a>. To switch surveys later, stop the app and use <strong>File &gt; Open Project</strong> again.</p>
 <p><strong>Check your location:</strong> the project name should appear at the top right of RStudio.</p>
-<p><strong>Your files:</strong> keep your supplied survey data, tabulation plan, and complete preparation folder inside an <strong>inputs</strong> subfolder if convenient. Copying files into the project does not load them into the app; you will select them with <strong>Browse</strong> during <a href="#data-preparation">Data Preparation</a>. Files may also remain in another accessible folder. Keep the project available while working; extract ZIP folders first if you downloaded the inputs as ZIP folders.</p>
+<p><strong>Your files:</strong> keep your supplied survey data, tabulation plan, and optional FIES helper folder inside an <strong>inputs</strong> subfolder if convenient. Copying files into the project does not load them into the app; you will select them with <strong>Browse</strong> during <a href="#data-preparation">Data Preparation</a>. Files may also remain in another accessible folder. Keep the project available while working; extract ZIP folders first if you downloaded the inputs as ZIP folders.</p>
 <p>The app normally creates <strong>micsPlusTableR-output</strong> inside your project for Excel results. Browser downloads may go to <strong>Downloads</strong> instead. The <strong>Write to Excel</strong> screen shows the actual saved workbook paths.</p>
 <div style="page-break-after: always;"></div>
 </section>
@@ -2535,7 +2535,7 @@ column conditions are handled.</li>
 <p>If your inputs are already available, go to <a href="#check-inputs">Check your input set</a>. Otherwise, use one of the download routes below for supplied plans and preparation files.</p>
 <section id="download-with-the-app" class="level2">
 <h2 class="anchored" data-anchor-id="download-with-the-app">Download with the app</h2>
-<p>Surveys are named by country, survey period, and wave, for example <strong>Jamaica (2023-24) Wave 1</strong>. The download choices and survey folders use the same names. Each survey contains its tabulation plan and a <code>prep-files-</code> folder with the matching survey name. Keep the preparation folder and its contents together.</p>
+<p>Surveys are named by country, survey period, and wave, for example <strong>Jamaica (2023-24) Wave 1</strong>. The download choices and survey folders use the same names. Each survey contains its tabulation plan and may include a <code>prep-files-</code> folder for FIES helpers. Keep helper folders intact. For version 0.5.0, the plan must include the <strong>Preparation File</strong> sheet; older plans need their R script copied into that sheet before use.</p>
 <ol type="1">
 <li>Open <strong>Download Files</strong> and click <strong>Load / refresh surveys</strong>. Internet access and a public files repository are needed to load the list.</li>
 <li>To download <strong>one</strong> folder, keep <strong>Selected surveys</strong> and tick that survey, such as <code>Jamaica (2023-24) Wave 1</code>. To download <strong>several</strong>, tick each survey you want. For <strong>every</strong> published survey folder, select <strong>All surveys</strong>.</li>
@@ -2590,7 +2590,7 @@ column conditions are handled.</li>
 </section>
 <section id="check-inputs" class="level2">
 <h2 class="anchored" data-anchor-id="check-inputs">Check your input set</h2>
-<p>Keep these <strong>four items for the same country, period, and wave</strong> together in your survey project’s <strong>inputs</strong> folder, or another folder you can find again. The household and household members data files come from the MICS Plus website with permission. Use a tabulation plan and preparation folder supplied by your team or downloaded from <code>micsPlusTableR-Files</code>, or your own compatible versions. Once all four items are ready, continue to <a href="#data-preparation">Data Preparation</a> in the app.</p>
+<p>Keep the <strong>three files for the same country, period, and wave</strong> together in your survey project’s <strong>inputs</strong> folder. Obtain the household and household members data through the MICS Plus website with permission. Use a compatible tabulation plan supplied by your team, downloaded from <code>micsPlusTableR-Files</code>, or prepared for your survey. The preparation code must be inside its <strong>Preparation File</strong> sheet. A separate preparation folder is needed only for FIES helper files.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 33%">
@@ -2617,13 +2617,13 @@ column conditions are handled.</li>
 </tr>
 <tr class="odd">
 <td>Tabulation plan</td>
-<td>Excel file ending in <code>.xlsx</code></td>
+<td>Excel file with a <strong>Preparation File</strong> sheet</td>
 <td><strong>Select tabulation file</strong></td>
 </tr>
 <tr class="even">
-<td>Preparation folder</td>
-<td>Folder containing the preparation script and its supporting files</td>
-<td><strong>Select preparation folder</strong></td>
+<td>FIES helper folder (optional)</td>
+<td>Folder containing <strong>FIES-inputs</strong></td>
+<td><strong>Select preparation folder (FIES only, optional)</strong></td>
 </tr>
 </tbody>
 </table>
@@ -2633,7 +2633,7 @@ column conditions are handled.</li>
 </section>
 <section id="data-preparation" class="level1">
 <h1>5. Load and prepare your data</h1>
-<p>Open <strong>Data Preparation</strong> in the app. Use the controls below to select your files and preparation folder, then follow <strong>Run Data Preparation</strong> to check the survey choices and click <strong>Set</strong>.</p>
+<p>Open <strong>Data Preparation</strong> in the app. Use the controls below to select your files and, if needed, the FIES helper folder, then follow <strong>Run Data Preparation</strong> to check the survey choices and click <strong>Set</strong>.</p>
 <section id="choose-file" class="level2">
 <h2 class="anchored" data-anchor-id="choose-file">How to choose a file</h2>
 <ol type="1">
@@ -2644,14 +2644,17 @@ column conditions are handled.</li>
 </ol>
 </section>
 <section id="choose-preparation-folder" class="level2">
-<h2 class="anchored" data-anchor-id="choose-preparation-folder">How to choose the preparation folder</h2>
+<h2 class="anchored" data-anchor-id="choose-preparation-folder">Preparation code and optional FIES helpers</h2>
+<p>The app reads R code from the sheet named exactly <strong>Preparation File</strong>. Put the complete script in <strong>A1</strong>, or split it into lines down <strong>column A</strong>. Use no column header and leave other columns empty. Multiline cells and blank lines are supported. Only use preparation code supplied or reviewed by your team, because <strong>Set</strong> executes this code.</p>
+<p>For plans without FIES helper calls, leave the preparation folder empty. An uploaded folder is ignored for these plans. The standalone preparation R file is no longer used.</p>
+<p>If the script uses FIES paths or sources helper scripts:</p>
 <ol type="1">
-<li>If the team supplied a ZIP file, extract it first: on Windows, right-click it and choose <strong>Extract All</strong>; on a Mac, double-click it.</li>
-<li>Beside <strong>Select preparation folder</strong>, click <strong>Browse…</strong>.</li>
-<li>Select the folder that contains the preparation file, then click <strong>Upload</strong>, <strong>Select</strong>, or <strong>Open</strong>, depending on your browser. <strong>Select the folder itself, rather than an individual file inside it</strong>.</li>
-<li>If the browser asks to upload the folder’s files, check its name and confirm.</li>
+<li>Extract the supplied helper ZIP if necessary.</li>
+<li>Beside <strong>Select preparation folder (FIES only, optional)</strong>, click <strong>Browse…</strong>.</li>
+<li>Select the folder containing <strong>FIES-inputs</strong>, or select <strong>FIES-inputs</strong> itself.</li>
+<li>Confirm the folder upload if prompted. Keep the helper files and their relative paths intact.</li>
 </ol>
-<p><strong>Check before continuing:</strong> use the complete preparation folder for the selected survey. Keep any folders inside it, such as <strong>FIES-inputs</strong>, in place. Check the preparation script’s file references if you are unsure which supporting files belong with it.</p>
+<p>FIES artifacts are written into <strong>FIES-outputs</strong> under the output folder. The <strong>Preparation File</strong> sheet is available in the plan preview, excluded from table selectors, and removed from <strong>Formatted Tables</strong> workbooks. <strong>Output Tables</strong> workbooks retain it.</p>
 <div style="page-break-after: always;"></div>
 </section>
 <section id="run-data-preparation" class="level2">
@@ -2664,8 +2667,8 @@ column conditions are handled.</li>
 </div>
 <ol type="1">
 <li>Click <strong>Data Preparation</strong>. Under <strong>Select country and period</strong>, click the small arrow and choose your survey. Choose the matching <strong>wave</strong> below it.</li>
-<li>Use the four <strong>Browse…</strong> controls to <a href="#choose-file">choose the files</a> and <a href="#choose-preparation-folder">select the preparation folder</a>.</li>
-<li>Read <strong>Main prep</strong> below the folder control. Check that it names the intended preparation file. <strong>FIES helpers: none</strong> is normal for surveys without FIES.</li>
+<li><a href="#choose-file">Choose the three files</a>. Select a <a href="#choose-preparation-folder">preparation folder</a> only for FIES helpers.</li>
+<li>Preview <strong>Preparation File</strong> in the tabulation plan and check that it contains the intended preparation code.</li>
 <li>Click <strong>Set</strong> once. If it is below the visible area, scroll down inside the left panel. Wait for preparation to finish.</li>
 <li>Read <strong>Survey info consistency</strong> at the upper right. Check the country, period, and wave. The example says the reference information is consistent.</li>
 </ol>
@@ -3049,7 +3052,7 @@ weight by w</code></pre>
 <p>No cell includes people under 18. D’s filter applies to D-G, including the percentage, its counts, and the mean. It stops at H’s <code>unfilter()</code>. I starts a new filter, which applies to I-K, including the change from <code>mean</code> to <code>mean(age)</code>, and does not include D’s sex restriction. Other row and column conditions still determine what is measured within these populations.</p>
 <p><strong>Statistic changes do not stop filters.</strong> A blank statistic cell also preserves the filter. Only a new <code>filter(...)</code> or <code>unfilter()</code> ends the previous additional filter’s scope.</p>
 <p><strong>When filters run.</strong> For each required population, the engine loads the selected source, applies B, applies any active additional filter, and then runs the block’s calculations. It calculates cell values from that data. The filters therefore affect both the numerator and denominator of a percentage. A filter variable must already exist before those calculations.</p>
-<p>Within each filter block, calculations run in column order. A <code>mutate(...)</code> instruction, which creates a new variable, applies to its own column and later columns; a later recode does not change earlier cells. Column B’s calculation runs once per block. A calculation-only instruction does not end the filter’s column range.</p>
+<p>Calculations run in column order across filter blocks. A <code>mutate(...)</code> instruction, which creates a new variable, applies to its own column and later columns; a later recode does not change earlier cells. Neither <code>filter(...)</code> nor <code>unfilter()</code> resets earlier mutations. At a filter boundary, earlier calculations, including column B’s, replay once in column order on the restored population. A calculation-only instruction does not end the filter’s column range.</p>
 <p><strong>Filters do not reach left.</strong> Adding a filter in G does not change F’s calculated mean. Display suppression still needs an unweighted count: if a new filter separates a cell from its count, the engine uses the next <code>n_unw</code> to its right on the same row and data source when no count is already linked. Existing count links and the small-sample thresholds remain in effect.</p>
 <div style="page-break-after: always;"></div>
 </section>
@@ -3118,7 +3121,7 @@ HCS7 == 1</code></pre>
 - - -
 WS1R == 1 &amp;
 between(WS4, 1, 30)</code></pre>
-<p>Within a horizontal filter block, mutations run left to right; later redefinitions leave earlier results unchanged. Multiple and multiline calls are supported. Filters run first, so create variables needed by filters or across blocks in the preparation script. Mutations use temporary data and do not change prepared <code>hh</code>/<code>hl</code>.</p>
+<p>In horizontal tables, mutations run left to right and persist across <code>filter(...)</code> and <code>unfilter()</code> boundaries. Later redefinitions leave earlier results unchanged. Multiple and multiline calls are supported. Filters run first, so create variables needed by filters in the preparation script. Mutations use temporary data and do not change prepared <code>hh</code>/<code>hl</code>.</p>
 <p>In row-condition cells in column B, both table directions apply mutations top to bottom, before each row’s condition. Variables remain available to following rows; later redefinitions leave earlier results unchanged. Repeated mutations run again. Mutation-only cells mean <code>TRUE</code>, and setup also runs on rows without a statistic. Row conditions do not restrict subsequent rows.</p>
 <div style="page-break-after: always;"></div>
 </section>
@@ -3593,7 +3596,7 @@ total1 == 1</code></pre>
 <li><strong>Console:</strong> the panel where you paste R commands and see messages.</li>
 <li><strong>Package:</strong> an add-on for R; <code>micsPlusTableR</code> contains this application.</li>
 <li><strong>Tabulation plan:</strong> an Excel workbook that specifies the tables to calculate, including their groups, conditions, and statistics.</li>
-<li><strong>Preparation script:</strong> R code that prepares survey data and variables for the tabulation plan.</li>
+<li><strong>Preparation script:</strong> R code in the plan’s <strong>Preparation File</strong> sheet that prepares survey data and variables.</li>
 <li><strong>Sheet:</strong> one page of an Excel workbook, such as <code>1.1a</code>.</li>
 <li><strong>Wave:</strong> one round of the survey. Use the wave your team gave you.</li>
 </ul>

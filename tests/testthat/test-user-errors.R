@@ -83,8 +83,10 @@ test_that("preparation errors identify the script and underlying cause", {
   file.create(hh, hl)
   prep <- tempfile(fileext = ".R")
   writeLines("stop('The survey variable age is missing')", prep)
-  message <- tryCatch(prepare_mics_data(mics_session(), hh, hl, prep), error = conditionMessage)
-  expect_match(message, normalizePath(prep, winslash = "/"), fixed = TRUE)
+  plan <- preparation_plan(prep)
+  message <- tryCatch(prepare_mics_data(mics_session(), hh, hl, plan), error = conditionMessage)
+  expect_match(message, basename(plan), fixed = TRUE)
+  expect_match(message, "Preparation File", fixed = TRUE)
   expect_match(message, "survey variable age is missing", fixed = TRUE)
 })
 

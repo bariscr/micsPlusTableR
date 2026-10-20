@@ -42,14 +42,15 @@ WS1R == 1 &
 between(WS4, 1, 30)
 }\if{html}{\out{</div>}}
 
-Within a horizontal filter block, a mutation applies at its own column and
-continues right. A later mutation can use an earlier variable or redefine
-it for subsequent columns without changing earlier results. Column B's
-calculation is shared by the filter blocks and runs once per block. A
+In horizontal tables, a mutation applies at its own column and continues
+right across \code{filter(...)} and \code{unfilter()} boundaries. A later mutation
+can use an earlier variable or redefine it for subsequent columns without
+changing earlier results. Column B's
+calculation and earlier column mutations replay once per filter block. A
 mutation does not change which secondary filter is active. Filters still
 run before these calculations. Use the preparation script for variables
-needed by filters or across different filter blocks. Worksheet mutations
-operate on temporary data; they do not add columns to prepared \code{hh} or \code{hl}.
+needed by filters. Worksheet mutations operate on temporary data; they
+do not add columns to prepared \code{hh} or \code{hl}.
 Multiline and multiple \code{mutate(...)} instructions are supported.
 
 The same syntax works in row-condition cells in column B, in both table

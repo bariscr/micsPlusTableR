@@ -77,7 +77,7 @@ test_that('horizontal row mutations restart independently for column calculation
     tibble::tibble(row_index = 4L, col_index = 4:6, df = 'hh',
       filter_condition = c(NA, 'filter(sex == 2)', 'unfilter()'),
       calculation = c('mutate(x = x * 10)', NA, NA), weight = 'w'))
-  expect_equal(row_mutation_values(s), c(3, 21, 3, 3, 4, 22, 4, 4))
+  expect_equal(row_mutation_values(s), c(3, 21, 21, 21, 4, 22, 22, 22))
 })
 
 test_that('standalone cell calculation executes row mutations as well', {

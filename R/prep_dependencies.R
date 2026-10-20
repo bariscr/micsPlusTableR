@@ -25,8 +25,7 @@ prep_literal_packages <- function(x, file) {
        call. = FALSE)
 }
 
-prep_dependency_inventory <- function(prep_script) {
-  inputs <- resolve_preparation_inputs(prep_script)
+prep_dependency_inventory <- function(prep_script, inputs = resolve_preparation_inputs(prep_script)) {
   pending <- c(inputs$prep_script, if (!is.null(inputs$fies_inputs_dir)) {
     list.files(inputs$fies_inputs_dir, pattern = "[.][Rr]$", recursive = TRUE, full.names = TRUE)
   })
@@ -137,7 +136,9 @@ prep_package_problem <- function(package) {
 #' preparation dependencies install together and are documented separately in
 #' [prep-script-dependencies]. This is a diagnostic tool; preparation checks
 #' dependencies automatically.
-#' @param prep_script Path to a preparation R script.
+#' @param prep_script Path to a tabulation plan with a `Preparation File`
+#'   sheet, or a standalone R script for dependency inspection.
+#' @param prep_folder Optional FIES helper folder for an embedded script.
 #' @param stop_on_missing Stop with an installation command if a required
 #'   package is missing or cannot be loaded. Defaults to FALSE for inspection.
 #' @return A data frame with `package`, `required_by` (script basenames),
@@ -152,20 +153,30 @@ prep_package_problem <- function(package) {
 #'   compatibility of the survey code. It never executes preparation code.
 #' @seealso [install_prep_dependencies()], [prepare_mics_data()]
 #' @export
-check_prep_dependencies <- function(prep_script, stop_on_missing = FALSE) {
+check_prep_dependencies <- function(prep_script, stop_on_missing = FALSE, prep_folder = NULL) {
+  inputs <- resolve_preparation_inputs(prep_script, prep_folder)
+  if (!is.null(inputs$cleanup_dir)) on.exit(unlink(inputs$cleanup_dir, recursive = TRUE), add = TRUE)
+  check_preparation_inputs(inputs, stop_on_missing)
+}
+
+check_preparation_inputs <- function(inputs, stop_on_missing = FALSE) {
+  prep_script <- inputs$prep_script
   mics_scalar_flag(stop_on_missing, "stop_on_missing")
-  result <- prep_dependency_inventory(prep_script)
+  result <- prep_dependency_inventory(prep_script, inputs)
   result$problem <- vapply(result$package, prep_package_problem, character(1))
   result$available <- is.na(result$problem)
   result <- result[c("package", "required_by", "available", "problem")]
   if (stop_on_missing && any(!result$available)) {
+    source_path <- if (is.null(inputs$tab_plan)) prep_script else inputs$tab_plan
+    folder_arg <- if (is.null(inputs$prep_folder)) "" else paste0(
+      ", prep_folder = ", encodeString(inputs$prep_folder, quote = '"'))
     failed <- result[!result$available, , drop = FALSE]
     lines <- paste0("- ", failed$package, " (", failed$required_by, "): ", failed$problem)
     stop("Preparation script dependencies are missing or cannot be loaded:\n",
          paste(lines, collapse = "\n"),
          "\nMaintained survey dependencies normally install with micsPlusTableR.",
          "\nTo repair this installation or install extra custom-script packages, run:\n  micsPlusTableR::install_prep_dependencies(",
-         encodeString(normalizePath(prep_script, winslash = "/"), quote = '"'), ")",
+         encodeString(normalizePath(source_path, winslash = "/"), quote = '"'), folder_arg, ")",
          call. = FALSE)
   }
   result
@@ -190,15 +201,15 @@ check_prep_dependencies <- function(prep_script, stop_on_missing = FALSE) {
 #' @seealso [check_prep_dependencies()], [prep-script-dependencies]
 #' @export
 install_prep_dependencies <- function(prep_script, repos = "https://cloud.r-project.org",
-                                      lib = .libPaths()[[1L]]) {
+                                      lib = .libPaths()[[1L]], prep_folder = NULL) {
   if (!is.character(lib) || length(lib) != 1L || is.na(lib) ||
       !normalizePath(lib, mustWork = FALSE) %in% normalizePath(.libPaths(), mustWork = FALSE)) {
     stop("'lib' must be one of the active directories in .libPaths().", call. = FALSE)
   }
-  result <- check_prep_dependencies(prep_script)
+  result <- check_prep_dependencies(prep_script, prep_folder = prep_folder)
   missing <- result$package[!result$available]
   if (length(missing)) utils::install.packages(missing, repos = repos, lib = lib)
-  invisible(check_prep_dependencies(prep_script, stop_on_missing = TRUE))
+  invisible(check_prep_dependencies(prep_script, stop_on_missing = TRUE, prep_folder = prep_folder))
 }
 
 bind_preparation_packages <- function(packages, target_env) {

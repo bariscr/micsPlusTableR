@@ -19,8 +19,8 @@ step-by-step instructions. You can read it before installing anything.
 | Part | Role |
 |---|---|
 | **Survey data** | Household and household-member SPSS (`.sav`) files contain the records to analyse. Obtain the matching data separately through MICS with the required access permission. |
-| **Tabulation plan (Excel)** | Defines the tables: datasets, row and column groups, filters, conditions, statistics, weights, and display settings. |
-| **Preparation folder** | Contains the survey-specific R script and supporting files that prepare the data and variables used by the plan. |
+| **Tabulation plan (Excel)** | Defines the tables and includes the preparation R code in its **Preparation File** sheet. |
+| **Preparation folder** | Optional folder containing **FIES-inputs** helper files. Used only when the plan’s embedded preparation code needs FIES helpers. |
 | **micsPlusTableR package and app** | Bring these inputs together to prepare data, calculate and check tables, explore records, and produce outputs. |
 
 The plan, preparation files, and data must match the survey and wave you want
@@ -78,13 +78,13 @@ as Excel, CSV, or RDS files. Exporting is a choice, not a required final step.
    ```
 
 4. **Get the matching survey inputs.** In **Download Files**, load the survey
-   list and download the plan and complete preparation folder for your survey
-   and wave. Obtain the household and household-member data separately. If you
+   list and download the plan for your survey and wave, plus the preparation
+   folder if FIES helpers are needed. Obtain the household and household-member data separately. If you
    already have these inputs, use your existing files.
 
 5. **Prepare and review your tables.** In **Data Preparation**, select the survey
-   and wave, upload the two data files, tabulation plan, and preparation folder,
-   then click **Set**. Open **Tabulator** to calculate a table and
+   and wave, upload the two data files and tabulation plan. Select the preparation
+   folder only for FIES helpers, then click **Set**. Open **Tabulator** to calculate a table and
    **Consistency Checks** to inspect applicable checks. Use **Write to Excel**
    when you want to save a table, or **Multi-Sheet Tabulator** to calculate and
    write several sheets together.
@@ -228,7 +228,9 @@ preview <- pivot_mics_table(session, results, type = "header")
 
 You can also supply prepared data when creating a session:
 `session <- mics_session(hh = hh, hl = hl)`, then read and calculate the plan.
-For raw survey files, use `prepare_mics_data()` first. Reuse the same session
+For raw survey files, use `prepare_mics_data(session, hh_path, hl_path, tab_plan)`
+first. The workbook must contain trusted R code in **Preparation File!A1**
+(or down column A, without a header). Add `prep_folder` only for FIES helpers. Reuse the same session
 for related steps and create separate sessions for independent tests.
 
 Use `tabulate_v(session)` or `tabulate_h(session)` for a loaded plan,
@@ -261,7 +263,7 @@ Or install a built source archive using base R:
 
 ```r
 install.packages(
-  "build/micsPlusTableR_0.4.0.tar.gz",
+  "build/micsPlusTableR_0.5.0.tar.gz",
   repos = NULL,
   type = "source"
 )

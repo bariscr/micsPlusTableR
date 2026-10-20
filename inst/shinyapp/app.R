@@ -186,7 +186,7 @@ make_flextable_allow_dup_cols <- function(df,
 prep_folder_input <- htmltools::tagQuery(
   fileInput(
     "prep_folder",
-    "Select preparation folder",
+    "Select preparation folder (FIES only, optional)",
     multiple = TRUE,
     buttonLabel = "Browse...",
     placeholder = "No folder selected"
@@ -233,32 +233,7 @@ stage_preparation_upload_app <- function(uploaded_files,
     relative_paths
   }
 
-  top_level_r <- which(
-    dirname(inside_paths) == "." &
-      tolower(tools::file_ext(inside_paths)) == "r"
-  )
-  if (!length(top_level_r)) {
-    stop("The selected folder must contain a top-level preparation R file.",
-         call. = FALSE)
-  }
-
-  prep_like <- top_level_r[
-    grepl("prep", basename(inside_paths[top_level_r]), ignore.case = TRUE)
-  ]
-  main_index <- if (length(top_level_r) == 1L) {
-    top_level_r
-  } else if (length(prep_like) == 1L) {
-    prep_like
-  } else {
-    candidates <- if (length(prep_like)) prep_like else top_level_r
-    stop(
-      "The selected folder has multiple possible preparation R files: ",
-      paste(basename(inside_paths[candidates]), collapse = ", "),
-      ". Keep one main prep-like R file at the folder's top level.",
-      call. = FALSE
-    )
-  }
-
+  if (tolower(folder_name) == "fies-inputs") stage_dir <- file.path(stage_dir, "FIES-inputs")
   dir.create(stage_dir, recursive = TRUE, showWarnings = FALSE)
   if (!dir.exists(stage_dir)) {
     stop("The uploaded preparation folder could not be staged.", call. = FALSE)
@@ -274,28 +249,15 @@ stage_preparation_upload_app <- function(uploaded_files,
   }
 
   prep_dir <- normalizePath(stage_dir, winslash = "/", mustWork = TRUE)
-  prep_script <- normalizePath(
-    file.path(stage_dir, inside_paths[[main_index]]),
-    winslash = "/",
-    mustWork = TRUE
-  )
   child_dirs <- list.dirs(prep_dir, full.names = TRUE, recursive = FALSE)
-  fies_dirs <- child_dirs[
-    tolower(basename(child_dirs)) == tolower("FIES-inputs")
-  ]
-  fies_inputs_dir <- if (length(fies_dirs)) {
+  fies_dirs <- child_dirs[tolower(basename(child_dirs)) == "fies-inputs"]
+  fies_inputs_dir <- if (tolower(folder_name) == "fies-inputs") {
+    prep_dir
+  } else if (length(fies_dirs) == 1L) {
     normalizePath(fies_dirs[[1L]], winslash = "/", mustWork = TRUE)
-  } else {
-    NULL
-  }
-
-  list(
-    prep_dir = prep_dir,
-    prep_script = prep_script,
-    fies_inputs_dir = fies_inputs_dir,
-    folder_name = folder_name,
-    uploaded_file_count = nrow(uploaded_files)
-  )
+  } else NULL
+  list(prep_dir = prep_dir, fies_inputs_dir = fies_inputs_dir,
+       folder_name = folder_name, uploaded_file_count = nrow(uploaded_files))
 }
 
 ui <- tagList(
@@ -561,6 +523,8 @@ ui <- tagList(
           fileInput("hh_file", "Select household file", accept = c(".sav")),
           fileInput("hl_file", "Select household members file", accept = c(".sav")),
           fileInput("tab_file", "Select tabulation file", accept = c(".xls", ".xlsx")),
+          tags$p(class = "small text-muted",
+            "Preparation runs from the tab plan’s Preparation File sheet. Select a folder only for FIES helpers."),
           prep_folder_input,
           tags$div(
             class = "small text-muted mt-1 mb-2 text-break",
@@ -1057,10 +1021,6 @@ ensure_current_workbook <- function() {
     )
   })
 
-  prep_script_path <- reactive({
-    prep_folder_selection()$prep_script
-  })
-
   output$prep_folder_info <- renderText({
     if (is.null(input$prep_folder)) return("")
 
@@ -1068,8 +1028,7 @@ ensure_current_workbook <- function() {
       selection <- prep_folder_selection()
       fies_status <- if (is.null(selection$fies_inputs_dir)) "none" else "FIES-inputs"
       paste0(
-        "Main prep: ", basename(selection$prep_script),
-        " | FIES helpers: ", fies_status
+        "FIES helpers: ", fies_status
       )
     }, error = function(e) {
       message <- conditionMessage(e)
@@ -1493,7 +1452,7 @@ observeEvent(input$tab_file, {
     selected = if (length(sheets)) sheets[1] else character(0)
   )
 
-  sheets_local <- setdiff(sheets, "IDX")
+  sheets_local <- setdiff(sheets, c("IDX", "Preparation File"))
   sheets_all_rv(sheets_local)
 
   updateSelectInput(
@@ -1543,23 +1502,29 @@ observeEvent(input$tab_file, {
 
     tryCatch(
       {
-        req(input$hh_file, input$hl_file, input$tab_file, input$prep_folder)
+        req(input$hh_file, input$hl_file, input$tab_file)
         tab_path <- tab_path_rv()
         req(tab_path)
 
         # (optional) ensure global is set (it is already set on upload)
         assign("path_tab_excel", tab_path, envir = engine_env)
 
-        # --- Prepare hh/hl from the selected preparation script ---
+        # --- Prepare hh/hl from the tab plan ---
         hh_path <- input$hh_file$datapath
         hl_path <- input$hl_file$datapath
-        prep_script <- prep_script_path()
+        preparation <- micsPlusTableR:::read_preparation_code(tab_path)
+        prep_folder <- NULL
+        if (preparation$uses_fies && !is.null(input$prep_folder)) {
+          selection <- prep_folder_selection()
+          prep_folder <- if (is.null(selection$fies_inputs_dir)) selection$prep_dir else selection$fies_inputs_dir
+        }
 
         micsPlusTableR::prepare_mics_data(
           engine_env,
           hh_path = hh_path,
           hl_path = hl_path,
-          prep_script = prep_script,
+          tab_plan = tab_path,
+          prep_folder = prep_folder,
           output_dir = excel_root
         )
 

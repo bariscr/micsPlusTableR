@@ -74,11 +74,13 @@ print.mics_tabulation_session <- function(x, ...) {
 #' @param session A session created by [mics_session()].
 #' @param hh_path Path to the household `.sav` file.
 #' @param hl_path Path to the household-member `.sav` file.
-#' @param prep_script Path to the trusted preparation `.R` script. A sibling
-#'   `FIES-inputs` folder is detected automatically.
-#' @param output_dir Main output folder. If the script's folder contains
-#'   `FIES-inputs`, FIES artifacts are written to `FIES-outputs` below this
-#'   folder.
+#' @param tab_plan Path to the tabulation workbook. Its `Preparation File`
+#'   sheet contains trusted R code in A1 or down column A, without a header.
+#' @param output_dir Main output folder. FIES artifacts are written to
+#'   `FIES-outputs` below this folder when the embedded script uses helpers.
+#' @param prep_folder Optional folder containing `FIES-inputs`, or that
+#'   subfolder itself. Required only when the embedded code uses FIES paths
+#'   or sources helper scripts; otherwise ignored.
 #' @details Checks declared and detected preparation dependencies before running
 #'   any preparation code. Maintained survey dependencies install with the package.
 #'   [install_prep_dependencies()] is available for repair or extra custom-script
@@ -88,16 +90,18 @@ print.mics_tabulation_session <- function(x, ...) {
 prepare_mics_data <- function(session,
                               hh_path,
                               hl_path,
-                              prep_script,
-                              output_dir = NULL) {
+                              tab_plan,
+                              output_dir = NULL,
+                              prep_folder = NULL) {
   validate_mics_session(session)
   mics_file(hh_path, "hh_path")
   mics_file(hl_path, "hl_path")
-  prep_inputs <- resolve_preparation_inputs(prep_script)
+  prep_inputs <- stage_plan_preparation(tab_plan, prep_folder)
+  on.exit(unlink(prep_inputs$prep_dir, recursive = TRUE), add = TRUE)
   prep_script <- prep_inputs$prep_script
   prep_dir <- prep_inputs$prep_dir
   fies_inputs_dir <- prep_inputs$fies_inputs_dir
-  prep_packages <- check_prep_dependencies(prep_script, stop_on_missing = TRUE)
+  prep_packages <- check_preparation_inputs(prep_inputs, stop_on_missing = TRUE)
 
   paths <- c(hh_path = hh_path, hl_path = hl_path, prep_script = prep_script)
   missing <- names(paths)[!file.exists(paths)]
@@ -174,11 +178,11 @@ prepare_mics_data <- function(session,
   }
 
   old_dir <- setwd(if (is.null(fies_output_dir)) prep_dir else fies_output_dir)
-  on.exit(setwd(old_dir), add = TRUE)
+  on.exit(setwd(old_dir), add = TRUE, after = FALSE)
 
   tryCatch(base::sys.source(prep_script, envir = prep_env, keep.source = FALSE),
-    error = function(e) mics_abort_context(e, paste0("Preparation script '", prep_script,
-      "' failed. Check the named variable or expression in that script")))
+    error = function(e) mics_abort_context(e, paste0("Preparation script in 'Preparation File' of '",
+      basename(tab_plan), "' failed. Check the named variable or expression in that sheet")))
 
   for (name in c("hh", "hl")) {
     if (!exists(name, envir = prep_env, inherits = FALSE)) {
@@ -214,13 +218,16 @@ prepare_mics_data <- function(session,
   invisible(session)
 }
 
-resolve_preparation_inputs <- function(prep_script) {
+resolve_preparation_inputs <- function(prep_script, prep_folder = NULL) {
   if (!is.character(prep_script) || length(prep_script) != 1L ||
       is.na(prep_script) || !file.exists(prep_script)) {
     stop("The preparation script does not exist.", call. = FALSE)
   }
+  if (tolower(tools::file_ext(prep_script)) %in% c("xls", "xlsx")) {
+    return(stage_plan_preparation(prep_script, prep_folder))
+  }
   if (tolower(tools::file_ext(prep_script)) != "r") {
-    stop("The preparation input must be an R file.", call. = FALSE)
+    stop("The preparation input must be an R file or an Excel tabulation plan.", call. = FALSE)
   }
   prep_script <- normalizePath(prep_script, winslash = "/", mustWork = TRUE)
   prep_dir <- dirname(prep_script)
@@ -280,32 +287,7 @@ stage_preparation_upload <- function(uploaded_files,
     relative_paths
   }
 
-  top_level_r <- which(
-    dirname(inside_paths) == "." &
-      tolower(tools::file_ext(inside_paths)) == "r"
-  )
-  if (!length(top_level_r)) {
-    stop("The selected folder must contain a top-level preparation R file.",
-         call. = FALSE)
-  }
-
-  prep_like <- top_level_r[
-    grepl("prep", basename(inside_paths[top_level_r]), ignore.case = TRUE)
-  ]
-  main_index <- if (length(top_level_r) == 1L) {
-    top_level_r
-  } else if (length(prep_like) == 1L) {
-    prep_like
-  } else {
-    candidates <- if (length(prep_like)) prep_like else top_level_r
-    stop(
-      "The selected folder has multiple possible preparation R files: ",
-      paste(basename(inside_paths[candidates]), collapse = ", "),
-      ". Keep one main prep-like R file at the folder's top level.",
-      call. = FALSE
-    )
-  }
-
+  if (tolower(folder_name) == "fies-inputs") stage_dir <- file.path(stage_dir, "FIES-inputs")
   dir.create(stage_dir, recursive = TRUE, showWarnings = FALSE)
   if (!dir.exists(stage_dir)) {
     stop("The uploaded preparation folder could not be staged.", call. = FALSE)
@@ -320,20 +302,16 @@ stage_preparation_upload <- function(uploaded_files,
     }
   }
 
-  prep_script <- normalizePath(
-    file.path(stage_dir, inside_paths[[main_index]]),
-    winslash = "/",
-    mustWork = TRUE
-  )
-  prep_inputs <- resolve_preparation_inputs(prep_script)
-
-  c(
-    prep_inputs,
-    list(
-      folder_name = folder_name,
-      uploaded_file_count = nrow(uploaded_files)
-    )
-  )
+  prep_dir <- normalizePath(stage_dir, winslash = "/", mustWork = TRUE)
+  child_dirs <- list.dirs(prep_dir, full.names = TRUE, recursive = FALSE)
+  fies_dirs <- child_dirs[tolower(basename(child_dirs)) == "fies-inputs"]
+  fies_inputs_dir <- if (tolower(folder_name) == "fies-inputs") {
+    prep_dir
+  } else if (length(fies_dirs) == 1L) {
+    normalizePath(fies_dirs[[1L]], winslash = "/", mustWork = TRUE)
+  } else NULL
+  list(prep_dir = prep_dir, fies_inputs_dir = fies_inputs_dir,
+       folder_name = folder_name, uploaded_file_count = nrow(uploaded_files))
 }
 
 resolve_preparation_source <- function(file, prep_dir, fies_inputs_dir = NULL) {
@@ -344,7 +322,8 @@ resolve_preparation_source <- function(file, prep_dir, fies_inputs_dir = NULL) {
   candidates <- c(
     file,
     file.path(prep_dir, file),
-    if (!is.null(fies_inputs_dir)) file.path(fies_inputs_dir, file)
+    if (!is.null(fies_inputs_dir)) file.path(fies_inputs_dir, file),
+    if (!is.null(fies_inputs_dir)) file.path(dirname(fies_inputs_dir), file)
   )
   match <- candidates[file.exists(candidates)]
   if (!length(match)) {

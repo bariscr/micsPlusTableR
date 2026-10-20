@@ -4,7 +4,14 @@
 \alias{prepare_mics_data}
 \title{Run a survey preparation script outside the Shiny application}
 \usage{
-prepare_mics_data(session, hh_path, hl_path, prep_script, output_dir = NULL)
+prepare_mics_data(
+  session,
+  hh_path,
+  hl_path,
+  tab_plan,
+  output_dir = NULL,
+  prep_folder = NULL
+)
 }
 \arguments{
 \item{session}{A session created by \code{\link[=mics_session]{mics_session()}}.}
@@ -13,12 +20,15 @@ prepare_mics_data(session, hh_path, hl_path, prep_script, output_dir = NULL)
 
 \item{hl_path}{Path to the household-member \code{.sav} file.}
 
-\item{prep_script}{Path to the trusted preparation \code{.R} script. A sibling
-\code{FIES-inputs} folder is detected automatically.}
+\item{tab_plan}{Path to the tabulation workbook. Its \verb{Preparation File}
+sheet contains trusted R code in A1 or down column A, without a header.}
 
-\item{output_dir}{Main output folder. If the script's folder contains
-\code{FIES-inputs}, FIES artifacts are written to \code{FIES-outputs} below this
-folder.}
+\item{output_dir}{Main output folder. FIES artifacts are written to
+\code{FIES-outputs} below this folder when the embedded script uses helpers.}
+
+\item{prep_folder}{Optional folder containing \code{FIES-inputs}, or that
+subfolder itself. Required only when the embedded code uses FIES paths
+or sources helper scripts; otherwise ignored.}
 }
 \value{
 The session, invisibly.

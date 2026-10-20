@@ -42,7 +42,8 @@ Call \code{tabulate_mics_table(session)} to calculate results, then
 }
 \section{Start from raw survey files}{
 Create a session and call \code{prepare_mics_data()} with your household file,
-household-member file, and survey preparation script. Then read and calculate
+household-member file, and tabulation plan containing the \code{Preparation File} sheet.
+Supply \code{prep_folder} only when that embedded script uses FIES helpers. Then read and calculate
 the plan, check consistency, and pivot the results before writing them.
 }
 \section{Inspect individual steps}{
@@ -98,13 +99,13 @@ preview <- pivot_mics_table(session, results, type = "header")
 prepared_session <- mics_session(hh = hh, hl = hl)
 results <- tabulate_mics_table(prepared_session, "TabulationPlan.xlsx", "6.2")
 
-# 3. Start from raw files instead, using your survey preparation script.
+# 3. Start from raw files, using the preparation code embedded in the plan.
 session <- mics_session()
 prepare_mics_data(
   session,
   "hh.sav",
   "hl.sav",
-  prep_script = "survey-preparation/survey_prep.R",
+  tab_plan = "TabulationPlan.xlsx",
   output_dir = "micsPlusTableR-output"
 )
 result <- tabulate_mics_table(session, "TabulationPlan.xlsx", "1.1")

@@ -172,7 +172,7 @@ tabulate_h <- function(skip_row_conditions = FALSE) {
       block    = cumsum(is_start)
     )
   
-  # Column B calculations are shared by every filter block, exactly once.
+  # Replay earlier column calculations on each block's restored population.
   shared_calc <- wrap_into_mutate_vec(
     filter_row$calculation[filter_row$col_index == 2L])
 
@@ -202,8 +202,8 @@ tabulate_h <- function(skip_row_conditions = FALSE) {
     df_b <- b$df_base[[1]]
     df0 <- mics_data_source(df_b, environment())
     df_global <- apply_chain_df(df0, global_filter)
-    # Calculation stages do not create filter/suppression boundaries. Each
-    # stage sees only the mutations at or to the left of its starting column.
+    # Calculation stages do not create filter/suppression boundaries. Earlier
+    # mutations survive filter changes and are replayed on restored rows too.
     events <- b$events[[1L]]
     tab_c3 <- tab_c2 |>
       dplyr::filter(col_index >= b$col_start[[1]], col_index < b$col_end_exl[[1]]) |>
@@ -216,8 +216,11 @@ tabulate_h <- function(skip_row_conditions = FALSE) {
     df_stage <- if (is_present(local_filter)) {
       apply_chain_df(df_global, local_filter)
     } else df_global
-    df_stage <- apply_chain_df(df_stage, build_chain(shared_calc))
-    calc_chain <- build_chain(shared_calc)
+    inherited_calc <- wrap_into_mutate_vec(filter_row$calculation[
+      filter_row$col_index > 2L &
+        filter_row$col_index < b$col_start[[1]]])
+    calc_chain <- build_chain(shared_calc, inherited_calc)
+    df_stage <- apply_chain_df(df_stage, calc_chain)
 
     stage_results <- purrr::map_dfr(seq_along(stage_starts), function(j) {
       current <- events[events$col_index == stage_starts[j], , drop = FALSE]

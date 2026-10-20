@@ -131,7 +131,8 @@ read_tabulation <- function(path_tab_excel, sheet) {
     ) |> 
     mutate(
       col_index = as.numeric(str_replace(col_index, "...", "")),
-      instructions = purrr::map(conditions, mics_parse_condition_instruction),
+      instructions = purrr::map2(conditions, col_index,
+        ~ mics_parse_condition_cell(.x, condition_row_index, .y, sheet)),
       df = purrr::map_chr(instructions, "df"),
       filter_condition = purrr::map_chr(instructions, "filter_condition"),
       calculation = purrr::map_chr(instructions, "calculation"),
@@ -172,8 +173,8 @@ read_tabulation <- function(path_tab_excel, sheet) {
     filter(col_index >= 3) |> 
     filter(!col_index %in% empty_cols) |> 
     fill(col_lgc) |> 
-    mutate(col_lgc = purrr::map_chr(col_lgc,
-      ~ mics_parse_condition_instruction(.x)$condition))
+    mutate(col_lgc = purrr::map2_chr(col_lgc, col_index,
+      ~ mics_parse_condition_cell(.x, condition_row_index, .y, sheet)$condition))
 
   # Enabling tatal1 == 1 alike logic in cell
   tab_c0 <-
@@ -514,4 +515,3 @@ out_glob$idx_tab <- idx_tab
   out_glob <<- out_glob
 
 }
-

@@ -4,6 +4,14 @@
 # imported symbols into that environment without attaching packages globally.
 micsPlusTableR:::bind_namespace_symbols(environment())
 
+# Errors remain visible until dismissed, with worksheet/cell details on separate lines.
+show_app_error <- function(message) {
+  shiny::showNotification(
+    shiny::tags$div(style = "white-space: pre-wrap;", paste0("Error: ", message)),
+    type = "error", duration = NULL
+  )
+}
+
 survey_choices <- micsPlusTableR:::read_survey_choices()
 project_dir <- normalizePath(
   getOption("micsPlusTableR.project_dir", here::here()),
@@ -1248,7 +1256,7 @@ ensure_current_workbook <- function() {
       return()
     }
     tryCatch(open_path_os(p), error = function(e) {
-      showNotification(paste("Could not open file:", e$message), type = "error")
+      showNotification(paste("Could not open file:", mics_error_message(e)), type = "error")
     })
   })
 
@@ -1259,7 +1267,7 @@ ensure_current_workbook <- function() {
       return()
     }
     tryCatch(open_path_os(dirname(p)), error = function(e) {
-      showNotification(paste("Could not open folder:", e$message), type = "error")
+      showNotification(paste("Could not open folder:", mics_error_message(e)), type = "error")
     })
   })
 
@@ -1270,7 +1278,7 @@ ensure_current_workbook <- function() {
       return()
     }
     tryCatch(open_path_os(p), error = function(e) {
-      showNotification(paste("Could not open file:", e$message), type = "error")
+      showNotification(paste("Could not open file:", mics_error_message(e)), type = "error")
     })
   })
 
@@ -1281,7 +1289,7 @@ ensure_current_workbook <- function() {
       return()
     }
     tryCatch(open_path_os(dirname(p)), error = function(e) {
-      showNotification(paste("Could not open folder:", e$message), type = "error")
+      showNotification(paste("Could not open folder:", mics_error_message(e)), type = "error")
     })
   })
 
@@ -1590,8 +1598,8 @@ survey_info_msg_rv(
         showNotification("Settings check done (hh/hl prepared; IDX checked).", type = "message")
       },
       error = function(e) {
-        survey_info_msg_rv(paste0("❌ Error: ", e$message))
-        showNotification(paste("Error:", e$message), type = "error")
+        survey_info_msg_rv(paste0("❌ Error: ", mics_error_message(e)))
+        show_app_error(mics_error_message(e))
       }
     )
   })
@@ -1730,7 +1738,7 @@ survey_info_msg_rv(
         showNotification("Done.", type = "message")
       },
       error = function(e) {
-        showNotification(paste("Error:", e$message), type = "error")
+        show_app_error(mics_error_message(e))
       }
     )
   })
@@ -1809,7 +1817,7 @@ survey_info_msg_rv(
         )
       },
       error = function(e) {
-        showNotification(paste("Error:", e$message), type = "error")
+        show_app_error(mics_error_message(e))
       }
     )
   })
@@ -1824,7 +1832,7 @@ survey_info_msg_rv(
         showNotification(paste("Written to Output:", dest_rv()), type = "message")
       },
       error = function(e) {
-        showNotification(paste("Error:", e$message), type = "error")
+        show_app_error(mics_error_message(e))
       }
     )
   })
@@ -1839,7 +1847,7 @@ survey_info_msg_rv(
         showNotification(paste("Written to Formatted:", dest_f_rv()), type = "message")
       },
       error = function(e) {
-        showNotification(paste("Error:", e$message), type = "error")
+        show_app_error(mics_error_message(e))
       }
     )
   })
@@ -1862,7 +1870,7 @@ survey_info_msg_rv(
         showNotification("Checks completed.", type = "message")
       },
       error = function(e) {
-        showNotification(paste("Error:", e$message), type = "error")
+        show_app_error(mics_error_message(e))
       }
     )
   })
@@ -2084,7 +2092,7 @@ modalDialog(
               table_name = NA_character_,
               status = "ERROR",
               elapsed = fmt_elapsed(sheet_sec),
-              message = e$message,
+              message = mics_error_message(e),
               consistency_issues = NA_character_,
               stringsAsFactors = FALSE
             )
@@ -2109,7 +2117,7 @@ modalDialog(
       },
       error = function(e) {
         run_all_running_rv(FALSE)
-        showNotification(paste("Error:", e$message), type = "error")
+        show_app_error(mics_error_message(e))
       }
     )
   })
@@ -2503,12 +2511,12 @@ modalDialog(
 
     expr <- tryCatch(
       rlang::parse_expr(txt),
-      error = function(e) stop("Invalid filter expression: '", txt, "'\n", e$message)
+      error = function(e) stop("Invalid filter expression: '", txt, "'\n", mics_error_message(e))
     )
 
     tryCatch(
       dplyr::filter(ds, !!expr),
-      error = function(e) stop("Filter failed for: '", txt, "'\n", e$message)
+      error = function(e) stop("Filter failed for: '", txt, "'\n", mics_error_message(e))
     )
   }
   # build_crosstab --------------------------------------------------------------------
@@ -2619,7 +2627,7 @@ modalDialog(
       error = function(e) {
         exploration_rv(NULL)
         freq_rv(NULL)
-        showNotification(paste("Error:", e$message), type = "error")
+        show_app_error(mics_error_message(e))
       }
     )
   })

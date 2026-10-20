@@ -1,5 +1,9 @@
 # micsPlusTableR 0.5.0
 
+* Show the underlying error in app notifications and batch results. Invalid
+  condition-row instructions identify the worksheet and Excel cell, with a
+  specific explanation for a missing closing parenthesis.
+
 * Read preparation R code from the tabulation plan's `Preparation File`
   sheet, in A1 or down column A. `prepare_mics_data()` now takes `tab_plan`
   instead of `prep_script`. Plans must include the embedded preparation sheet.

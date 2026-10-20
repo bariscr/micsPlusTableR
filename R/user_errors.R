@@ -50,13 +50,17 @@ mics_sheet <- function(path, sheet) {
   invisible(sheet)
 }
 
-mics_abort_context <- function(error, context) {
-  # Unwrap indexed map/dplyr errors while retaining the specific underlying cause.
+mics_error_message <- function(error) {
+  # Keep our worksheet/cell context, but omit internal map/dplyr wrappers.
   cause <- error
   while (inherits(cause$parent, "condition") &&
          !inherits(cause, "mics_user_error")) cause <- cause$parent
+  conditionMessage(cause)
+}
+
+mics_abort_context <- function(error, context) {
   stop(structure(list(
-    message = paste0(context, ":\n", conditionMessage(cause)),
+    message = paste0(context, ":\n", mics_error_message(error)),
     call = NULL, parent = error
   ), class = c("mics_user_error", "error", "condition")))
 }

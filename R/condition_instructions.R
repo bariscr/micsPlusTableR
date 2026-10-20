@@ -25,8 +25,7 @@ mics_parse_condition_instruction <- function(x) {
         parsed <- tryCatch(parse(text = instruction), error = identity)
         if (!inherits(parsed, "error")) break
         if (i == length(lines) || grepl("^\\s*-\\s*-\\s*-\\s*$", lines[[i + 1L]])) {
-          stop("Invalid condition-row instruction: ", instruction,
-               "\n", conditionMessage(parsed), call. = FALSE)
+          mics_instruction_error(instruction, parsed)
         }
         i <- i + 1L
         instruction <- paste(instruction, trimws(lines[[i]]), sep = "\n")
@@ -51,6 +50,29 @@ mics_parse_condition_instruction <- function(x) {
   if (length(calculations)) out$calculation <- paste(calculations, collapse = " |> ")
   if (length(predicates)) out$condition <- paste(predicates, collapse = " ")
   out
+}
+
+# Locate syntax errors using the original worksheet coordinates.
+mics_parse_condition_cell <- function(x, row, column, sheet) {
+  tryCatch(mics_parse_condition_instruction(x), error = function(e) {
+    mics_abort_context(e, paste0("Worksheet '", sheet, "', cell ",
+      openxlsx2::int2col(column), row))
+  })
+}
+
+mics_instruction_error <- function(instruction, error) {
+  call_name <- sub("\\s*\\(.*", "", instruction)
+  # Only diagnose a missing ')' when adding it actually makes the R valid.
+  closed <- tryCatch(parse(text = paste0(instruction, ")")), error = function(e) NULL)
+  detail <- if (length(closed) == 1L) {
+    paste0("The ", call_name, "() instruction is missing a closing parenthesis ')'. ",
+           "Add one ')' at the end.")
+  } else {
+    paste0("Check the parentheses, quotes, and arguments in ", call_name,
+           "().\nR details: ", conditionMessage(error))
+  }
+  stop("Invalid condition-row instruction: ", detail,
+       "\nInstruction: ", instruction, call. = FALSE)
 }
 
 # Accept the historical inline form as well as separated/multiline row setup.

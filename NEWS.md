@@ -1,5 +1,10 @@
 # micsPlusTableR 0.5.0
 
+* Show concise app notifications for recognized condition-cell failures, with
+  the full diagnostic message in collapsed Technical details. Unrecognized
+  errors retain their original message; calculation and error-detection logic
+  are unchanged.
+
 * Add an optional `Define` sheet with `id` and `code` columns. Use `define(id)`
   in table condition cells to reuse mutations, including multiline pipelines
   with `|>` or `%>%`. Calls follow the existing mutation persistence rules;

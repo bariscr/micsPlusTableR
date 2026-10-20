@@ -1012,21 +1012,25 @@ support can check the installed package version in RStudio.
 
 ## Read a calculation error
 
-Calculation errors now identify the worksheet and, where available, the
-filter block, Excel row and column, statistic, and condition that
-failed. For example:
+App notifications show a concise message when the failing condition cell
+can be identified reliably. For example:
 
 ``` text
-Worksheet 'Example', horizontal block 2, starting column 4 ...
-Excel row 9, column 4; column condition: age >= 18; statistic: p
-object 'age' not found
+Worksheet '6.3', cell B47:
+Variable 'ch117relresp' was not found.
+Condition: ch117relresp == 1
 ```
 
-Here, `age` is missing from the prepared data used for that block. The
-row and column refer to positions in the tabulation plan. A block is a
-group of columns that share a filter. An index alone (such as “In index:
-1”) does not explain the cause; keep the complete message, including the
-expression and the final cause.
+Expand **Technical details** to see the complete diagnostic message,
+including the filters and mutation chain. Include those details when
+reporting a problem. Notifications remain visible until dismissed.
+Errors that cannot be summarized reliably keep their original message.
+This affects display only; calculations and error detection are unchanged.
+Batch results and direct R calls retain their existing full messages.
+
+Here, the variable is missing from the prepared data, and B47 is the
+condition cell in the tabulation plan. An index alone (such as “In index:
+1”) does not explain the cause.
 
 - **Prepared data source unavailable:** confirm that data preparation
   finished and that the plan names the correct household or

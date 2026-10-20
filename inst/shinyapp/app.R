@@ -5,9 +5,9 @@
 micsPlusTableR:::bind_namespace_symbols(environment())
 
 # Errors remain visible until dismissed, with worksheet/cell details on separate lines.
-show_app_error <- function(message) {
+show_app_error <- function(error) {
   shiny::showNotification(
-    shiny::tags$div(style = "white-space: pre-wrap;", paste0("Error: ", message)),
+    micsPlusTableR:::mics_error_notification_ui(error),
     type = "error", duration = NULL
   )
 }
@@ -1599,7 +1599,7 @@ survey_info_msg_rv(
       },
       error = function(e) {
         survey_info_msg_rv(paste0("❌ Error: ", mics_error_message(e)))
-        show_app_error(mics_error_message(e))
+        show_app_error(e)
       }
     )
   })
@@ -1738,7 +1738,7 @@ survey_info_msg_rv(
         showNotification("Done.", type = "message")
       },
       error = function(e) {
-        show_app_error(mics_error_message(e))
+        show_app_error(e)
       }
     )
   })
@@ -1817,7 +1817,7 @@ survey_info_msg_rv(
         )
       },
       error = function(e) {
-        show_app_error(mics_error_message(e))
+        show_app_error(e)
       }
     )
   })
@@ -1832,7 +1832,7 @@ survey_info_msg_rv(
         showNotification(paste("Written to Output:", dest_rv()), type = "message")
       },
       error = function(e) {
-        show_app_error(mics_error_message(e))
+        show_app_error(e)
       }
     )
   })
@@ -1847,7 +1847,7 @@ survey_info_msg_rv(
         showNotification(paste("Written to Formatted:", dest_f_rv()), type = "message")
       },
       error = function(e) {
-        show_app_error(mics_error_message(e))
+        show_app_error(e)
       }
     )
   })
@@ -1870,7 +1870,7 @@ survey_info_msg_rv(
         showNotification("Checks completed.", type = "message")
       },
       error = function(e) {
-        show_app_error(mics_error_message(e))
+        show_app_error(e)
       }
     )
   })
@@ -2117,7 +2117,7 @@ modalDialog(
       },
       error = function(e) {
         run_all_running_rv(FALSE)
-        show_app_error(mics_error_message(e))
+        show_app_error(e)
       }
     )
   })
@@ -2627,7 +2627,7 @@ modalDialog(
       error = function(e) {
         exploration_rv(NULL)
         freq_rv(NULL)
-        show_app_error(mics_error_message(e))
+        show_app_error(e)
       }
     )
   })

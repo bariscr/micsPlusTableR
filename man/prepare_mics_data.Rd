@@ -24,7 +24,11 @@ prepare_mics_data(
 sheet contains trusted R code in A1 or down column A, without a header.}
 
 \item{output_dir}{Main output folder. FIES artifacts are written to
-\code{FIES-outputs} below this folder when the embedded script uses helpers.}
+\code{FIES-outputs} below this folder when the embedded script uses helpers.
+Preparation does not change the working directory. Scripts must use
+explicit paths, such as file.path(path_fies_output, "results.csv").
+Use \code{\link[=fies_rm_w]{fies_rm_w()}} and \code{\link[=fies_pc_w]{fies_pc_w()}} with output_dir = path_fies_output
+for RM.weights reports.}
 
 \item{prep_folder}{Optional folder containing \code{FIES-inputs}, or that
 subfolder itself. Required only when the embedded code uses FIES paths

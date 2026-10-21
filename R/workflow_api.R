@@ -78,6 +78,10 @@ print.mics_tabulation_session <- function(x, ...) {
 #'   sheet contains trusted R code in A1 or down column A, without a header.
 #' @param output_dir Main output folder. FIES artifacts are written to
 #'   `FIES-outputs` below this folder when the embedded script uses helpers.
+#'   Preparation does not change the working directory. Scripts must use
+#'   explicit paths, such as file.path(path_fies_output, "results.csv").
+#'   Use [fies_rm_w()] and [fies_pc_w()] with output_dir = path_fies_output
+#'   for RM.weights reports.
 #' @param prep_folder Optional folder containing `FIES-inputs`, or that
 #'   subfolder itself. Required only when the embedded code uses FIES paths
 #'   or sources helper scripts; otherwise ignored.
@@ -169,6 +173,11 @@ prepare_mics_data <- function(session,
   prep_env$path_fies <- fies_inputs_dir
   prep_env$fies_output_dir <- fies_output_dir
   prep_env$path_fies_output <- fies_output_dir
+  prep_env$.mics_fies_paths <- if (is.null(fies_inputs_dir)) NULL else
+    list(inputs = fies_inputs_dir, hh = prep_env$hh_path, output = fies_output_dir,
+         survey_label = get0(".fies_survey_label", envir = session, inherits = FALSE))
+  prep_env$fies_rm_w <- fies_rm_w
+  prep_env$fies_pc_w <- fies_pc_w
 
   for (name in c(
     "prep_dir", "prep_script", "fies_inputs_dir", "path_fies",
@@ -176,9 +185,6 @@ prepare_mics_data <- function(session,
   )) {
     assign(name, get(name, envir = prep_env, inherits = FALSE), envir = session)
   }
-
-  old_dir <- setwd(if (is.null(fies_output_dir)) prep_dir else fies_output_dir)
-  on.exit(setwd(old_dir), add = TRUE, after = FALSE)
 
   tryCatch(base::sys.source(prep_script, envir = prep_env, keep.source = FALSE),
     error = function(e) mics_abort_context(e, paste0("Preparation script in 'Preparation File' of '",

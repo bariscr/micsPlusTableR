@@ -1,5 +1,13 @@
 # micsPlusTableR 0.5.0
 
+* Supply a portable FIES runtime for standalone scripts, with explicit paths,
+  one report prefix and automatic output-folder creation. The app supplies its
+  selected paths and survey label when running the same scripts.
+
+* Run preparation without changing the working directory. FIES scripts must
+  use explicit input/output paths. Add fies_rm_w() and fies_pc_w() to direct
+  RM.weights reports to output_dir without changing its calculations.
+
 * Normalize Excel CRLF and CR line breaks in `Define` code before parsing, so
   multiline definitions work without removing their line breaks manually.
 

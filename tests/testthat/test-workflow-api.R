@@ -55,12 +55,14 @@ test_that("an embedded prep script uses the selected FIES helpers", {
   helper_file <- file.path(fies_dir, "fies-helper.R")
   writeLines(c(
     "source('fies-helper.R')",
-    "hh <- data.frame(id = 1, helper = helper_value)",
+    "hh <- data.frame(id = 1, helper = helper_value, helper_wd = helper_wd)",
     "hl <- data.frame(id = 2, helper = helper_value)"
   ), prep_file)
   writeLines(c(
     "helper_value <- 41",
-    "writeLines('FIES result', 'helper-output.txt')"
+    "helper_wd <- getwd()",
+    "stopifnot(identical(.mics_fies_paths$survey_label, 'TEST MICSPlus Wave3'))",
+    "writeLines('FIES result', file.path(path_fies_output, 'helper-output.txt'))"
   ), helper_file)
 
   hh_file <- tempfile(fileext = ".sav")
@@ -72,6 +74,7 @@ test_that("an embedded prep script uses the selected FIES helpers", {
   expect_identical(inputs$fies_inputs_dir, normalizePath(fies_dir, winslash = "/"))
 
   session <- mics_session()
+  session$.fies_survey_label <- "TEST MICSPlus Wave3"
   expect_invisible(prepare_mics_data(
     session,
     hh_path = hh_file,
@@ -82,6 +85,7 @@ test_that("an embedded prep script uses the selected FIES helpers", {
   ))
 
   fies_output <- file.path(output_dir, "FIES-outputs")
+  expect_identical(session$hh$helper_wd, getwd())
   expect_equal(session$hh$helper, 41)
   expect_identical(session$path_fies, normalizePath(fies_dir, winslash = "/"))
   expect_identical(

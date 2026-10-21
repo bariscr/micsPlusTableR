@@ -1527,6 +1527,16 @@ observeEvent(input$tab_file, {
           prep_folder <- if (is.null(selection$fies_inputs_dir)) selection$prep_dir else selection$fies_inputs_dir
         }
 
+        fies_survey <- survey_choices[
+          survey_choices$label %in% input$select_country &
+            survey_choices$wave %in% input$select_wave, , drop = FALSE
+        ]
+        fies_label <- if (preparation$uses_fies && nrow(fies_survey) == 1L) {
+          paste(fies_survey$country_code, "MICSPlus",
+                gsub(" ", "", fies_survey$wave, fixed = TRUE))
+        } else NULL
+        assign(".fies_survey_label", fies_label, envir = engine_env)
+
         micsPlusTableR::prepare_mics_data(
           engine_env,
           hh_path = hh_path,

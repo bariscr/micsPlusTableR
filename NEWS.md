@@ -1,5 +1,9 @@
 # micsPlusTableR 0.5.0
 
+* Preserve existing preparation variables and custom helpers when loading FIES
+  dependencies. In particular, a group_vars column-name vector must not be
+  replaced by dplyr's function of the same name.
+
 * Supply a portable FIES runtime for standalone scripts, with explicit paths,
   one report prefix and automatic output-folder creation. The app supplies its
   selected paths and survey label when running the same scripts.

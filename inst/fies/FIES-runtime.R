@@ -89,10 +89,12 @@ fies_load_dependencies <- function(target_env) {
     stop("Install the required R packages first: install.packages(c(",
          paste(sprintf('"%s"', missing), collapse = ", "), "))", call. = FALSE)
   }
-  # Bind the functions in the analysis environment; no app or package attachment
-  # is required, and dplyr retains precedence for common data operations.
+  # Preserve the caller's objects (for example a group_vars character vector).
+  # Take this snapshot before importing so later packages still take precedence
+  # over earlier imports, without replacing preparation data or custom helpers.
+  existing <- ls(envir = target_env, all.names = TRUE)
   for (package in c("survey", "RM.weights", "reshape2", "dplyr", "ggplot2")) {
-    for (name in getNamespaceExports(package)) {
+    for (name in setdiff(getNamespaceExports(package), existing)) {
       assign(name, getExportedValue(package, name), envir = target_env)
     }
   }

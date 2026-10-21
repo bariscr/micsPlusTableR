@@ -27,6 +27,23 @@ test_that("helper discovery is independent of survey prefixes and rejects ambigu
   expect_error(fies_input_file(inputs, "helper.R"), "found 2")
 })
 
+test_that("FIES imports preserve preparation objects and package precedence", {
+  target <- new.env(parent = baseenv())
+  target$group_vars <- c("area", "headsex")
+  target$filter <- function(x) x
+  original_filter <- target$filter
+  fies_load_dependencies(target)
+  expect_identical(target$group_vars, c("area", "headsex"))
+  expect_identical(target$filter, original_filter)
+  selected <- dplyr::select(data.frame(area = 1, headsex = 2, other = 3),
+                            dplyr::all_of(target$group_vars))
+  expect_identical(names(selected), target$group_vars)
+  expect_identical(target$mutate, dplyr::mutate)
+  expect_identical(target$summarise, dplyr::summarise)
+  fies_load_dependencies(target)
+  expect_identical(target$group_vars, c("area", "headsex"))
+})
+
 test_that("distributed runtime matches package helpers and needs no package environment", {
   runtime <- system.file("fies", "FIES-runtime.R", package = "micsPlusTableR")
   standalone <- new.env(parent = baseenv())

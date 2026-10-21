@@ -23,6 +23,8 @@ mics_read_definitions <- function(path) {
 # Parse the original source before deparsing: R rewrites native pipes, so
 # injecting the data AFTER deparsing would attach it to the wrong mutate().
 mics_compile_definition <- function(code) {
+  # Excel cells can contain CRLF or CR line breaks; R text parsing needs LF.
+  code <- gsub("\r\n?", "\n", code)
   parsed <- parse(text = code, keep.source = TRUE)
   if (!length(parsed)) stop("The definition contains no mutation code.", call. = FALSE)
   sources <- attr(parsed, "srcref")

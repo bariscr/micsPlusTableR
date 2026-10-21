@@ -38,6 +38,31 @@ test_that("definitions support both pipes, multiple mutations and current filter
   }
 })
 
+test_that("multiline Excel definitions accept LF, CRLF and CR line breaks", {
+  hh <- data.frame(total = 1, w = 1, sex = c(1, 2, 2))
+  compile <- micsPlusTableR:::mics_compile_definition
+  for (pipe in c("|>", "%>%")) {
+    lines <- c(
+      "# a comment must end before the mutation",
+      "mutate(",
+      "  z = n()",
+      paste0(") ", pipe),
+      "mutate(z = z + 1)",
+      "mutate(note = 'literal \\r\\n escapes')"
+    )
+    expected <- compile(paste(lines, collapse = "\n"))
+    for (newline in c("\n", "\r\n", "\r")) {
+      code <- paste(lines, collapse = newline)
+      expect_identical(compile(code), expected)
+      path <- definition_plan(code)
+      s <- mics_session(hh = hh)
+      read_mics_tabulation(s, path, "6.2")
+      expect_equal(definition_values(s), rep(c(4, 3, 4, 14), 2))
+      expect_identical(s$hh, hh)
+    }
+  }
+})
+
 test_that("definitions are re-read across tables and workbooks without stale code", {
   s <- mics_session(hh = data.frame(total = 1, w = 1, sex = c(1, 2, 2)))
   path <- definition_plan("mutate(z = 7)")

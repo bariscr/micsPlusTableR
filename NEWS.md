@@ -1,5 +1,8 @@
 # micsPlusTableR 0.5.0
 
+* Normalize Excel CRLF and CR line breaks in `Define` code before parsing, so
+  multiline definitions work without removing their line breaks manually.
+
 * Show concise app notifications for recognized condition-cell failures, with
   the full diagnostic message in collapsed Technical details. Unrecognized
   errors retain their original message; calculation and error-detection logic

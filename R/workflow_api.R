@@ -178,6 +178,7 @@ prepare_mics_data <- function(session,
          survey_label = get0(".fies_survey_label", envir = session, inherits = FALSE))
   prep_env$fies_rm_w <- fies_rm_w
   prep_env$fies_pc_w <- fies_pc_w
+  prep_env$run_fies_table <- run_fies_table
 
   for (name in c(
     "prep_dir", "prep_script", "fies_inputs_dir", "path_fies",

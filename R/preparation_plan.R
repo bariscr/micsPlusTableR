@@ -38,7 +38,8 @@ preparation_uses_fies <- function(code) {
     if (is.call(x)) {
       head <- x[[1L]]
       if (is.call(head) && as.character(head[[1L]]) %in% c("::", ":::")) head <- head[[3L]]
-      if (is.symbol(head) && as.character(head) %in% c("source", "sys.source")) uses <<- TRUE
+      if (is.symbol(head) && as.character(head) %in%
+          c("source", "sys.source", "run_fies_table")) uses <<- TRUE
     }
     if (is.call(x) || is.expression(x) || is.pairlist(x)) {
       for (i in seq_along(x)) if (!identical(x[[i]], quote(expr = ))) walk(x[[i]])

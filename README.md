@@ -233,6 +233,27 @@ first. The workbook must contain trusted R code in **Preparation File!A1**
 (or down column A, without a header). Add `prep_folder` only for FIES helpers. Reuse the same session
 for related steps and create separate sessions for independent tests.
 
+Survey FIES scripts can return a standardized `fies_result` data frame so the
+preparation sheet only needs this extra-table block, after preparing `hh` and `hl`:
+
+```r
+food_table <- run_fies_table()
+extra_tables_dict <- list("4.1" = "food_table")
+tables_extra <- names(extra_tables_dict)
+```
+
+The helper discovers exactly one file ending in `script.R` (case-insensitive)
+in the selected `FIES-inputs` folder, supplies the uploaded household path,
+and runs it separately from the prepared datasets. The script must create
+`fies_result` with character `group` and `category` columns and numeric
+`p_mod`, `p_sev`, `count_w`, and `count_unw` columns. Prevalence values are
+proportions: `p_mod` includes severe food insecurity. The helper calculates
+moderate-only prevalence and converts the three prevalence columns to
+percentages, retaining the supplied counts. Questionnaire variables, recoding,
+weights, eligible populations, category mappings and worksheet row order
+remain in the survey script or preparation code. See `?run_fies_table` for
+the output contract. Standalone scripts do not need to call the helper.
+
 Use `tabulate_v(session)` or `tabulate_h(session)` for a loaded plan,
 `calc_cells()` for explicit cell calculations, and the six individual
 `*_total_check()` helpers to investigate one consistency check. Parsing and

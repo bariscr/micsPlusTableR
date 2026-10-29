@@ -259,8 +259,9 @@ For the supplied standalone FIES scripts, open the micsPlusTableR-Files
 R project and declare `hh_path`, `path_fies`, `path_fies_output` and
 `output_prefix` directly at the top of the main script. Paths use `here::here()`
 from the project root. The `source()` and `load()` calls name the exact helper
-and reference files; edit those filenames directly if needed. Create the root
-`FIES-outputs` folder yourself before running the script.
+and reference files; edit those filenames directly if needed. Standalone
+helpers default to `here::here("FIES-inputs")`. The script creates the sibling
+`here::here("FIES-outputs")` folder automatically if it does not exist.
 
 The scripts use ordinary `RM.w()` and `PC.w()` calls. After all calculations
 and table output are finished, the final block moves the explicitly listed
@@ -268,7 +269,7 @@ model reports from the current working directory into `FIES-outputs`.
 Other outputs use `path_fies_output` directly. The report list is editable if
 you enable additional reports. Package loading uses normal `library()` and
 `package::` calls. The scripts do not change working directory, install
-packages, create folders, scan for helpers, or require a runtime file.
+packages, scan for helpers, or require a runtime file.
 Settings and analysis remain together in clearly labeled sections of the
 main script. The same script runs in the app with its selected paths.
 

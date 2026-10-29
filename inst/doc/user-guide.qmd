@@ -715,15 +715,16 @@ The `source()` and `load()` calls name the exact helper and reference files;
 edit them directly if needed. No input filenames are discovered or derived
 from the report label.
 
-Create **FIES-outputs** yourself under the project root before running the
-script. It must already exist. The script uses ordinary `RM.w()` and `PC.w()`
+Standalone helper files belong in **FIES-inputs** under the project root.
+The script creates **FIES-outputs** beside it automatically if missing,
+keeping an existing folder. The script uses ordinary `RM.w()` and `PC.w()`
 calls, which write their native reports into the current working directory.
 After all calculations and table output are finished, the final block moves
 the explicitly listed native reports into **FIES-outputs**. Other outputs use
 `path_fies_output` directly. Edit `report_files` at the end if you enable
 additional model reports. The working directory is never changed.
 Run the script with `source()`, `Rscript`, or selected lines in RStudio.
-Packages load normally; the scripts do not install packages or create folders.
+Packages load normally; the scripts do not install packages.
 See **README-FIES.txt** for the package list.
 
 The main script contains clearly labeled sections for settings, app paths,

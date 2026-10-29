@@ -2,8 +2,9 @@
 
 * Simplify FIES scripts to explicit here::here() paths, exact helper/reference
   filenames and ordinary RM.w()/PC.w() calls. Move the explicitly named native
-  model reports into the existing FIES-outputs folder at the end of the script.
-  Do not change the working directory or create standalone output folders.
+  model reports into FIES-outputs at the end of the script. Standalone runs
+  use root-level FIES-inputs and create the sibling FIES-outputs folder if
+  missing, without changing the working directory.
   Remove the portable runtime, filename discovery and custom dependency loading.
 
 * Run preparation without changing the working directory. FIES scripts must

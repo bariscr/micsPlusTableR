@@ -1,12 +1,10 @@
 # micsPlusTableR 0.5.0
 
-* Preserve existing preparation variables and custom helpers when loading FIES
-  dependencies. In particular, a group_vars column-name vector must not be
-  replaced by dplyr's function of the same name.
-
-* Supply a portable FIES runtime for standalone scripts, with explicit paths,
-  one report prefix and automatic output-folder creation. The app supplies its
-  selected paths and survey label when running the same scripts.
+* Simplify FIES scripts to explicit here::here() paths, exact helper/reference
+  filenames and ordinary RM.w()/PC.w() calls. Move the explicitly named native
+  model reports into the existing FIES-outputs folder at the end of the script.
+  Do not change the working directory or create standalone output folders.
+  Remove the portable runtime, filename discovery and custom dependency loading.
 
 * Run preparation without changing the working directory. FIES scripts must
   use explicit input/output paths. Add fies_rm_w() and fies_pc_w() to direct

@@ -103,6 +103,46 @@ test_that("FIES scripts receive local upload paths and cannot replace preparatio
   expect_error(evalq(run_fies_table(), env), "must create a nonempty data frame")
 })
 
+test_that("survey scripts can move ordinary model reports at the end", {
+  working <- tempfile("ordinary-fies-models-")
+  dir.create(working)
+  starting_dir <- getwd()
+  on.exit(setwd(starting_dir), add = TRUE)
+  setwd(working)
+  env <- fies_test_context(c(
+    "library(RM.weights)",
+    "sys.source(file.path(path_fies, 'models.R'), envir = environment())",
+    "run_models()",
+    "stopifnot(all(file.exists(c('OutputDirect call.csv', 'Direct call_Polytomous_Output.csv', 'Iteration history.csv'))))",
+    "fies_result <- fies_test_result()",
+    "report_files <- c('OutputDirect call.csv', 'Direct call_Polytomous_Output.csv', 'Iteration history.csv')",
+    "stopifnot(all(file.copy(report_files, path_fies_output, overwrite = TRUE)))",
+    "stopifnot(unlink(report_files) == 0L)"
+  ))
+  writeLines(c(
+    "run_models <- function() {",
+    "  x <- as.matrix(expand.grid(rep(list(0:1), 8)))",
+    "  RM.w(x, write.file = TRUE, country = 'Direct call')",
+    "  x <- as.matrix(expand.grid(rep(list(0:2), 4)))",
+    "  PC.w(x, write.file = TRUE, write.iteration = TRUE, country = 'Direct call')",
+    "}"
+  ), file.path(env$.mics_fies_paths$inputs, "models.R"))
+  original_rm <- RM.weights::RM.w
+  original_pc <- RM.weights::PC.w
+  writeLines("keep", "unrelated.csv")
+  invisible(capture.output(result <- evalq(run_fies_table(), env)))
+  expect_equal(result$P_mod[1], 40)
+  expect_true(all(c("OutputDirect call.csv", "Direct call_Polytomous_Output.csv",
+                    "Iteration history.csv") %in% list.files(env$.mics_fies_paths$output)))
+  expect_identical(list.files(working), "unrelated.csv")
+  # Rerunning replaces existing destination reports and still removes originals.
+  invisible(capture.output(evalq(run_fies_table(), env)))
+  expect_identical(readLines("unrelated.csv"), "keep")
+  expect_identical(getwd(), normalizePath(working, winslash = "/"))
+  expect_identical(RM.weights::RM.w, original_rm)
+  expect_identical(RM.weights::PC.w, original_pc)
+})
+
 test_that("a short embedded FIES call stages helpers and registers any table object name", {
   env <- fies_test_context(c(
     "stopifnot(!is.null(get0('.mics_fies_paths', inherits = FALSE)))",

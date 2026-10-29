@@ -1,4 +1,4 @@
-# These helpers are also distributed in FIES-runtime.R for users without the app.
+# Resolve paths supplied by the app before running a survey's FIES script.
 fies_resolve_paths <- function(input_dir, hh_path, output_dir) {
   inputs <- normalizePath(input_dir, winslash = "/", mustWork = TRUE)
   resolve <- function(path) {
@@ -25,33 +25,4 @@ fies_resolve_paths <- function(input_dir, hh_path, output_dir) {
   list(inputs = inputs,
        hh = normalizePath(hh, winslash = "/", mustWork = TRUE),
        output = normalizePath(output, winslash = "/", mustWork = TRUE))
-}
-
-fies_input_file <- function(input_dir, suffix) {
-  files <- list.files(input_dir, full.names = TRUE)
-  found <- files[basename(files) == suffix | endsWith(basename(files), paste0("_", suffix))]
-  if (length(found) != 1L) {
-    stop("Expected one FIES input ending in '", suffix, "' in ", input_dir,
-         "; found ", length(found), ". Keep one set of helpers in this folder.", call. = FALSE)
-  }
-  found[[1L]]
-}
-
-fies_load_dependencies <- function(target_env) {
-  packages <- c("memisc", "Hmisc", "survey", "RM.weights", "reshape2", "dplyr", "ggplot2")
-  missing <- packages[!vapply(packages, requireNamespace, logical(1), quietly = TRUE)]
-  if (length(missing)) {
-    stop("Install the required R packages first: install.packages(c(",
-         paste(sprintf('"%s"', missing), collapse = ", "), "))", call. = FALSE)
-  }
-  # Preserve the caller's objects (for example a group_vars character vector).
-  # Take this snapshot before importing so later packages still take precedence
-  # over earlier imports, without replacing preparation data or custom helpers.
-  existing <- ls(envir = target_env, all.names = TRUE)
-  for (package in c("survey", "RM.weights", "reshape2", "dplyr", "ggplot2")) {
-    for (name in setdiff(getNamespaceExports(package), existing)) {
-      assign(name, getExportedValue(package, name), envir = target_env)
-    }
-  }
-  invisible(NULL)
 }

@@ -706,19 +706,32 @@ Preparation does not change the working directory. Use explicit paths such as
 `fies_rm_w()` or `fies_pc_w()` with `output_dir = path_fies_output`; these
 preserve RM.weights calculations and reports without changing directories.
 
-The supplied JAM FIES scripts can also run without the app or micsPlusTableR.
-Share the complete **FIES-inputs** folder, including **FIES-runtime.R**,
-the helper scripts and reference data. Install the statistical packages listed
-in **README-FIES.txt**. For standalone runs, set `country` and `wave` at the
-top of the main script. These generate the report prefix and default household
-filename. Adjust `hh_path` if needed; `path_fies` defaults to the script folder and `path_fies_output` defaults
-to `../FIES-outputs`. Data and output paths may be absolute or relative to the
-helper folder. The output folder is created if needed. The generated
-`output_prefix` is reused for report titles and filenames. Run the whole
-script with `source()`, RStudio's **Source**, or `Rscript`. In the app, the
-selected paths and survey label are supplied automatically. Code-only
-`prepare_mics_data()` calls supply paths and retain the script's report label.
-Changing paths or the report label does not adapt questionnaire variables or
+The supplied FIES scripts can also run without the app or micsPlusTableR.
+Keep the main script, original survey helpers and reference data together.
+There is no runtime file. Open the micsPlusTableR-Files R project so
+`here::here()` resolves its root. Declare `hh_path`, `path_fies`,
+`path_fies_output` and `output_prefix` directly at the top of the main script.
+The `source()` and `load()` calls name the exact helper and reference files;
+edit them directly if needed. No input filenames are discovered or derived
+from the report label.
+
+Create **FIES-outputs** yourself under the project root before running the
+script. It must already exist. The script uses ordinary `RM.w()` and `PC.w()`
+calls, which write their native reports into the current working directory.
+After all calculations and table output are finished, the final block moves
+the explicitly listed native reports into **FIES-outputs**. Other outputs use
+`path_fies_output` directly. Edit `report_files` at the end if you enable
+additional model reports. The working directory is never changed.
+Run the script with `source()`, `Rscript`, or selected lines in RStudio.
+Packages load normally; the scripts do not install packages or create folders.
+See **README-FIES.txt** for the package list.
+
+The main script contains clearly labeled sections for settings, app paths,
+packages, exact helpers, data preparation, models, plots and prevalence.
+In the app, `run_fies_table()` supplies the selected paths and survey label.
+The same final report-move block runs after the analysis. Code-only
+`prepare_mics_data()` calls supply paths and retain the survey's default
+report label. Changing settings does not adapt questionnaire variables or
 statistical definitions.
 
 The **Preparation File** sheet is available in the plan preview, excluded

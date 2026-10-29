@@ -244,7 +244,8 @@ tables_extra <- names(extra_tables_dict)
 
 The helper discovers exactly one file ending in `script.R` (case-insensitive)
 in the selected `FIES-inputs` folder, supplies the uploaded household path,
-and runs it separately from the prepared datasets. The script must create
+and runs it separately from the prepared datasets. The same main script uses
+the app's selected paths and report label when supplied. The script must create
 `fies_result` with character `group` and `category` columns and numeric
 `p_mod`, `p_sev`, `count_w`, and `count_unw` columns. Prevalence values are
 proportions: `p_mod` includes severe food insecurity. The helper calculates
@@ -253,6 +254,23 @@ percentages, retaining the supplied counts. Questionnaire variables, recoding,
 weights, eligible populations, category mappings and worksheet row order
 remain in the survey script or preparation code. See `?run_fies_table` for
 the output contract. Standalone scripts do not need to call the helper.
+
+For the supplied standalone FIES scripts, open the micsPlusTableR-Files
+R project and declare `hh_path`, `path_fies`, `path_fies_output` and
+`output_prefix` directly at the top of the main script. Paths use `here::here()`
+from the project root. The `source()` and `load()` calls name the exact helper
+and reference files; edit those filenames directly if needed. Create the root
+`FIES-outputs` folder yourself before running the script.
+
+The scripts use ordinary `RM.w()` and `PC.w()` calls. After all calculations
+and table output are finished, the final block moves the explicitly listed
+model reports from the current working directory into `FIES-outputs`.
+Other outputs use `path_fies_output` directly. The report list is editable if
+you enable additional reports. Package loading uses normal `library()` and
+`package::` calls. The scripts do not change working directory, install
+packages, create folders, scan for helpers, or require a runtime file.
+Settings and analysis remain together in clearly labeled sections of the
+main script. The same script runs in the app with its selected paths.
 
 Use `tabulate_v(session)` or `tabulate_h(session)` for a loaded plan,
 `calc_cells()` for explicit cell calculations, and the six individual

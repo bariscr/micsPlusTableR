@@ -3,29 +3,40 @@ read_preparation_code <- function(tab_plan) {
   mics_file(tab_plan, "tab_plan")
   if (!"Preparation File" %in% readxl::excel_sheets(tab_plan)) {
     stop("The tabulation plan must contain a sheet named 'Preparation File'. ",
-         "Put the preparation R code in cell A1 or down column A.", call. = FALSE)
+         "Use 'code' and 'is_included' headers in A1 and B1.", call. = FALSE)
   }
   cells <- readxl::read_excel(tab_plan, sheet = "Preparation File",
     range = readxl::cell_limits(c(1L, 1L), c(NA, NA)),
     col_names = FALSE, col_types = "text", trim_ws = FALSE,
     .name_repair = "minimal")
-  if (!ncol(cells) || !nrow(cells) || all(is.na(cells[[1L]]) | !nzchar(trimws(cells[[1L]])))) {
-    stop("The 'Preparation File' sheet is empty. Put the preparation R code in column A.",
+  if (!ncol(cells) || !nrow(cells)) {
+    stop("The 'Preparation File' sheet is empty. Use 'code' and 'is_included' headers in A1 and B1.",
          call. = FALSE)
   }
-  if (ncol(cells) > 1L && any(vapply(cells[-1L], function(x) {
+  if (ncol(cells) < 2L ||
+      !identical(trimws(as.character(cells[1L, 1:2])), c("code", "is_included"))) {
+    stop("The 'Preparation File' sheet must have 'code' in A1 and 'is_included' in B1.",
+         call. = FALSE)
+  }
+  if (ncol(cells) > 2L && any(vapply(cells[-c(1L, 2L)], function(x) {
     any(!is.na(x) & nzchar(trimws(x)))
   }, logical(1)))) {
-    stop("Keep preparation R code in column A of 'Preparation File'; other columns must be empty.",
+    stop("Use only the 'code' and 'is_included' columns in 'Preparation File'; other columns must be empty.",
          call. = FALSE)
   }
-  lines <- cells[[1L]]
+  # Filter before parsing or dependency inspection: disabled code is inert.
+  flags <- trimws(cells[[2L]][-1L])
+  included <- !is.na(flags) & flags == "1"
+  lines <- cells[[1L]][-1L][included]
   lines[is.na(lines)] <- ""
   code <- gsub("\r\n?", "\n", paste(lines, collapse = "\n"))
   parsed <- tryCatch(parse(text = code, keep.source = FALSE), error = function(e) {
     mics_abort_context(e, "Cannot read R code in the 'Preparation File' sheet")
   })
-  if (!length(parsed)) stop("The 'Preparation File' sheet contains no R instructions.", call. = FALSE)
+  if (!length(parsed)) {
+    stop("The 'Preparation File' sheet contains no included R instructions. ",
+         "Set is_included to 1 for the code to run.", call. = FALSE)
+  }
   list(code = code, uses_fies = preparation_uses_fies(parsed))
 }
 

@@ -21,7 +21,8 @@ prepare_mics_data(
 \item{hl_path}{Path to the household-member \code{.sav} file.}
 
 \item{tab_plan}{Path to the tabulation workbook. Its \verb{Preparation File}
-sheet contains trusted R code in A1 or down column A, without a header.}
+sheet has \code{code} and \code{is_included} headers in A1 and B1. R code starts
+in A2; only rows with \code{is_included} equal to 1 are run, in row order.}
 
 \item{output_dir}{Main output folder. FIES artifacts are written to
 \code{FIES-outputs} below this folder when the embedded script uses helpers.

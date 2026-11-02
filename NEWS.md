@@ -1,3 +1,11 @@
+# micsPlusTableR 0.5.1
+
+* Require `code` and `is_included` headers in the plan's `Preparation File`
+  sheet. Include only code rows whose `is_included` value is `1`, in worksheet
+  order. Skip all other rows before parsing, dependency inspection or FIES
+  helper detection. Migrate all supplied preparation sheets with every
+  existing code piece enabled.
+
 # micsPlusTableR 0.5.0
 
 * Simplify FIES scripts to explicit here::here() paths, exact helper/reference

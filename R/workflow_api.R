@@ -75,7 +75,8 @@ print.mics_tabulation_session <- function(x, ...) {
 #' @param hh_path Path to the household `.sav` file.
 #' @param hl_path Path to the household-member `.sav` file.
 #' @param tab_plan Path to the tabulation workbook. Its `Preparation File`
-#'   sheet contains trusted R code in A1 or down column A, without a header.
+#'   sheet has `code` and `is_included` headers in A1 and B1. R code starts
+#'   in A2; only rows with `is_included` equal to 1 are run, in row order.
 #' @param output_dir Main output folder. FIES artifacts are written to
 #'   `FIES-outputs` below this folder when the embedded script uses helpers.
 #'   Preparation does not change the working directory. Scripts must use

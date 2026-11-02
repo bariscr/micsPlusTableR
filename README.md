@@ -229,8 +229,12 @@ preview <- pivot_mics_table(session, results, type = "header")
 You can also supply prepared data when creating a session:
 `session <- mics_session(hh = hh, hl = hl)`, then read and calculate the plan.
 For raw survey files, use `prepare_mics_data(session, hh_path, hl_path, tab_plan)`
-first. The workbook must contain trusted R code in **Preparation File!A1**
-(or down column A, without a header). Add `prep_folder` only for FIES helpers. Reuse the same session
+first. The workbook's **Preparation File** sheet must have **code** in A1 and
+**is_included** in B1. Put each code piece in column A starting at A2 and set
+its column-B flag to `1` to include it. Only rows marked `1` run, in worksheet
+order; `0`, blanks and other values are skipped before dependency checks.
+Multiline code cells and blank lines are supported.
+Add `prep_folder` only for FIES helpers. Reuse the same session
 for related steps and create separate sessions for independent tests.
 
 Survey FIES scripts can return a standardized `fies_result` data frame so the
@@ -303,7 +307,7 @@ Or install a built source archive using base R:
 
 ```r
 install.packages(
-  "build/micsPlusTableR_0.5.0.tar.gz",
+  "build/micsPlusTableR_0.5.1.tar.gz",
   repos = NULL,
   type = "source"
 )

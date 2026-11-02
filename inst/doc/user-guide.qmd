@@ -533,8 +533,9 @@ Surveys are named by country, survey period, and wave, for example
 **Jamaica (2023-24) Wave 1**. The download choices and survey folders
 use the same names. Each survey contains its tabulation plan and may
 include a `prep-files-` folder for FIES helpers. Keep helper folders intact.
-For version 0.5.0, the plan must include the **Preparation File** sheet;
-older plans need their R script copied into that sheet before use.
+For version 0.5.1, the plan must include the **Preparation File** sheet;
+older plans must add the **code** and **is_included** headers and mark
+each code piece **1** before use.
 
 1.  Open **Download Files** and click **Load / refresh surveys**.
     Internet access and a public files repository are needed to load the
@@ -682,10 +683,13 @@ to check the survey choices and click **Set**.
 ## Preparation code and optional FIES helpers {#choose-preparation-folder}
 
 The app reads R code from the sheet named exactly **Preparation File**.
-Put the complete script in **A1**, or split it into lines down **column A**.
-Use no column header and leave other columns empty. Multiline cells and
-blank lines are supported. Only use preparation code supplied or reviewed
-by your team, because **Set** executes this code.
+Put **code** in A1 and **is_included** in B1. Starting in row 2, put each
+code piece in column A and its inclusion flag in column B. Only rows whose
+flag is **1** are included, in worksheet order. A **0**, blank or other value
+skips that piece before parsing and checking dependencies or FIES helpers.
+Multiline code cells and blank lines are supported. All supplied pieces
+are initially marked **1**. Only use preparation code supplied or reviewed
+by your team, because **Set** executes the included code.
 
 For plans without FIES helper calls, leave the preparation folder empty.
 An uploaded folder is ignored for these plans. The standalone preparation

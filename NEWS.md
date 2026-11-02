@@ -1,5 +1,9 @@
 # micsPlusTableR 0.5.1
 
+* Report missing statistic types with the worksheet name and instructions to
+  enter statistics such as `p` or `n` in the calculation cells. Detect empty
+  or whitespace-only statistic cells before calculating a table.
+
 * Load the survey catalogue automatically when Download Files opens. Fetch
   it without blocking Shiny, disable duplicate refreshes, cache successful
   lists for five minutes, and preserve the last list if refreshing fails.

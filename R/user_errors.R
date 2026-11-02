@@ -70,6 +70,16 @@ mics_sheet_context <- function(env) {
   if (is.null(sheet)) "Tabulation" else paste0("Worksheet '", sheet, "'")
 }
 
+mics_require_statistics <- function(tab, context) {
+  if (is.data.frame(tab) &&
+      (!"stat_type" %in% names(tab) ||
+       !any(!is.na(tab$stat_type) & nzchar(trimws(as.character(tab$stat_type)))))) {
+    stop(context, " has no statistic types defined in the tabulation plan. ",
+         "Enter a statistic such as 'p' (percentage) or 'n' (count) in the calculation cells ",
+         "from column C onward, below the data-source/filter row.", call. = FALSE)
+  }
+}
+
 mics_require_plan <- function(env, direction = NULL) {
   plan <- get0("out_glob", envir = env, inherits = FALSE)
   if (!is.list(plan)) {
@@ -85,6 +95,7 @@ mics_require_plan <- function(env, direction = NULL) {
          "'. Use tabulate_", plan$tab_direction,
          "() or tabulate_mics_table() to select it automatically.", call. = FALSE)
   }
+  mics_require_statistics(plan$tab, mics_sheet_context(env))
   for (name in c("tab", "tab_r", "tab_c", "filter_row")) {
     if (!is.data.frame(plan[[name]]) || !nrow(plan[[name]])) {
       stop("The plan has no usable '", name,

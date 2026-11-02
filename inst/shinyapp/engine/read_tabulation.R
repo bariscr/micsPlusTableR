@@ -111,10 +111,12 @@ read_tabulation <- function(path_tab_excel, sheet) {
     pivot_longer(-row_index,
                  names_to = "col_index",
                  values_to = "stat_type") |> 
+    mutate(stat_type = dplyr::na_if(str_trim(as.character(stat_type)), "")) |>
     fill(stat_type) |> 
     mutate(col_index = as.numeric(col_index)) |> 
     filter(!is.na(stat_type)) # Drop cells where there is no stat_type
   
+  mics_require_statistics(tab_base, paste0("Worksheet '", sheet, "'"))
   tab_base <- mics_normalize_statistics(tab_base)
   out_glob$tab_base <- tab_base
   # -------------------------------------------------------------

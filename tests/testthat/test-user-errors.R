@@ -78,6 +78,56 @@ test_that("workbook errors identify paths, sheets, and malformed plans", {
   expect_error(read_previous_mics_table(path, "Example", skip = -1), "non-negative whole number")
 })
 
+test_that("missing worksheet statistics explain which cells need calculation instructions", {
+  path <- tempfile(fileext = ".xlsx")
+  cells <- matrix(NA_character_, 8, 7)
+  cells[1, 1] <- "Table 2.1a Sources of electricity"
+  cells[1, 7] <- "IDX"
+  cells[3, 3] <- "Total"
+  cells[4, 2] <- "hh.sav\nfilter(total == 1)\nweight by w"
+  cells[4, 3] <- "total == 1"
+  cells[7:8, 1] <- c("Electricity", "Number of households")
+  cells[7:8, 2] <- "total == 1"
+  write_plan <- function() {
+    wb <- openxlsx2::wb_workbook()$add_worksheet("2.1a")$add_worksheet("IDX")
+    wb$add_data("2.1a", cells, col_names = FALSE)
+    wb$add_cell_style("2.1a", dims = "A7:A8", horizontal = "left", indent = 1)
+    wb$add_data("IDX", "Table 2.1a Sources of electricity", col_names = FALSE)
+    wb$save(path, overwrite = TRUE)
+  }
+  for (blank in c(NA_character_, "   ")) {
+    cells[7:8, 3] <- blank
+    write_plan()
+    error <- tryCatch(read_mics_tabulation(mics_session(), path, "2.1a"), error = identity)
+    expect_s3_class(error, "error")
+    message <- micsPlusTableR:::mics_error_display(error)$summary
+    expect_match(message, "Worksheet '2.1a' has no statistic types defined", fixed = TRUE)
+    expect_match(message, "'p' (percentage) or 'n' (count)", fixed = TRUE)
+    expect_match(message, "column C onward, below the data-source/filter row", fixed = TRUE)
+  }
+  cells[7:8, 3] <- c("p", "n")
+  write_plan()
+  s <- mics_session(hh = data.frame(total = 1, w = c(1, 2)))
+  expect_no_error(read_mics_tabulation(s, path, "2.1a"))
+  expect_equal(tabulate_mics_table(s)$value, c(100, 3))
+})
+
+test_that("missing statistics in a supplied plan stay distinct from missing conditions", {
+  for (direction in c("h", "v")) {
+    s <- small_plan_session(direction)
+    for (blank in list(s$out_glob$tab[0, ], NA_character_, "   ")) {
+      if (is.data.frame(blank)) s$out_glob$tab <- blank else {
+        s$out_glob$tab <- small_plan_session(direction)$out_glob$tab
+        s$out_glob$tab$stat_type <- blank
+      }
+      expect_error(tabulate_mics_table(s), "Worksheet 'Example' has no statistic types defined")
+    }
+    s <- small_plan_session(direction)
+    s$out_glob$tab_r <- s$out_glob$tab_r[0, ]
+    expect_error(tabulate_mics_table(s), "no usable 'tab_r' entries")
+  }
+})
+
 test_that("preparation errors identify the script and underlying cause", {
   hh <- tempfile(fileext = ".sav"); hl <- tempfile(fileext = ".sav")
   file.create(hh, hl)

@@ -1,5 +1,12 @@
 # micsPlusTableR 0.5.1
 
+* Load the survey catalogue automatically when Download Files opens. Fetch
+  it without blocking Shiny, disable duplicate refreshes, cache successful
+  lists for five minutes, and preserve the last list if refreshing fails.
+  Bound catalogue requests to 15 seconds with one retry for temporary
+  failures and retain per-request timings for diagnostics. Replace survey
+  checkboxes with a searchable multi-select and Select all/Deselect all.
+
 * Require `code` and `is_included` headers in the plan's `Preparation File`
   sheet. Include only code rows whose `is_included` value is `1`, in worksheet
   order. Skip all other rows before parsing, dependency inspection or FIES

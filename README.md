@@ -77,8 +77,11 @@ as Excel, CSV, or RDS files. Exporting is a choice, not a required final step.
    micsPlusTableR::run_app()
    ```
 
-4. **Get the matching survey inputs.** In **Download Files**, load the survey
-   list and download the plan for your survey and wave, plus the preparation
+4. **Get the matching survey inputs.** Open **Download Files** to load the survey
+   list automatically. Choose surveys in the searchable dropdown, or use
+   **Select all** and **Deselect all**. **Refresh surveys** checks for updates;
+   the last successful list remains available if refreshing fails.
+   Download the plan for your survey and wave, plus the preparation
    folder if FIES helpers are needed. Obtain the household and household-member data separately. If you
    already have these inputs, use your existing files.
 

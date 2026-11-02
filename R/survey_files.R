@@ -48,13 +48,22 @@ list_survey_files <- function(repo = "bariscr/micsPlusTableR-Files", ref = "main
     stop("repo must have the form 'owner/name'.", call. = FALSE)
   }
   base <- paste0("https://api.github.com/repos/", repo)
-  commit <- survey_files_json(paste0(base, "/commits/", utils::URLencode(ref, reserved = TRUE)))
+  sha <- if (grepl("^[a-fA-F0-9]{40}$", ref)) ref else
+    survey_files_commit_sha(survey_files_json(paste0(base, "/commits/", utils::URLencode(ref, reserved = TRUE))))
+  tree <- survey_files_json(paste0(base, "/git/trees/", sha, "?recursive=1"))
+  survey_files_catalogue(tree, sha, repo)
+}
+
+survey_files_commit_sha <- function(commit) {
   sha <- commit$sha
   if (!is.character(sha) || length(sha) != 1L ||
       is.na(sha) || !grepl("^[a-fA-F0-9]{40}$", sha)) {
     stop("GitHub did not return a valid commit.", call. = FALSE)
   }
-  tree <- survey_files_json(paste0(base, "/git/trees/", sha, "?recursive=1"))
+  sha
+}
+
+survey_files_catalogue <- function(tree, sha, repo) {
   if (!identical(tree$truncated, FALSE)) {
     stop("GitHub returned an incomplete file listing; use the repository ZIP download.", call. = FALSE)
   }
@@ -240,8 +249,8 @@ survey_files_safe_path <- function(path) {
     !any(parts %in% c("", ".", "..")) && !grepl("[[:cntrl:]]", path)
 }
 
-survey_files_fetch <- function(url, destfile, quiet = TRUE, headers = NULL) {
-  old <- options(timeout = max(300, getOption("timeout", 60)))
+survey_files_fetch <- function(url, destfile, quiet = TRUE, headers = NULL, timeout = NULL) {
+  old <- options(timeout = if (is.null(timeout)) max(300, getOption("timeout", 60)) else timeout)
   on.exit(options(old), add = TRUE)
   tryCatch({
     status <- suppressWarnings(utils::download.file(
@@ -259,7 +268,7 @@ survey_files_fetch <- function(url, destfile, quiet = TRUE, headers = NULL) {
 survey_files_json <- function(url) {
   path <- tempfile(fileext = ".json")
   on.exit(unlink(path), add = TRUE)
-  survey_files_fetch(url, path, headers = c(Accept = "application/vnd.github+json"))
+  survey_files_fetch(url, path, headers = c(Accept = "application/vnd.github+json"), timeout = 15)
   tryCatch(jsonlite::fromJSON(path, simplifyVector = FALSE), error = function(e) {
     stop("Could not read GitHub's file listing: ", conditionMessage(e), call. = FALSE)
   })

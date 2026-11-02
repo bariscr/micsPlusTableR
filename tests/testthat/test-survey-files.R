@@ -60,6 +60,27 @@ test_that("incomplete and unsafe listings fail explicitly", {
   expect_error(download_survey_files(), "No published")
 })
 
+test_that("pinned revisions avoid a redundant commit lookup", {
+  calls <- character()
+  sha <- strrep("a", 40)
+  local_mocked_bindings(survey_files_json = function(url) {
+    calls <<- c(calls, url)
+    list(truncated = FALSE, tree = list())
+  })
+  result <- list_survey_files(ref = sha)
+  expect_length(calls, 1)
+  expect_match(calls, paste0("/git/trees/", sha), fixed = TRUE)
+  expect_identical(attr(result, "commit"), sha)
+})
+
+test_that("catalogue metadata requests have a short timeout", {
+  local_mocked_bindings(survey_files_fetch = function(url, destfile, headers, timeout) {
+    expect_identical(timeout, 15)
+    writeLines('{"sha":"example"}', destfile)
+  })
+  expect_identical(survey_files_json("https://example.invalid")$sha, "example")
+})
+
 test_that("all, multiple surveys, folder names and individual files can be selected", {
   fixture <- survey_file_fixture()
   calls <- character()

@@ -476,6 +476,7 @@ ui <- tagList(
 
 ")),
   page_navbar(
+    id = "main_nav",
     title = NULL,
     theme = bs_theme(version = 5, bootswatch = "flatly"),
     selected = "Data Preparation",
@@ -863,7 +864,8 @@ ui <- tagList(
 )
 
 server <- function(input, output, session) {
-  micsPlusTableR:::download_files_server("survey_download", project_dir)
+  micsPlusTableR:::download_files_server("survey_download", project_dir,
+    active = reactive(identical(input$main_nav, "Download Files")))
   engine_env <- micsPlusTableR::mics_session()
   micsPlusTableR:::bind_engine_functions(engine_env, environment())
 

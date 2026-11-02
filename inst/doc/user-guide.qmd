@@ -537,13 +537,14 @@ For version 0.5.1, the plan must include the **Preparation File** sheet;
 older plans must add the **code** and **is_included** headers and mark
 each code piece **1** before use.
 
-1.  Open **Download Files** and click **Load / refresh surveys**.
-    Internet access and a public files repository are needed to load the
-    list.
-2.  To download **one** folder, keep **Selected surveys** and tick that
-    survey, such as `Jamaica (2023-24) Wave 1`. To download **several**,
-    tick each survey you want. For **every** published survey folder,
-    select **All surveys**.
+1.  Open **Download Files**. The survey list loads automatically while
+    the app remains responsive. Internet access and a public files
+    repository are needed for an updated list.
+2.  Choose one or more surveys in **Select survey folder(s)**. Type to
+    search, or use **Select all** and **Deselect all**, as in the
+    Multi-Sheet Tabulator. **Refresh surveys** checks for updates and
+    shows **Loading…** while a request is pending. Recent lists are
+    reused for five minutes; a failed refresh keeps the previous list.
 3.  Review **Selected survey folders** for the file count and total
     size.
 4.  Check **Download folder**. It starts at the current project you
@@ -573,10 +574,10 @@ tools to retrieve files.
 
 ![](images/clipboard-2639980333.png)
 
-This picture shows the screen before **Load / refresh surveys** is
-clicked. Your own project path appears in **Download folder**. After
-loading, the available survey checkboxes appear under **Choose one or
-more surveys**.
+This illustration shows an earlier version of the Download Files screen.
+The current screen loads the list automatically and uses a searchable
+survey dropdown with **Select all** and **Deselect all** buttons. Your
+own project path appears in **Download folder**.
 
 {{< pagebreak >}}
 
@@ -1030,7 +1031,7 @@ values.
 
 | What you see | What to do next |
 |------------------------------------|------------------------------------|
-| Download list unavailable | Check internet access and that the files repository is public, then click **Load / refresh surveys**. |
+| Download list unavailable | Check internet access and that the files repository is public, then click **Refresh surveys**. |
 | Download says files already exist | Choose another download folder, or deliberately enable **Replace existing files**. |
 | Missing file or wrong filename | Return to **Data Preparation**, select the correct file, and click **Set** again. Rerun and recheck the table. |
 | Country or wave mismatch | Compare the dropdown choices with the IDX sheet and the country, period, and wave of your input files. Select a matching set. |

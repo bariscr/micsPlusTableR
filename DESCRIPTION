@@ -12,7 +12,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Depends: R (>= 4.2.0)
-Imports: bslib, dplyr, flextable, haven, here, htmltools, htmlwidgets,
+Imports: bslib, curl, dplyr, flextable, haven, here, htmltools, htmlwidgets,
         janitor, jsonlite, later, officer, openxlsx2, purrr, reactable, readr, readxl,
         rlang, shiny, shinyFiles, stringr, tibble, tidyr, tidyxl,
         ggplot2, Hmisc, labelled, memisc, reshape2, RM.weights, survey, srvyr

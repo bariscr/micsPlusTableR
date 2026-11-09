@@ -53,17 +53,17 @@ needed by filters. Worksheet mutations operate on temporary data; they
 do not add columns to prepared \code{hh} or \code{hl}.
 Multiline and multiple \code{mutate(...)} instructions are supported.
 
-Use \code{mics_dichotomize(eligible, condition)} to create a 0/1 variable
-within an eligible population. A true condition gives 1. A false or
-missing condition gives 0. False or missing eligibility gives \code{NA}.
-For example, after creating \code{ea}:
+Use \code{mics_dichotomize(eligible, condition)} to convert a condition to
+1, 0, or \code{NA}. When you supply \code{eligible}, rows with false or missing
+eligibility get \code{NA}. Eligible rows get 1 if the condition is true and
+0 if it is false or missing.
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{mutate(ea1less = mics_dichotomize(
   eligible = between(RS2B, 5, 11),
   condition = ea == 1 & CL3 < 1
 ))
 }\if{html}{\out{</div>}}
-With no separate eligibility rule, use \code{mics_dichotomize(condition = ...)}.
-This converts \code{TRUE} to 1 and \code{FALSE} to 0 and preserves \code{NA}.
+When you omit \code{eligible} and pass \code{condition} by name, the function codes
+the condition directly. True gives 1, false gives 0, and missing gives \code{NA}.
 
 Use \code{mics_any(..., equals = value)} to compare one or more columns of the
 same length to a single nonmissing value. For each row it returns \code{TRUE}
@@ -71,6 +71,21 @@ if any value matches, \code{FALSE} if all values are known and none matches,
 and \code{NA} otherwise.
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{mutate(ea = mics_dichotomize(
   condition = mics_any(CL1A, CL1B, CL1C, CL1X, equals = 1)
+))
+}\if{html}{\out{</div>}}
+
+Use \code{mics_recode(x, zero = ..., missing = ...)} to map codes in one
+numeric column to zero or \code{NA}. Existing \code{NA} values stay missing.
+Explicit rules apply to codes still present in the data, including
+retained user-missing codes. Other user-missing values become \code{NA}.
+Use \code{mics_sum(...)} to add values row by row across columns of the same
+length. It skips missing inputs and returns \code{NA} if every input is
+missing. A recoded zero counts as a value. Set \code{zero} in \code{mics_sum()}
+to apply the same zero codes to every input, or recode each input separately.
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{mutate(hhc_hours = mics_sum(
+  mics_recode(CL8, zero = 97:99),
+  mics_recode(CL10, zero = 97:99),
+  mics_recode(CL13, zero = 97:99)
 ))
 }\if{html}{\out{</div>}}
 

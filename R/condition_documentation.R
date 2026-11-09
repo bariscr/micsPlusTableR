@@ -45,18 +45,18 @@
 #' do not add columns to prepared `hh` or `hl`.
 #' Multiline and multiple `mutate(...)` instructions are supported.
 #'
-#' Use `mics_dichotomize(eligible, condition)` to create a 0/1 variable
-#' within an eligible population. A true condition gives 1. A false or
-#' missing condition gives 0. False or missing eligibility gives `NA`.
-#' For example, after creating `ea`:
+#' Use `mics_dichotomize(eligible, condition)` to convert a condition to
+#' 1, 0, or `NA`. When you supply `eligible`, rows with false or missing
+#' eligibility get `NA`. Eligible rows get 1 if the condition is true and
+#' 0 if it is false or missing.
 #' ```
 #' mutate(ea1less = mics_dichotomize(
 #'   eligible = between(RS2B, 5, 11),
 #'   condition = ea == 1 & CL3 < 1
 #' ))
 #' ```
-#' With no separate eligibility rule, use `mics_dichotomize(condition = ...)`.
-#' This converts `TRUE` to 1 and `FALSE` to 0 and preserves `NA`.
+#' When you omit `eligible` and pass `condition` by name, the function codes
+#' the condition directly. True gives 1, false gives 0, and missing gives `NA`.
 #'
 #' Use `mics_any(..., equals = value)` to compare one or more columns of the
 #' same length to a single nonmissing value. For each row it returns `TRUE`
@@ -65,6 +65,22 @@
 #' ```
 #' mutate(ea = mics_dichotomize(
 #'   condition = mics_any(CL1A, CL1B, CL1C, CL1X, equals = 1)
+#' ))
+#' ```
+#'
+#' Use `mics_recode(x, zero = ..., missing = ...)` to map codes in one
+#' numeric column to zero or `NA`. Existing `NA` values stay missing.
+#' Explicit rules apply to codes still present in the data, including
+#' retained user-missing codes. Other user-missing values become `NA`.
+#' Use `mics_sum(...)` to add values row by row across columns of the same
+#' length. It skips missing inputs and returns `NA` if every input is
+#' missing. A recoded zero counts as a value. Set `zero` in `mics_sum()`
+#' to apply the same zero codes to every input, or recode each input separately.
+#' ```
+#' mutate(hhc_hours = mics_sum(
+#'   mics_recode(CL8, zero = 97:99),
+#'   mics_recode(CL10, zero = 97:99),
+#'   mics_recode(CL13, zero = 97:99)
 #' ))
 #' ```
 #'

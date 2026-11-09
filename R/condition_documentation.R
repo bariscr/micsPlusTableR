@@ -45,6 +45,29 @@
 #' do not add columns to prepared `hh` or `hl`.
 #' Multiline and multiple `mutate(...)` instructions are supported.
 #'
+#' Use `mics_dichotomize(eligible, condition)` to create a 0/1 variable
+#' within an eligible population. A true condition gives 1. A false or
+#' missing condition gives 0. False or missing eligibility gives `NA`.
+#' For example, after creating `ea`:
+#' ```
+#' mutate(ea1less = mics_dichotomize(
+#'   eligible = between(RS2B, 5, 11),
+#'   condition = ea == 1 & CL3 < 1
+#' ))
+#' ```
+#' With no separate eligibility rule, use `mics_dichotomize(condition = ...)`.
+#' This converts `TRUE` to 1 and `FALSE` to 0 and preserves `NA`.
+#'
+#' Use `mics_any(..., equals = value)` to compare one or more columns of the
+#' same length to a single nonmissing value. For each row it returns `TRUE`
+#' if any value matches, `FALSE` if all values are known and none matches,
+#' and `NA` otherwise.
+#' ```
+#' mutate(ea = mics_dichotomize(
+#'   condition = mics_any(CL1A, CL1B, CL1C, CL1X, equals = 1)
+#' ))
+#' ```
+#'
 #' The same syntax works in row-condition cells in column B, in both table
 #' directions. Row mutations run top to bottom before that row's predicate,
 #' and remain available to following rows. Later redefinitions do not affect

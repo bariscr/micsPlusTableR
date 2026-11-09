@@ -53,6 +53,27 @@ needed by filters. Worksheet mutations operate on temporary data; they
 do not add columns to prepared \code{hh} or \code{hl}.
 Multiline and multiple \code{mutate(...)} instructions are supported.
 
+Use \code{mics_dichotomize(eligible, condition)} to create a 0/1 variable
+within an eligible population. A true condition gives 1. A false or
+missing condition gives 0. False or missing eligibility gives \code{NA}.
+For example, after creating \code{ea}:
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{mutate(ea1less = mics_dichotomize(
+  eligible = between(RS2B, 5, 11),
+  condition = ea == 1 & CL3 < 1
+))
+}\if{html}{\out{</div>}}
+With no separate eligibility rule, use \code{mics_dichotomize(condition = ...)}.
+This converts \code{TRUE} to 1 and \code{FALSE} to 0 and preserves \code{NA}.
+
+Use \code{mics_any(..., equals = value)} to compare one or more columns of the
+same length to a single nonmissing value. For each row it returns \code{TRUE}
+if any value matches, \code{FALSE} if all values are known and none matches,
+and \code{NA} otherwise.
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{mutate(ea = mics_dichotomize(
+  condition = mics_any(CL1A, CL1B, CL1C, CL1X, equals = 1)
+))
+}\if{html}{\out{</div>}}
+
 The same syntax works in row-condition cells in column B, in both table
 directions. Row mutations run top to bottom before that row's predicate,
 and remain available to following rows. Later redefinitions do not affect
